@@ -89,7 +89,7 @@
   <group if="$(arg check)">
     <node name="camera_check"
           pkg="camera_calibration" type="cameracheck.py"
-          args="--size 8x6 --square 0.030" output="screen">
+          args="--size 8x6 --square 0.0289" output="screen">
       <remap from="stereo" to="$(arg camera)"/>
     </node>
   </group>
