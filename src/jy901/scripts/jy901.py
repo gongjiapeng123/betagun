@@ -13,6 +13,7 @@ import ctypes
 import datetime
 import traceback
 import math
+import os
 
 # ROS
 import rospy
@@ -21,6 +22,10 @@ from tf.transformations import quaternion_from_euler
 
 
 degrees2rad = math.pi / 180.0
+
+def byte_value(uint8):
+    from platform import python_version
+    return uint8 if python_version()[0] == '3' else chr(uint8)
 
 
 class JY901Protocol(serial.threaded.Packetizer):
@@ -42,7 +47,7 @@ class JY901Protocol(serial.threaded.Packetizer):
         """
         self.buffer.extend(data)
         while 0x55 in self.buffer:  # 如果当前已经收到buffer中第一个数据包的起始字节0x55
-            index = self.buffer.find(0x55)  # 0x55的索引
+            index = self.buffer.find(byte_value(0x55))  # 0x55的索引
             if index == len(self.buffer) - 1:  # 如果0x55后面没有数据
                 break
             if 0x50 & self.buffer[index + 1] != 0x50:  # 不满足数据包格式
@@ -72,7 +77,7 @@ class JY901Protocol(serial.threaded.Packetizer):
 
 
 class JY901Base:
-    def __init__(self, port='COM4', baudrate=115200, timeout=1, verbose=False, callback=None, argv=()):
+    def __init__(self, port=os.environ.get('BETAGUN_JY901_COMPORT'), baudrate=115200, timeout=1, verbose=False, callback=None, argv=()):
         """
         JY901九轴陀螺仪模块
         :param port: 串口设备字符串
@@ -178,7 +183,7 @@ class JY901Base:
             加速度：0x55 0x51 AxL AxH AyL AyH AzL AzH TL TH SUM  ( TL TH 是温度)
             :return:
             """
-            self.temperature = data_values[5]
+            self.temperature = data_values[5] / 100
             self.ax = data_values[2] / 32768.0 * 16
             self.ay = data_values[3] / 32768.0 * 16
             self.az = data_values[4] / 32768.0 * 16
@@ -188,7 +193,7 @@ class JY901Base:
             角速度：0x55 0x52 wxL wxH wyL wyH wzL wzH TL TH SUM ( TL TH 是温度)
             :return:
             """
-            self.temperature = data_values[5]
+            self.temperature = data_values[5] / 100
             self.wx = data_values[2] / 32768.0 * 2000
             self.wy = data_values[3] / 32768.0 * 2000
             self.wz = data_values[4] / 32768.0 * 2000
@@ -198,7 +203,7 @@ class JY901Base:
             角度：0x55 0x53 RollL RollH PitchL PitchH YawL YawH TL TH SUM ( TL TH 是温度)
             :return:
             """
-            self.temperature = data_values[5]
+            self.temperature = data_values[5] / 100
             self.pitch = data_values[2] / 32768.0 * 180
             self.roll = data_values[3] / 32768.0 * 180
             self.yaw = data_values[4] / 32768.0 * 180
@@ -208,7 +213,7 @@ class JY901Base:
             磁场：0x55 0x54 HxL HxH HyL HyH HzL HzH TL TH SUM ( TL TH 是温度)
             :return:
             """
-            self.temperature = data_values[5]
+            self.temperature = data_values[5] / 100
             self.mx = data_values[2]
             self.my = data_values[3]
             self.mz = data_values[4]
@@ -229,7 +234,7 @@ class JY901Base:
         """
         # 解析数据
         self._decode_packet(packet)
-        if self.verbose:
+        if self.verbose == 'raw':
             print('Now is ', self.cnt, 'th packet')
             print('片上时间：', self.chipTime)
             print('温度：', self.temperature)
@@ -239,10 +244,11 @@ class JY901Base:
             print('磁场：', self.mx, self.my, self.mz)
 
         # 转换弧度
-        self.yaw *= degrees2rad
+        yaw_rad = pitch_rad = roll_rad = 0
+        yaw_rad = self.yaw * degrees2rad
         # in AHRS firmware y axis points right, in ROS y axis points left (see REP 103)
-        self.pitch = -self.pitch * degrees2rad
-        self.roll *= degrees2rad
+        pitch_rad = -self.pitch * degrees2rad
+        roll_rad = self.roll * degrees2rad
 
         # This means y and z are correct for ROS, but x needs reversing
         self.imu_msg.linear_acceleration.x = self.ax
@@ -255,7 +261,7 @@ class JY901Base:
         # in AHRS firmware z axis points down, in ROS z axis points up (see REP 103)
         self.imu_msg.angular_velocity.z = -self.wz
 
-        q = quaternion_from_euler(self.roll, self.pitch, self.yaw)
+        q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
         self.imu_msg.orientation.x = q[0]
         self.imu_msg.orientation.y = q[1]
         self.imu_msg.orientation.z = q[2]
@@ -264,6 +270,14 @@ class JY901Base:
         self.imu_msg.header.frame_id = 'base_imu_link'
         self.imu_msg.header.seq = self.cnt
         self.cnt += 1
+
+        if self.verbose == 'ros':
+            print('Now is ', self.cnt, 'th packet')
+            print('温度：', self.temperature)
+            print('加速度：', self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z )
+            print('角速度：', self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z)
+            print('位姿（俯仰、侧滚、航向）：', pitch_rad, roll_rad, yaw_rad)
+
         self.pub.publish(self.imu_msg)
 
         if self.update_data_callback:
@@ -309,7 +323,7 @@ class JY901Base:
                     if 1:
                         buffer.extend(data)
                         while 0x55 in buffer:  # 如果当前已经收到buffer中第一个数据包的起始字节0x55
-                            index = buffer.find(0x55)  # 0x55的索引
+                            index = buffer.find(byte_value(0x55))  # 0x55的索引
                             if index == len(buffer) - 1:  # 如果0x55后面没有数据
                                 break
                             if 0x50 & buffer[index + 1] != 0x50:  # 不满足数据包格式
@@ -331,7 +345,7 @@ class JY901Base:
                         try:
                             buffer.extend(data)
                             while 0x55 in buffer:  # 如果当前已经收到buffer中第一个数据包的起始字节0x55
-                                index = buffer.find(0x55)  # 0x55的索引
+                                index = buffer.find(byte_value(0x55))  # 0x55的索引
                                 if index == len(buffer) - 1:  # 如果0x55后面没有数据
                                     break
                                 if 0x50 & buffer[index + 1] != 0x50:  # 不满足数据包格式
@@ -363,7 +377,7 @@ if __name__ == '__main__':
     # myJY901 = JY901Base(verbose=True, callback=haha, argv=('ok', 'fasdf'))
     # myJY901.update_data_threaded(daemon=False)
 
-    myJY901 = JY901Base(verbose=False)
+    myJY901 = JY901Base(verbose='ros')
     myJY901.update_data()
 
 
