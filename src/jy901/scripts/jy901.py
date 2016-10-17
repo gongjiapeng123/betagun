@@ -246,20 +246,18 @@ class JY901Base:
         # 转换弧度
         yaw_rad = pitch_rad = roll_rad = 0
         yaw_rad = self.yaw * degrees2rad
-        # in AHRS firmware y axis points right, in ROS y axis points left (see REP 103)
+        # JY901的俯仰相关的轴指向右， 但是 ROS 指向左 (see REP 103)
         pitch_rad = -self.pitch * degrees2rad
         roll_rad = self.roll * degrees2rad
 
-        # This means y and z are correct for ROS, but x needs reversing
-        self.imu_msg.linear_acceleration.x = self.ax
-        self.imu_msg.linear_acceleration.y = self.ay
-        self.imu_msg.linear_acceleration.z = self.az
+        # ROS中标准位x轴指向前，y轴指向左边，z轴指向上方，此处微调数值
+        self.imu_msg.linear_acceleration.x = self.ay * 9.79 - 0.5
+        self.imu_msg.linear_acceleration.y = -self.ax * 9.79 + 1.3
+        self.imu_msg.linear_acceleration.z = -self.az * 9.79 + 0.5
 
-        self.imu_msg.angular_velocity.x = self.wx
-        # in AHRS firmware y axis points right, in ROS y axis points left (see REP 103)
-        self.imu_msg.angular_velocity.y = -self.wy
-        # in AHRS firmware z axis points down, in ROS z axis points up (see REP 103)
-        self.imu_msg.angular_velocity.z = -self.wz
+        self.imu_msg.angular_velocity.x = self.wy * degrees2rad - 0.005
+        self.imu_msg.angular_velocity.y = self.wx * degrees2rad + 0.035
+        self.imu_msg.angular_velocity.z = self.wz * degrees2rad
 
         q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
         self.imu_msg.orientation.x = q[0]
@@ -272,11 +270,11 @@ class JY901Base:
         self.cnt += 1
 
         if self.verbose == 'ros':
-            print('Now is ', self.cnt, 'th packet')
+            print('Now is {}th packet'.format(self.cnt))
             print('温度：', self.temperature)
-            print('加速度：', self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z )
-            print('角速度：', self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z)
-            print('位姿（俯仰、侧滚、航向）：', pitch_rad, roll_rad, yaw_rad)
+            print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z))
+            print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z))
+            print('位姿（俯仰、侧滚、航向）： {:0.2f} {:0.2f} {:0.2f}'.format(pitch_rad, roll_rad, yaw_rad))
 
         self.pub.publish(self.imu_msg)
 
