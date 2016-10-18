@@ -1,0 +1,60 @@
+{
+  "name": "betagun-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dev.js",
+  "scripts": {
+    "clean": "rm -rf dist && mkdir dist",
+    "start": "node ./dist/server",
+    "dev": "nodemon",
+    "build": "npm run clean && webpack --progress --config webpack.config",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "liubiggun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liubiggun/koa2-skeleton.git"
+  },
+  "keywords": [
+    "koa2",
+    "mongoose",
+    "Rx"
+  ],
+  "bugs": {
+    "url": "https://github.com/liubiggun/koa2-skeleton/issues"
+  },
+  "dependencies": {
+    "kcors": "^1.3.0",
+    "koa": "^2.0.0",
+    "koa-bodyparser": "^3.2.0",
+    "koa-compose": "^3.1.0",
+    "koa-convert": "^1.2.0",
+    "koa-generic-session": "^1.11.3",
+    "koa-logger": "^1.3.0",
+    "koa-mount": "^1.3.0",
+    "koa-passport": "^2.2.2",
+    "koa-router": "^7.0.1",
+    "koa-static": "^2.0.0",
+    "lodash": "^4.16.4",
+    "log4js": "^0.6.38",
+    "passport-local": "^1.0.0",
+    "rxjs": "^5.0.0-rc.1",
+    "socket.io": "^1.5.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "json-loader": "^0.5.4",
+    "nodemon": "^1.11.0",
+    "webpack": "^1.13.2"
+  },
+  "engines": {
+    "node": ">= 4",
+    "npm": ">= 3"
+  }
+}
