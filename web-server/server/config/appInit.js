@@ -47,7 +47,7 @@ export default function appInit (app) {
       }
     }))
     // 将静态文件服务app挂载在/
-    .use(mount('/', serve(env.app.public_dir, {index: 'index.html', gzip: true})))
+    .use(mount('/', serve(env.PUBLIC_DIR, {index: 'index.html', gzip: true})))
     .use(session())
     .use(passport.initialize())
     .use(passport.session())

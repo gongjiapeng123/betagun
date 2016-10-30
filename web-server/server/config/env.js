@@ -2,25 +2,26 @@
 const path = require("path")
 const _ = require("lodash")
 
-const root_dir = process.env.ROOT_DIR || path.join(__dirname, "/..")
-const public_dir = process.env.PUBLIC_DIR || path.resolve(__dirname, '..', 'public')
-const log_dir = process.env.LOG_DIR || path.resolve(__dirname, '..', '..', 'logs')
-const node_env = process.env.NODE_ENV || "development"
+const NODE_ENV = process.env.NODE_ENV || "development"
+const ROOT_DIR = path.join(__dirname, "/..")
+const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'frontend', 'dist')
+const LOG_DIR = path.resolve(__dirname, '..', '..', 'logs')
+
 
 let base = {
   app: {
-    root_dir,
-    public_dir,
-    log_dir,
-    node_env
-  }
+    name: 'betagun node server',
+  },
+  ROOT_DIR,
+  PUBLIC_DIR,
+  LOG_DIR,
+  NODE_ENV
 }
 
 let specific = {
   development: {
     app: {
-      port: 5000,
-      name: "koa2",
+      port: 61616,
       excluded: "excluded_path"
     },
     db: {
@@ -33,8 +34,7 @@ let specific = {
   },
   production: {
     app: {
-      port: process.env.PORT || 5000,
-      name: "koa2",
+      port: process.env.PORT || 61616,
       excluded: "excluded_path"
     },
     db: {
@@ -47,4 +47,4 @@ let specific = {
   },
 };
 
-module.exports = _.merge(base, specific[node_env])
+module.exports = _.merge(base, specific[NODE_ENV])

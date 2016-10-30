@@ -17,7 +17,7 @@ export default function configLog () {
       {
         category: 'default',
         type: 'file',
-        filename: path.join(env.app.log_dir, 'default.log'),
+        filename: path.join(env.LOG_DIR, 'default.log'),
         maxLogSize: 104857500,
         backups: 100
       },

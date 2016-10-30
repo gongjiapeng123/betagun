@@ -9,13 +9,14 @@ import routerMock from './mock'
 const router = new Router()
 
 
-router.use('/', routerMain.routes())
 router.use('/auth', routerAuth.routes())
 router.use('/mock', routerMock.routes())
+router.use('/', routerMain.routes())
 
-router.get('*', async (ctx, next) => {
-  ctx.body = {status: 404}
-})
+// // 所有都返回 /
+// router.get('*', async (ctx, next) => {
+//   ctx.redirect('/')
+// })
 
 export default function applyRoutes (app) {
   app

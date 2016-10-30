@@ -1,0 +1,16 @@
+{
+  "name": "server_betagun",
+  "version": "1.0.0",
+  "description": "小车TCP服务器",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "liubiggun",
+  "license": "MIT",
+  "dependencies": {
+    "crc": "^3.4.1",
+    "rxjs": "^5.0.0-rc.1",
+    "serialport": "^4.0.3"
+  }
+}

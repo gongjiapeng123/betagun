@@ -49,9 +49,6 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
-        ROOT_DIR: JSON.stringify(path.resolve(__dirname, 'dist')),
-        PUBLIC_DIR: JSON.stringify(path.resolve(__dirname, 'server', 'public')),
-        LOG_DIR: JSON.stringify(path.resolve(__dirname, 'logs'))
       },
     })
   ],
