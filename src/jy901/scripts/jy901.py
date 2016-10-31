@@ -12,7 +12,7 @@ from __future__ import absolute_import
 
 import socket
 import re
-import struct
+from crcmod.predefined import mkCrcFun
 
 # ROS
 import rospy
@@ -29,7 +29,11 @@ def byte_value(uint8):
     return uint8 if python_version()[0] == '3' else chr(uint8)
 
 class JY901:
-    def __init__(self):
+    crc = mkCrcFun('crc-8')
+
+    def __init__(self, verbose=''):
+        self.verbose = verbose
+        
         self.temperature = 0  # 温度
 
         self.ax = 0  # 加速度
@@ -76,14 +80,66 @@ class JY901:
             0, 0, 0.04
         ]
 
-    def _check(self):
+    def _check(self, packet):
         '''
         校验数据包，并获取其中数据
         '''
-        pass
+        data_len = packet[2]
+        data = packet[4: 4 + data_len]
+        check_sum = packet[-2]
+        data_check = dataLine[2, -2]  # 栈长度 + 命令字 + 数据
 
-    def _parse_data(self, packet):
-        pass
+        if self.crc(data_check) == check_sum:
+            return data
+
+    def _parse_and_publish(self, data):
+        self.ax, self.ay, self.az, 
+        self.wx, self.wy, self.wz,
+        self.pitch, self.roll, self.yaw,
+        self.temperature = data.split(b' ')
+
+        if self.verbose == 'raw':
+            print('*' * 20)
+            print('温度：', self.temperature)
+            print('加速度：', self.ax, self.ay, self.az)
+            print('角速度：', self.wx, self.wy, self.wz)
+            print('位姿（俯仰、侧滚、航向）：', self.pitch, self.roll, self.yaw)
+            print('磁场：', self.mx, self.my, self.mz)
+
+        # 转换弧度
+        yaw_rad = pitch_rad = roll_rad = 0
+        yaw_rad = self.yaw * degrees2rad
+        # JY901的俯仰相关的轴指向右， 但是 ROS 指向左 (see REP 103)
+        pitch_rad = -self.pitch * degrees2rad
+        roll_rad = self.roll * degrees2rad
+
+        # ROS中标准位x轴指向前，y轴指向左边，z轴指向上方，此处微调数值
+        self.imu_msg.linear_acceleration.x = self.ay * 9.79 - 0.5
+        self.imu_msg.linear_acceleration.y = -self.ax * 9.79 + 1.3
+        self.imu_msg.linear_acceleration.z = -self.az * 9.79 + 0.5
+
+        self.imu_msg.angular_velocity.x = self.wy * degrees2rad - 0.005
+        self.imu_msg.angular_velocity.y = self.wx * degrees2rad + 0.035
+        self.imu_msg.angular_velocity.z = self.wz * degrees2rad
+
+        q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
+        self.imu_msg.orientation.x = q[0]
+        self.imu_msg.orientation.y = q[1]
+        self.imu_msg.orientation.z = q[2]
+        self.imu_msg.orientation.w = q[3]
+        self.imu_msg.header.stamp = rospy.Time.now()
+        self.imu_msg.header.frame_id = 'base_imu_link'
+        self.imu_msg.header.seq = self.cnt
+        self.cnt += 1
+
+        if self.verbose == 'ros':
+            print('*' * 20)))
+            print('温度：', self.temperature)
+            print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z))
+            print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z))
+            print('位姿（俯仰、侧滚、航向）： {:0.2f} {:0.2f} {:0.2f}'.format(pitch_rad, roll_rad, yaw_rad))
+
+        self.pub.publish(self.imu_msg)
 
     def start(self):
         dataBuf = bytearray()
@@ -102,7 +158,9 @@ class JY901:
                 dataBuf.extend(data)
                 lastIndex = 0
                 for match in self.pattern.finditer(dataBuf):
-                    packet = self._check(match.group())
+                    data = self._check(match.group())
+                    if data is not None:
+                        self._parse_and_publish(data)
                     lastIndex = match.end()
                 # 将已经进行正则匹配过的字符串剪掉
                 if lastIndex > 0:
@@ -114,6 +172,6 @@ class JY901:
 
     
 if __name__ == '__main__':
-    jy901 = JY901()
+    jy901 = JY901(verbose='raw')
     jy901.start()
 
