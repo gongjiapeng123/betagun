@@ -1,3 +1,4 @@
 [submodule "web-server/frontend"]
 	path = web-server/frontend
 	url = https://github.com/liubiggun/betagun_frontend
+	ignore = untracked
