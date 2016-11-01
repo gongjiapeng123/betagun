@@ -67,11 +67,11 @@ const jy901Server = net.createServer((client) => {
 
     })
     .on('end', () => {  // 连接结束时
-      subscription.unsubscribe()
+      subscription && subscription.unsubscribe()
       console.log(`client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
-      subscription.unsubscribe()
+      subscription && subscription.unsubscribe()
       console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 

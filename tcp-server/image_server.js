@@ -99,14 +99,14 @@ const imageServer = net.createServer((client) => {
       if (user == 'python')
         pyConnected = false
 
-      subscription.unsubscribe()
+      subscription && subscription.unsubscribe()
       console.log(`client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
       if (user == 'python')
         pyConnected = false
 
-      subscription.unsubscribe()
+      subscription && subscription.unsubscribe()
       console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 

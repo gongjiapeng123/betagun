@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-连接小车616
+连接小车61612
 '''
 
 from __future__ import print_function
@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 import socket
 import re
+import math
 from crcmod.predefined import mkCrcFun
 
 # ROS
@@ -19,6 +20,7 @@ import rospy
 from sensor_msgs.msg import Imu
 from tf.transformations import quaternion_from_euler
 
+crc = mkCrcFun('crc-8-rohc')
 degrees2rad = math.pi / 180.0
 
 def byte_value(uint8):
@@ -29,8 +31,7 @@ def byte_value(uint8):
     return uint8 if python_version()[0] == '3' else chr(uint8)
 
 class JY901:
-    crc = mkCrcFun('crc-8')
-
+    
     def __init__(self, verbose=''):
         self.verbose = verbose
         
@@ -49,7 +50,8 @@ class JY901:
         self.yaw = 0  # 航向角，对于JY901，是其z轴的旋转角度(指向北时为0度，向西为90度，向东为-90度)
 
         # 以上三个数值由根据模块所标注的x、y、z轴，以右手法则来看，拇指指向自己，顺时针为负值，逆时针为正值
-
+		
+        self.cnt = 0
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.pattern = re.compile(r'\x66\xaa.{3,}\xfc')
 
@@ -87,16 +89,18 @@ class JY901:
         data_len = packet[2]
         data = packet[4: 4 + data_len]
         check_sum = packet[-2]
-        data_check = dataLine[2, -2]  # 栈长度 + 命令字 + 数据
+        data_check = packet[2: -2]  # 栈长度 + 命令字 + 数据
 
-        if self.crc(data_check) == check_sum:
+        if crc(str(data_check)) == check_sum:
             return data
 
     def _parse_and_publish(self, data):
-        self.ax, self.ay, self.az, 
+        data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
+		
+        (self.ax, self.ay, self.az, 
         self.wx, self.wy, self.wz,
         self.pitch, self.roll, self.yaw,
-        self.temperature = data.split(b' ')
+        self.temperature) = data_to_list
 
         if self.verbose == 'raw':
             print('*' * 20)
@@ -104,7 +108,6 @@ class JY901:
             print('加速度：', self.ax, self.ay, self.az)
             print('角速度：', self.wx, self.wy, self.wz)
             print('位姿（俯仰、侧滚、航向）：', self.pitch, self.roll, self.yaw)
-            print('磁场：', self.mx, self.my, self.mz)
 
         # 转换弧度
         yaw_rad = pitch_rad = roll_rad = 0
@@ -133,7 +136,7 @@ class JY901:
         self.cnt += 1
 
         if self.verbose == 'ros':
-            print('*' * 20)))
+            print('*' * 20)
             print('温度：', self.temperature)
             print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z))
             print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z))
@@ -146,7 +149,7 @@ class JY901:
         try:
             self.sock.connect(('127.0.0.1', 61612))
             print("I connect successfully")
-            self.sock.send(b'#python:liubiggun#')
+            self.sock.send(b'#python:gxnu#')
             data = b''
 
             # 数据格式
@@ -154,7 +157,7 @@ class JY901:
             # 0x66  0xaa     0x##      0x81    10 个 字符串       0x##     0xfc
             # JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
             while not rospy.is_shutdown():
-                data = self.sock.recv(512)
+                data = self.sock.recv(1)
                 dataBuf.extend(data)
                 lastIndex = 0
                 for match in self.pattern.finditer(dataBuf):

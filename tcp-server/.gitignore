@@ -2,6 +2,10 @@
 .idea
 .vscode
 
+# data
+jy901.data
+arduino.data
+
 # Logs
 logs
 *.log
