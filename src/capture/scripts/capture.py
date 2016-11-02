@@ -11,7 +11,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 import cv2
-import np as np
+import numpy as np
 import logging
 import logging.config
 from log_config import LOGGING
@@ -19,6 +19,8 @@ import argparse
 import textwrap
 import socket
 
+HEAD = b'\x66\xAA'
+END = b'\xFC'
 
 class Base_:
     '''
@@ -42,13 +44,13 @@ class Base_:
         '''
         if dev_id == 1:
             self.capture1 = cv2.VideoCapture(1)
-            self.capture1.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            self.capture1.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+            self.capture1.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width)
+            self.capture1.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height)
             return self.capture1
         elif dev_id == 0:
             self.capture0 = cv2.VideoCapture(0)
-            self.capture0.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
-            self.capture0.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+            self.capture0.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width)
+            self.capture0.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height)
             return self.capture0
 
     def close_cam(self, dev_id):
@@ -113,6 +115,10 @@ class Capture(Base_):
         self.need_to_show = need_to_show  # 是否在一个窗口显示图像：0不显示，1在一个窗口显示双目图像，2在两个窗口分别显示图像
         self.need_to_connect_server = need_to_connect_server  # 是否需要与服务器通信
 
+        # logger
+        logging.config.dictConfig(LOGGING)
+        self.logger = logging.getLogger('betagun')
+
         self.exit = False  # 是否停止获取图像
 
         self.sock_image = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 61614图像端口
@@ -157,7 +163,7 @@ class Capture(Base_):
         :param frame:
         :param size: 要变换的大小
         :return: 发送给61613数据端口的图像数据
-        ''''
+        '''
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]  # 视频编码参数
         frame = cv2.resize(frame, size, interpolation=cv2.INTER_LINEAR)
         result, img_encode = cv2.imencode('.jpg', frame, encode_param)  # 编码图像
@@ -209,7 +215,6 @@ class Capture(Base_):
             # 发送信息给小车服务器
             if self.need_to_connect_server:
                 self.send_image(frame)
-                self.send_data()
 
             # 是否弹出窗口显示图像
             if self.need_to_show:
