@@ -268,10 +268,7 @@ exports.parseJY901Packet = function (packet) {
 
     const dataToCheck = ByteToString(jy901Info.length) + '\x81' + jy901Info
     jy901Observable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc.crc8(dataToCheck)) + END)  // 发送可观测流
-    // 保存至文件中
-    fs.writeFile('./jy901.dat', jy901Info, (err) => {
 
-    })
     // 复位
     jy901Info = ''
     jy901Completed = 0b000
@@ -398,10 +395,7 @@ exports.parseArduinoPacket = function (packet) {
     // 0x66  0xaa     0x12      0x81    9 short       0x##     0xfc
     const dataToCheck = ByteToString(arduinoInfo.length) + '\x82' + arduinoInfo
     arduinoObservable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc.crc8(dataToCheck)) + END)
-    // 保存至文件中
-    fs.writeFile('./arduino.dat', arduinoInfo, (err) => {
 
-    })
     // 复位
     arduinoInfo = ''
     arduinoCompleted = 0b000
