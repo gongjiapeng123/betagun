@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-连接小车61612
+连接小车61612，获取jy901数据并发送主题
 '''
 
 from __future__ import print_function
@@ -20,7 +20,7 @@ import rospy
 from sensor_msgs.msg import Imu
 from tf.transformations import quaternion_from_euler
 
-crc = mkCrcFun('crc-8-rohc')
+crc = mkCrcFun('crc-8')
 degrees2rad = math.pi / 180.0
 
 def byte_value(uint8):
