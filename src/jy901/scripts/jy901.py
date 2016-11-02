@@ -120,7 +120,7 @@ class JY901:
         roll_rad = self.roll * degrees2rad
 
         # ROS中标准位x轴指向前，y轴指向左边，z轴指向上方，此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay * 9.79 - 0.5
+        self.imu_msg.linear_acceleration.x = self.ay * 9.79 + 0.7
         self.imu_msg.linear_acceleration.y = -self.ax * 9.79 + 1.3
         self.imu_msg.linear_acceleration.z = -self.az * 9.79 + 0.5
 
@@ -178,6 +178,6 @@ class JY901:
 
     
 if __name__ == '__main__':
-    jy901 = JY901(verbose='raw')
+    jy901 = JY901(verbose='ros')
     jy901.start()
 
