@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <!-- Usage:
+  roslaunch cameras homography.launch -->
+
+  <!-- Logger config -->
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find cameras)/config/cameras.config"/>
+
+  <include file="$(find cameras)/launch/camera.launch"/>
+
+  <node pkg="cameras" type="homography" name="homography"
+        output="screen"/>
+</launch>
+
