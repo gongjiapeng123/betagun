@@ -17,7 +17,7 @@ class CameraDriver
 {
 public:
 
-	typedef cameras::CameraStereoConfig Config;
+    typedef cameras::CameraStereoConfig Config;
     typedef camera_info_manager::CameraInfoManager CameraInfoManager;
 
     enum
@@ -65,6 +65,8 @@ public:
 		nh.param<std::string>( "camera_name", camera_name, DEFAULT_CAMERA_NAME );
 		nh.param<double>( "fps", fps, DEFAULT_FPS );
         
+        ROS_INFO_STREAM( "set name and fps" );
+        
 		for( size_t i = 0; i < NUM_CAMERAS; ++i )
         {
             single_camera_nh[i] = ros::NodeHandle( camera_nh, CameraString[i] );
@@ -77,12 +79,19 @@ public:
 
             camera_pub[i] = it.advertiseCamera( CameraString[i] + "/image_raw", 1 );
         }
+        
+        ROS_INFO_STREAM( "init single cam nodehandle" );
 
 		camera_info = boost::make_shared< sensor_msgs::CameraInfo >();
-
-		server.setCallback( boost::bind( &CameraDriver::reconfig, this, _1, _2 ) );
+        ROS_INFO_STREAM( "make_shared CameraInfo" );
+        // boost::shared_ptr<CameraDriver> self(this);
+        server_callback = boost::bind( &CameraDriver::reconfig, this, _1, _2 );
+        ROS_INFO_STREAM( "bind function" );
+		server.setCallback( server_callback );
+        ROS_INFO_STREAM( "setCallback" );
 
 		timer = nh.createTimer( ros::Duration( 1. / fps ), &CameraDriver::capture, this );
+        ROS_INFO_STREAM( "init succeed" );
 	}
 
 	~CameraDriver()
@@ -115,12 +124,12 @@ public:
             newconfig.frame_width  = setProperty( camera[i], CV_CAP_PROP_FRAME_WIDTH , newconfig.frame_width  );
             newconfig.frame_height = setProperty( camera[i], CV_CAP_PROP_FRAME_HEIGHT, newconfig.frame_height );
             //newconfig.fps          = setProperty( camera[i], CV_CAP_PROP_FPS         , newconfig.fps          );
-            newconfig.brightness   = setProperty( camera[i], CV_CAP_PROP_BRIGHTNESS  , newconfig.brightness   );
-            newconfig.contrast     = setProperty( camera[i], CV_CAP_PROP_CONTRAST    , newconfig.contrast     );
-            newconfig.saturation   = setProperty( camera[i], CV_CAP_PROP_SATURATION  , newconfig.saturation   );
-            newconfig.hue          = setProperty( camera[i], CV_CAP_PROP_HUE         , newconfig.hue          );
-            newconfig.gain         = setProperty( camera[i], CV_CAP_PROP_GAIN        , newconfig.gain         );
-            newconfig.exposure     = setProperty( camera[i], CV_CAP_PROP_EXPOSURE    , newconfig.exposure     );
+            //newconfig.brightness   = setProperty( camera[i], CV_CAP_PROP_BRIGHTNESS  , newconfig.brightness   );
+            //newconfig.contrast     = setProperty( camera[i], CV_CAP_PROP_CONTRAST    , newconfig.contrast     );
+            //newconfig.saturation   = setProperty( camera[i], CV_CAP_PROP_SATURATION  , newconfig.saturation   );
+            //newconfig.hue          = setProperty( camera[i], CV_CAP_PROP_HUE         , newconfig.hue          );
+            //newconfig.gain         = setProperty( camera[i], CV_CAP_PROP_GAIN        , newconfig.gain         );
+            //newconfig.exposure     = setProperty( camera[i], CV_CAP_PROP_EXPOSURE    , newconfig.exposure     );
 
             //setFOURCC( camera[i], newconfig.fourcc );
 
@@ -172,6 +181,10 @@ private:
             ROS_ERROR_STREAM( "Invalid camera name '" << camera_name << "'" );
             ros::shutdown();
         }
+        else
+        {
+            ROS_INFO_STREAM( "Camera name set: '" << camera_name << "'" );
+        }
     }
 
     void setCameraInfo( CameraInfoManager& camera_info_manager, const std::string& camera_info_url, std::string& camera_info_url_new )
@@ -191,7 +204,9 @@ private:
     
     double setProperty( cv::VideoCapture& camera, int property, double value )
     {
-        if( camera.set( property, value ) )
+        int res = camera.set( property, value );
+        ROS_INFO_STREAM( " set property res: " << res );
+        if( res )
         {
             double current_value = camera.get( property );
             ROS_WARN_STREAM(
@@ -248,6 +263,7 @@ private:
 
 	Config config;
 	dynamic_reconfigure::Server< Config > server;
+    dynamic_reconfigure::Server< Config >::CallbackType server_callback;
 	bool reconfiguring;
 	boost::mutex mutex;
 

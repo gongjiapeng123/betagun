@@ -17,8 +17,7 @@ find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
     cfg/Camera.cfg
-    cfg/CameraStereo.cfg
-    cfg/Homography.cfg)
+    cfg/CameraStereo.cfg)
 
 catkin_package(
     CATKIN_DEPENDS
