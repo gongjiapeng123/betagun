@@ -124,12 +124,12 @@ public:
             newconfig.frame_width  = setProperty( camera[i], CV_CAP_PROP_FRAME_WIDTH , newconfig.frame_width  );
             newconfig.frame_height = setProperty( camera[i], CV_CAP_PROP_FRAME_HEIGHT, newconfig.frame_height );
             //newconfig.fps          = setProperty( camera[i], CV_CAP_PROP_FPS         , newconfig.fps          );
-            //newconfig.brightness   = setProperty( camera[i], CV_CAP_PROP_BRIGHTNESS  , newconfig.brightness   );
-            //newconfig.contrast     = setProperty( camera[i], CV_CAP_PROP_CONTRAST    , newconfig.contrast     );
-            //newconfig.saturation   = setProperty( camera[i], CV_CAP_PROP_SATURATION  , newconfig.saturation   );
-            //newconfig.hue          = setProperty( camera[i], CV_CAP_PROP_HUE         , newconfig.hue          );
-            //newconfig.gain         = setProperty( camera[i], CV_CAP_PROP_GAIN        , newconfig.gain         );
-            //newconfig.exposure     = setProperty( camera[i], CV_CAP_PROP_EXPOSURE    , newconfig.exposure     );
+            newconfig.brightness   = setProperty( camera[i], CV_CAP_PROP_BRIGHTNESS  , newconfig.brightness   );
+            newconfig.contrast     = setProperty( camera[i], CV_CAP_PROP_CONTRAST    , newconfig.contrast     );
+            newconfig.saturation   = setProperty( camera[i], CV_CAP_PROP_SATURATION  , newconfig.saturation   );
+            newconfig.hue          = setProperty( camera[i], CV_CAP_PROP_HUE         , newconfig.hue          );
+            newconfig.gain         = setProperty( camera[i], CV_CAP_PROP_GAIN        , newconfig.gain         );
+            newconfig.exposure     = setProperty( camera[i], CV_CAP_PROP_EXPOSURE    , newconfig.exposure     );
 
             //setFOURCC( camera[i], newconfig.fourcc );
 
@@ -204,9 +204,7 @@ private:
     
     double setProperty( cv::VideoCapture& camera, int property, double value )
     {
-        int res = camera.set( property, value );
-        ROS_INFO_STREAM( " set property res: " << res );
-        if( res )
+        if( camera.set( property, value ) )
         {
             double current_value = camera.get( property );
             ROS_WARN_STREAM(

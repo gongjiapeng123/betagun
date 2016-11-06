@@ -40,7 +40,8 @@
   <arg unless="$(arg odometry)" name="rviz_config" default="$(find cameras)/config/camera_stereo/rviz.vcg"/>
 
   <!-- Run driver. -->
-  <node name="stereo" pkg="cameras" type="camera_stereo" output="screen" launch-prefix="xterm -e gdb --args">
+  <!-- <node name="stereo" pkg="cameras" type="camera_stereo" output="screen" launch-prefix="xterm -e gdb --args"> -->
+  <node name="stereo" pkg="cameras" type="camera_stereo" output="screen">
     <rosparam file="$(arg params_camera)" command="load"/>
   </node>
 
