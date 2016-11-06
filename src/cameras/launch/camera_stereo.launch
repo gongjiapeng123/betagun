@@ -10,7 +10,7 @@
 
   <!-- Arguments -->
   <!-- Camera params (config). -->
-  <arg name="params_camera" default="$(find cameras)/config/camera_stereo/logitech_c120.yaml"/>
+  <arg name="params_camera" default="$(find cameras)/config/camera_stereo/usb_cam.yaml"/>
   <!-- Disparity image params. -->
   <arg name="params_disparity" default="$(find cameras)/config/camera_stereo/disparity.yaml"/>
   <!-- Camera name. -->

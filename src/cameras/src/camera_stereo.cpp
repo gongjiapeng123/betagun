@@ -276,7 +276,7 @@ private:
 
 const int CameraDriver::DEFAULT_CAMERA_INDEX[NUM_CAMERAS] = {0, 1};
 const double CameraDriver::DEFAULT_FPS = 30.;
-const char* CameraDriver::DEFAULT_CAMERA_NAME = "logitech_c120";
+const char* CameraDriver::DEFAULT_CAMERA_NAME = "usb_cam";
 
 const std::string CameraDriver::CameraString[NUM_CAMERAS] = {"left", "right"};
 

@@ -2,7 +2,7 @@
 
 <launch>
   <!-- Camera params (config) -->
-  <arg name="params" default="$(find cameras)/config/camera_stereo/logitech_c120.yaml"/>
+  <arg name="params" default="$(find cameras)/config/camera_stereo/usb_cam.yaml"/>
 
   <!-- Camera driver -->
   <node pkg="cameras" type="camera_stereo" name="stereo">
