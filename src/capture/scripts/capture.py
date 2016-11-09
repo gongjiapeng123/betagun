@@ -19,99 +19,16 @@ import argparse
 import textwrap
 import socket
 
+import rospy
+from sensor_msgs.msg import Image
+
 HEAD = b'\x66\xAA'
 END = b'\xFC'
 
-class Base_:
-    '''
-    一个用opencv库获取双目摄像头图像并显示的类
-    size: 设置摄像头图像的宽高
-    '''
-    def __init__(self, size=(640, 480)):
-        self.capture1 = None  # 要显示时才初始化为cv2.VideoCapture
-        self.capture0 = None
+class Capture():
+    def __init__(self, need_to_show=False, need_to_connect_server=True):
 
-        self.width = size[0]
-        self.height = size[1]
-
-        self.fps = 30
-
-    def open_cam(self, dev_id):
-        '''
-        打开摄像头
-        :param dev_id: 摄像头id，大小设为self.size的大小
-        :return:
-        '''
-        if dev_id == 1:
-            self.capture1 = cv2.VideoCapture(1)
-            self.capture1.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width)
-            self.capture1.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height)
-            return self.capture1
-        elif dev_id == 0:
-            self.capture0 = cv2.VideoCapture(0)
-            self.capture0.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.width)
-            self.capture0.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.height)
-            return self.capture0
-
-    def close_cam(self, dev_id):
-        '''
-        关闭摄像头
-        :param dev_id: 摄像头id，大小设为self.size的大小
-        :return:
-        '''
-        if dev_id == 1:
-            self.capture1 and self.capture1.release()
-        elif dev_id == 0:
-            self.capture0 and self.capture0.release()
-
-    def next_frame(self):
-        '''
-        获取下一帧
-        :return: (rs1, rs0, frame1, frame0)
-        '''
-        rs1, frame1 = self.capture1.read()
-        rs0, frame0 = self.capture0.read()
-
-        return rs1, rs0, frame1, frame0
-
-    def easy_show(self):
-        '''
-        开始简单地获取并显示摄像头图片，esc退出循环
-        '''
-        wait_time = 1000 // self.fps
-        self.open_cam(1)
-        self.open_cam(0)
-        if self.capture1.isOpened() & self.capture0.isOpened():
-            rs1, rs0, frame1, frame0 = self.next_frame()
-            while rs1 & rs0:
-
-                cv2.imshow('show1', frame1)
-                cv2.imshow('show0', frame0)
-
-                rs1, frame1 = self.capture1.read()
-                rs0, frame0 = self.capture0.read()
-
-                if cv2.waitKey(wait_time) == 27:
-                    self.clean()
-                    break
-            else:
-                self.clean()
-
-    def clean(self):
-        '''
-        退出前的清理工作
-        '''
-        self.capture1 is not None and self.capture1.release()
-        self.capture0 is not None and self.capture0.release()
-        self.capture1 = self.capture0 = None
-        cv2.destroyAllWindows()
-
-
-class Capture(Base_):
-    def __init__(self, size=(640, 480), send_size=(320, 120), need_to_show=False, need_to_connect_server=True):
-        Base_.__init__(self, size)
-
-        self.send_size = send_size  # 发送给服务器时的图片大小（两张拼接）
+        self.send_size = (320, 120)  # 发送给服务器时的图片大小（两张拼接）
         self.need_to_show = need_to_show  # 是否在一个窗口显示图像：0不显示，1在一个窗口显示双目图像，2在两个窗口分别显示图像
         self.need_to_connect_server = need_to_connect_server  # 是否需要与服务器通信
 
@@ -125,6 +42,9 @@ class Capture(Base_):
 
         self.has_sock_error = False  # 指明当前是否IPC通信有问题，有问题就不要重复发送数据了
         self.send_image_count = 0
+        self.flag = 0b00  # 指明当前是否在获取图像数据 00：表示未获取 01：已获取右边 10：已获取左边 11：获取完毕
+        self.frame_left = None
+        self.frame_right = None
 
         # 连接服务器端口
         if self.need_to_connect_server:
@@ -146,14 +66,14 @@ class Capture(Base_):
             self.has_sock_error = True
             self.logger.error(e)
 
-    def montage(self, frame1, frame0):
+    def montage(self, frame_left, frame_right):
         '''
         双目摄像头时，拼接两帧图像
         '''
         # 若图像数据全为0，说明获取的图像不正确，这时大小可能与另一张的不同，修改其大小与正常的相同，以便拼接
         # 判断不为0的元素是否少于一定数量，少于则说明图的数据像基本都是0
-        f1 = np.zeros((self.height, self.width, 3)) if np.count_nonzero(frame1) < 666 else frame1
-        f0 = np.zeros((self.height, self.width, 3)) if np.count_nonzero(frame0) < 666 else frame0
+        f1 = np.zeros((self.height, self.width, 3)) if np.count_nonzero(frame_left) < 666 else frame_left
+        f0 = np.zeros((self.height, self.width, 3)) if np.count_nonzero(frame_right) < 666 else frame_right
         return np.hstack((f1, f0))
 
     def make_img_packet(self, frame, size):
@@ -189,48 +109,51 @@ class Capture(Base_):
             self.has_sock_error = True
             self.logger.error(e)
 
+    def subscriber_left(self):
+        '''
+        监听左侧
+        '''
+        def callback(data):
+            self.flag |= 0b10
+            print(data)
+            self.handle()
+
+        rospy.init_node('listen_left', anonymous=True)
+        rospy.Subscriber("/stereo/left/image_raw", Image, callback)
+
+    def subscriber_right(self):
+        '''
+        监听右侧
+        '''
+        def callback(data):
+            self.flag |= 0b01
+            print(data)
+            self.handle()
+
+        rospy.init_node('listen_right', anonymous=True)
+        rospy.Subscriber("/stereo/right/image_raw", Image, callback)
+
+    def handle(self):
+        if self.flag == 0b11:
+            frame = self.montage(self.frame_left, self.frame_right)
+            self.frame_left = None
+            self.frame_right = None
+            self.flag = 0b00
+            if self.need_to_show:
+                cv2.imshow('CAM', frame)
+            if self.need_to_connect_server:
+                self.send_image(frame)
+
     def run(self):
         '''
         运行
         :return:
         '''
-        self.open_cam(1)
-        self.open_cam(0)
+        self.subscriber_left()
+        self.subscriber_right()
+        self.logger.info("Now I'm fetching images")
+        rospy.spin
 
-        # 读取第一帧
-        rs1, rs0, frame1, frame0 = self.next_frame()
-
-        if rs1 & rs0:
-            self.logger.info("Now I'm fetching images")
-        else:
-            self.logger.error(
-                "Sorry,I can't fetch image")
-
-        # 该进程实际工作
-        while rs1 & rs0:
-
-            # 合并两个图像准备发送出去
-            frame = self.montage(frame1, frame0)
-
-            # 发送信息给小车服务器
-            if self.need_to_connect_server:
-                self.send_image(frame)
-
-            # 是否弹出窗口显示图像
-            if self.need_to_show:
-                cv2.imshow('CAM', frame)
-
-            # 读取下一帧
-            rs1, rs0, frame1, frame0 = self.next_frame()
-
-            if cv2.waitKey(1) == 27:
-                self.clean()
-                break
-
-        else:
-            self.logger.error('Capture error')  # 获取图像失败
-
-        self.clean()  # 循环结束后清理工作
 
 
 def run():
@@ -239,21 +162,12 @@ def run():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(u'''\
-                betagun 计算程序
+                betagun 传输图片给tcpserver
                 --------------------------------
                 '''),
         fromfile_prefix_chars='@'
     )
 
-    # 添加nargs='?'参数让这个位置参数成为可选地
-    parser.add_argument(
-        'width', action='store', type=int, default=640, nargs='?',
-        help=u'摄像头获取图像的宽',
-    )
-    parser.add_argument(
-        'height', action='store', type=int, default=480, nargs='?',
-        help=u'摄像头获取图像的高',
-    )
     parser.add_argument(
         '-s', '--show', action='store_true', dest='need_to_show',
         help=u'显示图像',
@@ -265,7 +179,6 @@ def run():
 
     ns = parser.parse_args()
     Capture(
-        size=(ns.width, ns.height),
         send_size=(320, 120),
         need_to_show=ns.need_to_show,
         need_to_connect_server=ns.need_to_connect_server
