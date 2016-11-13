@@ -21,13 +21,15 @@ import socket
 
 import rospy
 from sensor_msgs.msg import Image
+import ros_numpy
 
 HEAD = b'\x66\xAA'
 END = b'\xFC'
 
 class Capture():
     def __init__(self, need_to_show=False, need_to_connect_server=True):
-
+        self.width = 640
+        self.height = 480
         self.send_size = (320, 120)  # 发送给服务器时的图片大小（两张拼接）
         self.need_to_show = need_to_show  # 是否在一个窗口显示图像：0不显示，1在一个窗口显示双目图像，2在两个窗口分别显示图像
         self.need_to_connect_server = need_to_connect_server  # 是否需要与服务器通信
@@ -45,6 +47,8 @@ class Capture():
         self.flag = 0b00  # 指明当前是否在获取图像数据 00：表示未获取 01：已获取右边 10：已获取左边 11：获取完毕
         self.frame_left = None
         self.frame_right = None
+        
+        rospy.init_node('capture', anonymous=True)
 
         # 连接服务器端口
         if self.need_to_connect_server:
@@ -91,7 +95,6 @@ class Capture():
         data_len_byte = str(len(data_bytes)).ljust(16).encode()
         # 图像数据太大，不计算校验和
         return HEAD + data_len_byte + b'\x80' + data_bytes + b'\x00' + END
-        # return HEAD + data_len_byte + b'\x80'
 
     def send_image(self, frame):
         '''
@@ -104,7 +107,7 @@ class Capture():
                 self.sock_image.send(self.make_img_packet(frame, self.send_size))
                 self.send_image_count += 1
                 print(self.send_image_count)
-                # self.has_sock_error = True  # 调试，发送一帧则立即停止
+                # self.has_sock_error = True  # 调试，发送一帧立即停止
         except Exception as e:
             self.has_sock_error = True
             self.logger.error(e)
@@ -114,11 +117,10 @@ class Capture():
         监听左侧
         '''
         def callback(data):
-            self.flag |= 0b10
-            print(data)
+            self.flag |= 0b10         
+            self.frame_left = ros_numpy.numpify(data)
             self.handle()
 
-        rospy.init_node('listen_left', anonymous=True)
         rospy.Subscriber("/stereo/left/image_raw", Image, callback)
 
     def subscriber_right(self):
@@ -127,10 +129,9 @@ class Capture():
         '''
         def callback(data):
             self.flag |= 0b01
-            print(data)
+            self.frame_right = ros_numpy.numpify(data)
             self.handle()
 
-        rospy.init_node('listen_right', anonymous=True)
         rospy.Subscriber("/stereo/right/image_raw", Image, callback)
 
     def handle(self):
@@ -141,6 +142,7 @@ class Capture():
             self.flag = 0b00
             if self.need_to_show:
                 cv2.imshow('CAM', frame)
+                cv2.waitKey(1)
             if self.need_to_connect_server:
                 self.send_image(frame)
 
@@ -152,7 +154,7 @@ class Capture():
         self.subscriber_left()
         self.subscriber_right()
         self.logger.info("Now I'm fetching images")
-        rospy.spin
+        rospy.spin()
 
 
 
@@ -179,7 +181,6 @@ def run():
 
     ns = parser.parse_args()
     Capture(
-        send_size=(320, 120),
         need_to_show=ns.need_to_show,
         need_to_connect_server=ns.need_to_connect_server
     ).run()
