@@ -9,6 +9,6 @@
 
 
 module.exports = function checkUser (username, password) {
-  const users = new Map().set('python', 'gxnu').set('admin', 'gxnu').set('guess', '666666')
+  const users = new Map().set('python', 'gxnu').set('admin', 'gxnu').set('guess', 'gxnu')
   return users.has(username) && users.get(username) === password
 }

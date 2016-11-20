@@ -22,6 +22,7 @@ applyMiddleware(app)
 applyRoutes(app)
 
 
+import './config/client4tcp'  // 先启动tcp客户端
 const server = http.createServer(app.callback())
 configWebSocket(server)
 server.listen(env.app.port)

@@ -2,9 +2,9 @@
 // mock
 const User = {
   user: {
-    id: '666666',
+    id: '0',
     username: 'admin',
-    password: '666666',
+    password: '666',
   },
   verify: function (username, password) {
     if (this.user.username === username && this.user.password === password) {

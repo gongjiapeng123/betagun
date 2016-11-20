@@ -44,6 +44,7 @@ export default function configLog () {
     ],
     replaceConsole: true,
     levels: {
+      default: 'ALL',
       log_info: 'ALL',
       log_stat: 'ALL',
       log_trace: 'ALL',
