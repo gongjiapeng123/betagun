@@ -1,6 +1,6 @@
 import passport from 'koa-passport'
 import { Strategy as LocalStrategy } from 'passport-local'
-import User from '../models/user'
+import User from '../models/User'
 
 /**
  * user.id序列化到session, 同时它将作为凭证存储在用户cookie中
