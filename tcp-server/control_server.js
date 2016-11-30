@@ -155,7 +155,7 @@ controlServer.on('error', (err) => {
   console.log(err);
 })
 
-controlServer.listen(61611, () => {
+controlServer.listen(61611, '0.0.0.0', () => {
   console.log('control server bound')
 })
 

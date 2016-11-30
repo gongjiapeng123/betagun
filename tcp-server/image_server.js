@@ -117,7 +117,7 @@ imageServer.on('error', (err) => {
   console.log(err)
 })
 
-imageServer.listen(61614, () => {
+imageServer.listen(61614, '0.0.0.0', () => {
   console.log('image server bound')
 })
 

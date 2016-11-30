@@ -82,7 +82,7 @@ arduinoServer.on('error', (err) => {
   console.log(err);
 })
 
-arduinoServer.listen(61613, () => {
+arduinoServer.listen(61613, '0.0.0.0', () => {
   console.log('arduino server bound')
 })
 

@@ -19,8 +19,8 @@
 
 import net from 'net'
 import log4js from 'log4js'
+import env from './env'
 const logger = log4js.getLogger('default')
-
 
 const directive = require('./directive')
 
@@ -28,7 +28,7 @@ const directive = require('./directive')
  * 控制
  */
 
-const controlClient = net.connect(61611, '127.0.0.1', () => {
+const controlClient = net.connect(61611, env.tcp_host, () => {
   controlClient.write('#admin:gxnu#')  // 一连接就登录
 
 
@@ -41,7 +41,7 @@ const controlClient = net.connect(61611, '127.0.0.1', () => {
     logger.log('disconnected from 61611 control server')
   })
   .on('error', (error) => {
-    logger.error(error)
+    // logger.error(error)
   })
 export function sendControlCommand (type, parameters) {  // 发送控制命令
   let cmd = ''
@@ -61,7 +61,7 @@ export function sendControlCommand (type, parameters) {  // 发送控制命令
 
 // 61612 jy901
 
-const jy901Client = net.connect(61612, '127.0.0.1', () => {
+const jy901Client = net.connect(61612, env.tcp_host, () => {
   jy901Client.write('#admin:gxnu#')  // 一连接就登录
 
 
@@ -75,12 +75,12 @@ const jy901Client = net.connect(61612, '127.0.0.1', () => {
     logger.log('disconnected from 61612 jy901 server')
   })
   .on('error', (error) => {
-    logger.error(error)
+    // logger.error(error)
   })
 
 // 61613 arduino
 
-const arduinoClient = net.connect(61613, '127.0.0.1', () => {
+const arduinoClient = net.connect(61613, env.tcp_host, () => {
   arduinoClient.write('#admin:gxnu#')  // 一连接就登录
 
 
@@ -94,12 +94,12 @@ const arduinoClient = net.connect(61613, '127.0.0.1', () => {
     logger.log('disconnected from 61613 arduino server')
   })
   .on('error', (error) => {
-    logger.error(error)
+    // logger.error(error)
   })
 
 // 61614 image
 
-const imageClient = net.connect(61614, '127.0.0.1', () => {
+const imageClient = net.connect(61614, env.tcp_host, () => {
   imageClient.write('#admin:gxnu#')  // 一连接就登录
 
 })
@@ -113,12 +113,12 @@ const imageClient = net.connect(61614, '127.0.0.1', () => {
     logger.log('disconnected from 61614 image server')
   })
   .on('error', (error) => {
-    logger.error(error)
+    // logger.error(error)
   })
 
 // 61615 infoClient
 
-const infoClient = net.connect(61615, '127.0.0.1', () => {
+const infoClient = net.connect(61615, env.tcp_host, () => {
   infoClient.write('#admin:gxnu#')  // 一连接就登录
 
 
@@ -132,5 +132,5 @@ const infoClient = net.connect(61615, '127.0.0.1', () => {
     logger.log('disconnected from 61615 info server')
   })
   .on('error', (error) => {
-    logger.error(error)
+    // logger.error(error)
   })

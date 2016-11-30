@@ -82,7 +82,7 @@ jy901Server.on('error', (err) => {
   console.log(err);
 })
 
-jy901Server.listen(61612, () => {
+jy901Server.listen(61612, '0.0.0.0', () => {
   console.log('jy901 server bound')
 })
 

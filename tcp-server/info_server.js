@@ -114,7 +114,7 @@ infoServer.on('error', (err) => {
   console.log(err)
 })
 
-infoServer.listen(61615, () => {
+infoServer.listen(61615, '0.0.0.0', () => {
   console.log('info server bound')
 })
 
