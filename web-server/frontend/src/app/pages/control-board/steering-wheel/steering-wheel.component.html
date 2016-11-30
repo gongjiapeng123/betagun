@@ -1,0 +1,75 @@
+
+<div class="wrapper">
+  <div class="row first-row">
+    <div class="col-md-4">
+      <label id="motorLeftSpeed" for="motorLeftSpeed">
+        L:{{motorLeftSpeed}}
+      </label>
+    </div>
+
+    <div class="col-md-4">
+      <button id="keyUpButton"
+              type="button"
+              class="btn-ctl btn btn-default"
+              aria-label="Left Align"
+              [ngClass]="{'active': _upPress, 'btn-primary': _upPress}">
+        <span id="keyUpSpan"
+              class="glyphicon glyphicon-arrow-up"
+              aria-hidden="true">w</span>
+      </button>
+    </div>
+
+    <div class="col-md-4">
+      <label id="motorRightSpeed" for="motorRightSpeed">
+        R:{{motorRightSpeed}}
+      </label>
+    </div>
+  </div>
+
+  <div class="row second-row">
+    <div class="col-md-4">
+      <button id="keyLeftButton"
+              type="button"
+              class="btn-ctl btn btn-default"
+              [ngClass]="{'active': _leftPress, 'btn-primary': _leftPress}">
+        <span id="keyLeftSpan"
+              class="glyphicon glyphicon-arrow-left"
+              aria-hidden="true">a</span>
+      </button>
+    </div>
+
+    <div class="col-md-4">
+      <button id="keyDownButton"
+              type="button"
+              class="btn-ctl btn btn-default"
+              aria-label="Left Align"
+              [ngClass]="{'active': _downPress, 'btn-primary': _downPress}">
+        <span id="keyDownSpan"
+              class="glyphicon glyphicon-arrow-down"
+              aria-hidden="true">s</span>
+      </button>
+    </div>
+
+    <div class="col-md-4">
+      <button id="keyRightButton"
+              type="button"
+              class="btn-ctl btn btn-default"
+              [ngClass]="{'active': _rightPress, 'btn-primary': _rightPress}">
+        <span id="keyRightSpan"
+              class="glyphicon glyphicon-arrow-right"
+              aria-hidden="true">d</span>
+      </button>
+    </div>
+  </div>
+
+  <div align="center">
+    <label id="motorState" for="motorState">{{motorState}}</label>
+  </div>
+
+  <div align="center">
+    <label id="flag" for="flag">{{flag}}</label>
+  </div>
+
+</div>
+
+

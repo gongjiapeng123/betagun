@@ -1,0 +1,35 @@
+<div class="page-top clearfix" baScrollPosition maxHeight="50" (scrollChange)="scrolledChanged($event)"
+     [ngClass]="{scrolled: isScrolled}">
+  <a routerLink="/pages/dashboard" class="al-logo clearfix"><span>beta</span>gun</a>
+  <a href (click)="toggleMenu()" class="collapse-menu-link ion-navicon"></a>
+
+  <!--<div class="search">-->
+    <!--<i class="ion-ios-search-strong" ng-click="startSearch()"></i>-->
+    <!--<input id="searchInput" type="text" placeholder="Search for...">-->
+  <!--</div>-->
+
+  <div class="user-profile clearfix">
+
+    <div *ngIf="isAuth" class="dropdown al-user-profile">
+      <a class="profile-toggle-link dropdown-toggle" id="user-profile-d1" data-toggle="dropdown" aria-expanded="false">
+        <img src="{{ ( 'rangbingluan' | baProfilePicture ) }}">
+      </a>
+      <ul class="dropdown-menu top-dropdown-menu profile-dropdown" aria-labelledby="user-profile-dd">
+        <li class="dropdown-item"><i class="dropdown-arr"></i></li>
+        <li class="dropdown-item"><a (click)="logout()" class="signout"><i class="fa fa-power-off"></i>注销</a></li>
+      </ul>
+    </div>
+
+    <div *ngIf="!isAuth" class="dropdown al-user-profile">
+      <a class="profile-toggle-link dropdown-toggle" id="user-profile-d2" data-toggle="dropdown" aria-expanded="false">
+        <img src="{{ ( 'user' | baProfilePicture ) }}">
+      </a>
+      <ul class="dropdown-menu top-dropdown-menu profile-dropdown" aria-labelledby="user-profile-dd">
+        <li class="dropdown-item"><i class="dropdown-arr"></i></li>
+        <li class="dropdown-item"><a routerLink="/login" class="signin"><i class="fa fa-power-off"></i>登录</a></li>
+      </ul>
+    </div>
+
+    <!--<ba-msg-center></ba-msg-center>-->
+  </div>
+</div>
