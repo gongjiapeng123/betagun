@@ -1,7 +1,7 @@
 import { sendControlCommand } from './client4tcp'
 import webSocketServer from 'socket.io'
 import * as observables from './observables'
-import log4js from 'log4js'
+import * as log4js from 'log4js'
 const logger = log4js.getLogger('default')
 
 
@@ -70,10 +70,11 @@ export default function configWebsocket (server) {
               // console.log('emit a image!')
 
               // 发送给浏览器客户端，客户端需要Uint8Array来保存图片
-              socket.emit('image', Buffer.from(image, 'binary'))
+              socket.emit('image', {image: Buffer.from(image, 'binary')})
             }
           )
         }
+
       })
       .on('imageOff', () => {  // 客户端关闭获取图像
         imageSubscription && imageSubscription.unsubscribe()  // 取消订阅

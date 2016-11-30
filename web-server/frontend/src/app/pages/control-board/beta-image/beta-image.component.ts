@@ -29,7 +29,6 @@ export class BetaImageComponent implements OnInit, OnDestroy {
   }
 
   private _drawImage (imgDataArray: ArrayBuffer) {
-    // console.log('receive a image!')
     this._imgCount++
 
     // 之前的已绘制成功
@@ -47,6 +46,7 @@ export class BetaImageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit () {
+
     // component初始化时向后台请求图像传输，并订阅imageObservable
     this._canvasContext = (<HTMLCanvasElement>document.getElementById('canvas')).getContext('2d')
 

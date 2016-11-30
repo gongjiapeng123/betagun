@@ -51,7 +51,7 @@ export class WebSocketService {
    * @type {Subject}
    */
   public arduino$: Subject<any> = new Subject<any>()
-  
+
 
   /**
    * 连接连接服务端WebSocket，并初始化该客户端WebSocket要监听的服务器端WebSocket发送过来的一系列事件

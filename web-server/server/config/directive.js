@@ -433,7 +433,7 @@ export function parseData (data) {
     let matchItem = cmdRegExp.exec(dataBuf)
     // matchItem返回：  [匹配到的字符串，匹配的字符串的起始字符的id，正则表达式正在检测的输入字符串]
     if (matchItem) {  // 匹配成功
-      let packet = _check(matchItem[0])
+      const packet = _check(matchItem[0])
       _emit(packet)
 
       lastIndex = cmdRegExp.lastIndex

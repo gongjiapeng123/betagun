@@ -107,7 +107,6 @@ const imageClient = net.connect(61614, env.tcp_host, () => {
   .on('data', (data) => {  // 接收服务器发过来的图像数据
     // 解析并由directive.imageProxy发射图片流
     directive.parseImage(data)
-
   })
   .on('end', () => {
     logger.log('disconnected from 61614 image server')
