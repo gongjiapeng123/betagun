@@ -29,6 +29,11 @@ export class BaPageTop implements OnInit, OnDestroy {
   }
 
   ngOnInit () {
+    // 开发时自动登录
+    if (process.env.NODE_ENV === 'development') {
+      this._wsService.login('admin', '666')
+    }
+
     this._state.subscribe('menu.isCollapsed', (isCollapsed) => {
       this.isMenuCollapsed = isCollapsed
     })

@@ -1,5 +1,5 @@
-import path from 'path'
-import log4js from 'log4js'
+import * as path from 'path'
+import * as log4js from 'log4js'
 import env from './env'
 
 export default function configLog () {

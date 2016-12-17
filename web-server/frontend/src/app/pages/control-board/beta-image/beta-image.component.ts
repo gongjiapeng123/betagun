@@ -3,7 +3,12 @@
  * 显示小车传来的图像
  */
 
-import { Component, OnInit, OnDestroy } from '@angular/core'
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+} from '@angular/core'
 import { WebSocketService } from  '../../../service-share/services'
 // import {Subject} from 'rxjs/Subject'
 import { Subscription }   from 'rxjs/Subscription'
@@ -15,16 +20,17 @@ import { Subscription }   from 'rxjs/Subscription'
   template: require('./beta-image.component.html')
 })
 export class BetaImageComponent implements OnInit, OnDestroy {
-
+  fps: number = 0  // 视频帧数
+  loginUser: string
+  private _loginUserSubscription: Subscription
   private _imageSubscription: Subscription  // 对loginObservable的订阅
   private _canvasContext
   private _imgEl: HTMLImageElement
   private _imgCount: number = 0  // 接收的图片数
-  private _fps: number = 0  // 视频帧数
   private _imgDrawn: boolean  // 当前图片绘制是否完成
   private _fpsTimerID  // 更新FPS的定时器id，每秒计算一次FPS
-
-  constructor (private _wsService: WebSocketService) {
+  constructor (private _wsService: WebSocketService,
+               private _elementRef: ElementRef) {
 
   }
 
@@ -47,8 +53,11 @@ export class BetaImageComponent implements OnInit, OnDestroy {
 
   ngOnInit () {
 
-    // component初始化时向后台请求图像传输，并订阅imageObservable
-    this._canvasContext = (<HTMLCanvasElement>document.getElementById('canvas')).getContext('2d')
+    this._canvasContext = (<HTMLCanvasElement>this
+      ._elementRef
+      .nativeElement
+      .querySelector('#canvas'))
+      .getContext('2d')
 
     this._imgEl = new Image()
     this._imgEl.src = './assets/img/preload.png'  // 初始加载一个背景图
@@ -62,39 +71,46 @@ export class BetaImageComponent implements OnInit, OnDestroy {
       this._imgDrawn = true
     }
 
-    if (this._wsService.loginUser == 'admin') {
-      this._wsService.imageOn()
-      this._imageSubscription = this._wsService.image$.subscribe(
-        (image: ArrayBuffer) => {
-          this._drawImage(image)
-        }
-      )
-    }
+    this._loginUserSubscription = this._wsService.loginUser$
+      .subscribe(loginUser => {
+        this.loginUser = loginUser
 
-    this._wsService.loginResult$.subscribe(  // 当登出时取消图像的订阅
-      (data: {succeeded: boolean, username: string, action: string}) => {
-        if (data.action == 'logout') {
-          this._wsService.imageOff()
-          this._imageSubscription && this._imageSubscription.unsubscribe()
-        }
-      }
-    )
+        if (loginUser === 'admin') {
+          this._wsService.imageOn()
+          this._imageSubscription = this._wsService.image$.subscribe(
+            (image: ArrayBuffer) => {
+              this._drawImage(image)
+            }
+          )
+          // 计算FPS
+          this._fpsTimerID && clearInterval(this._fpsTimerID)
+          this._fpsTimerID = setInterval(() => {
+            this.fps = this._imgCount
+            this._imgCount = 0
+          }, 1000)
 
-    // 计算FPS
-    this._fpsTimerID = setInterval(() => {
-      this._fps = this._imgCount
-      this._imgCount = 0
-    }, 1000)
+          if (loginUser === 'nobody') {  // 如果登出或未登录
+            this._clean()
+          }
+        }
+      })
+
   }
 
-  ngOnDestroy () {  // 通知后台关闭图像传输并，取消订阅imageObservable
-    if (this._wsService.loginUser == 'admin') {
-      this._wsService.imageOff()
-      this._imageSubscription && this._imageSubscription.unsubscribe()
-    }
+  ngOnDestroy () {
+    this._clean()
+  }
 
-    // 取消计算FPS的timer
+  _clean () {
+    this._imageSubscription
+    && this._imageSubscription.unsubscribe()
+    && this._wsService.imageOff()
+
     clearInterval(this._fpsTimerID)
+  }
+
+  get titleShow () {
+    return `双目图像 (fps: ${this.fps})`
   }
 
 }
