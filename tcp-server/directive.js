@@ -359,7 +359,8 @@ exports.parseArduinoPacket = function (packet) {
             arduinoInfo += `0 `
         }
 
-        arduinoCompleted |= 0b010
+        // arduinoCompleted |= 0b010
+        arduinoCompleted |= 0b011  // skip \x52
       }
     }
       break
