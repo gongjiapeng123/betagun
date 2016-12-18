@@ -18,7 +18,7 @@ import * as io from 'socket.io-client'
 @Injectable()
 export class WebSocketService {
   private _socket  // 连接服务端的WebSocket
-  public loginUser: string = 'nobody'
+  public loginUser$: BehaviorSubject<string> = new BehaviorSubject('nobody')
 
   /**
    * 连接服务器WebSocket成功或断开
@@ -75,7 +75,7 @@ export class WebSocketService {
           .on('login_rs', (data: {succeeded: boolean, username: string, action: string}) => {
             // 服务端响应客户端发送的login事件并返回的login_rs事件
             if (data.succeeded) {
-              this.loginUser = data.username
+              this.loginUser$.next(data.username)
             }
 
             this.loginResult$.next(data)
@@ -83,17 +83,17 @@ export class WebSocketService {
           })
           .on('logout_rs', (data: {succeeded: boolean, username: string, action: string}) => {
             // 服务端响应客户端发送的logout事件并返回的logout_rs事件
-            this.loginUser = 'nobody'
+            this.loginUser$.next('nobody')
             this.loginResult$.next(data)
             this.isAuth$.next(false)
           })
           .on('jy901', (data: {jy901Data: string}) => {  // JY901传感器数据
             let info = data.jy901Data.split(' ')  // web服务器传来的数据是用空格隔开的
             this.jy901$.next({
-              ax: info[0], ay: info[1], az: info[2],  // 加速度
-              wx: info[3], wy: info[4], wz: info[5],  // 角速度
-              pitch: info[6], roll: info[7], yaw: info[8],  // 角度
-              temperature: info[9],  // 温度
+              ax: parseFloat(info[0]), ay: parseFloat(info[1]), az: parseFloat(info[2]),  // 加速度
+              wx: parseFloat(info[3]), wy: parseFloat(info[4]), wz: parseFloat(info[5]),  // 角速度
+              pitch: parseFloat(info[6]), roll: parseFloat(info[7]), yaw: parseFloat(info[8]),  // 角度
+              temperature: parseFloat(info[9]),  // 温度
             })
 
           })
@@ -165,7 +165,7 @@ export class WebSocketService {
    * 登出
    */
   logout () {
-    this._socket.emit('logout', {username: this.loginUser})
+    this._socket.emit('logout', {username: this.loginUser$})
   }
 
 

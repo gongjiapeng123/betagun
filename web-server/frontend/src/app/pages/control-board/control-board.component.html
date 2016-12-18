@@ -1,12 +1,22 @@
 <div class="row">
-  <ba-card class="col-xlg-6 col-xl-6 col-lg-12 col-sm-12 col-xs-12"
-           title="双目图像" baCardClass="medium-card">
-    <beta-image></beta-image>
+  <ba-card *ngIf="loginUser === 'admin'"
+           class="col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"
+           [title]="img.titleShow"
+           baCardClass="xsmall-card">
+    <beta-image #img></beta-image>
   </ba-card>
 
-  <ba-card class="col-xlg-6 col-xl-6 col-lg-12 col-sm-12 col-xs-12"
-           title="" baCardClass="medium-card">
-    <steering-wheel></steering-wheel>
+  <ba-card *ngIf="loginUser === 'admin'"
+           class="col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"
+           [title]="wheel.titleShow"
+           baCardClass="xsmall-card">
+    <steering-wheel #wheel></steering-wheel>
+  </ba-card>
+
+  <ba-card class="col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"
+           [title]="trace.titleShow"
+           baCardClass="xsmall-card">
+    <trace-plot #trace></trace-plot>
   </ba-card>
 </div>
 

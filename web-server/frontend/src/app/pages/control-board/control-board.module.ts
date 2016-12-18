@@ -8,6 +8,7 @@ import { routing } from './control-board.routing'
 
 import { BetaImageComponent } from './beta-image'
 import { SteeringWheelComponent } from './steering-wheel'
+import { TracePlotComponent } from './trace-plot'
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { SteeringWheelComponent } from './steering-wheel'
     ControlBoard,
     BetaImageComponent,
     SteeringWheelComponent,
+    TracePlotComponent,
   ],
   providers: [
     

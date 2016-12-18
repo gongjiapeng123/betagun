@@ -17,8 +17,8 @@
  *
  */
 
-import net from 'net'
-import log4js from 'log4js'
+import * as net from 'net'
+import * as log4js from 'log4js'
 import env from './env'
 const logger = log4js.getLogger('default')
 

@@ -9,7 +9,7 @@ const logger = log4js.getLogger('default')
  * 验证用户，小应用就不用数据库了，这里不设置服务器的guess用户，让其他客户端一打开网页就能看到数据显示
  */
 function checkUser(username, password) {
-  let users = new Map().set('admin', '666')
+  const users = new Map().set('admin', '666')
   return users.has(username) && users.get(username) == password
 }
 

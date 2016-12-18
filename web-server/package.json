@@ -40,7 +40,7 @@
     "lodash": "^4.16.4",
     "log4js": "^0.6.38",
     "passport-local": "^1.0.0",
-    "rxjs": "^5.0.0-rc.1",
+    "rxjs": "^5.0.1",
     "socket.io": "^1.5.1"
   },
   "devDependencies": {

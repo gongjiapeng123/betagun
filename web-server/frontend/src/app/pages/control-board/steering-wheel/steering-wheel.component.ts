@@ -5,7 +5,10 @@
 
 
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { WebSocketService, MotorService } from  '../../../service-share/services'
+import {
+  WebSocketService,
+  MotorService
+} from  '../../../service-share/services'
 import { MotorState } from '../../../service-share/services/motor'
 // import {Subject} from 'rxjs/Subject'
 
@@ -93,8 +96,7 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
    */
   private _onTouchStart (event: TouchEvent) {
 
-    console.log(event)
-    if (event.srcElement instanceof HTMLSpanElement) {  
+    if (event.srcElement instanceof HTMLSpanElement) {
       // 查看触碰的位置是否是方向盘按钮（span置于button前）
       switch (event.srcElement.id) {
         case "keyUpSpan": {
@@ -123,7 +125,7 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
           break
       }
 
-    } else if (event.srcElement instanceof HTMLButtonElement) {  
+    } else if (event.srcElement instanceof HTMLButtonElement) {
       // 查看触碰的位置是否是方向盘按钮
       switch (event.srcElement.id) {
         case "keyUpButton": {
@@ -164,7 +166,7 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
    */
   private _onTouchEnd (event: TouchEvent) {
 
-    if (event.srcElement instanceof HTMLSpanElement) {  
+    if (event.srcElement instanceof HTMLSpanElement) {
       // 查看触碰的位置是否是方向盘按钮（span置于button前）
       switch (event.srcElement.id) {
         case "keyUpSpan": {
@@ -345,6 +347,10 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
     if (this._rightPress) res += '1'
     else res += '0'
     return res
+  }
+
+  get titleShow () {
+    return `L: ${this.motorLeftSpeed}; R: ${this.motorRightSpeed}; ${this.motorState}; ${this.flag}`
   }
 
   get motorLeftSpeed () {

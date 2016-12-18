@@ -47,9 +47,9 @@ const imageServer = net.createServer((client) => {
 
         if (res) {  // 有登录信息则获取信息并清空buf，否则无操作直到有登陆信息
           buf = ''
-          let tmp = res[0].slice(1, -1).split(':')  // #guess:666666#  ==>  guess:666666  ==>  ['guess', '666666']
-          let username = tmp[0]
-          let password = tmp[1]
+          const tmp = res[0].slice(1, -1).split(':')  // #guess:666666#  ==>  guess:666666  ==>  ['guess', '666666']
+          const username = tmp[0]
+          const password = tmp[1]
           if (require('./check_user')(username, password)) {  // 登陆成功
             if (username == 'python') {  // python进程连接61614端口
 
