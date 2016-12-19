@@ -1,6 +1,19 @@
 /**
  * Created by Alvin.liu on 2016/6/12.
  * 显示位姿图
+ *
+ * jy901的坐标系：
+ * 右手，相对于传感器
+ * X指向右侧，Y指向前方，Z指向上方
+ * 绕X旋转为pitch，Y为roll，Z为yaw
+ *
+ * three的坐标系：
+ * 右手，相对于屏幕
+ * X指向右侧，Y指向上方，Z指向频幕外
+ * 此处设定摄像头在高度100处沿着Z轴观看场景，所以设定
+ * 场景向里指向北方，向外指向南方，故实际上：
+ * X指向左侧（西），Y指向上方，Z指向频幕里（北）
+ *
  */
 
 import {
@@ -9,7 +22,11 @@ import {
   OnDestroy,
   ElementRef,
 } from '@angular/core'
-import { WebSocketService } from  '../../../service-share/services'
+import {
+  WebSocketService,
+  JY901Data,
+  ArdiunoData,
+} from  '../../../service-share/services/websocket'
 import { Subscription }   from 'rxjs/Subscription'
 import * as THREE from 'three'
 
@@ -34,13 +51,22 @@ export class TracePlotComponent implements OnInit, OnDestroy {
   private _grid
   private _carMesh
 
-  public jy901Data = {
+  private _downLeftFrontMesh
+  private _downRightFrontMesh
+  private _downLeftBacktMesh
+  private _downRightBackMesh
+  private _frontLeftFrontMesh
+  private _frontRightFrontMesh
+  private _frontLeftBacktMesh
+  private _frontRightBackMesh
+
+  public jy901Data: JY901Data = {
     ax: 0, ay: 0, az: 0,  // 加速度
     wx: 0, wy: 0, wz: 0,  // 角速度
     pitch: 0, roll: 0, yaw: 0,  // 角度
     temperature: 0,  // 温度
   }
-  public arduinoData = {
+  public arduinoData: ArdiunoData = {
     HUMI: 0, TEMP: 0,  // 温湿度
     warning_down_left_front: false,
     warning_down_right_front: false,
@@ -51,7 +77,12 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     warning_front_right_back: false,
     warning_front_left_back: false,  // 向前的红外，true说明前方有障碍
     dist0: 0, dist1: 0, dist2: 0, dist3: 0,  // 超声波
+    infraredShow: {
+      down: '0000',
+      front: '0000',
+    }
   }
+
   private _jy901Subscription: Subscription
   private _arduinoSubscription: Subscription
 
@@ -89,7 +120,9 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       45, this._canvasEl.width / this._canvasEl.height,
       1, 10000
     )
-    this._camera.position.set(0, 100, -100)
+
+    // 在高度100处沿着Z轴观看场景，此时Z轴向频幕里（北）Y轴向上，X轴向左（西）
+    this._camera.position.set(0, 300, -300)
     this._camera.up.set(0, 0, 1)
     this._camera.lookAt(new THREE.Vector3(0, 0, 0))
     this._scene.add(this._camera)
@@ -97,55 +130,55 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     // 定义相机控制器
 
     // 定义光线，位置不同，方向光作用于物体的面也不同，看到的物体各个面的颜色也不一样
-    this._light0 = new THREE.DirectionalLight(0xFF0000, 1)
+    this._light0 = new THREE.DirectionalLight(0xFFFFFF, 1)
     this._light0.position.set(1, 1, 1)
     this._scene.add(this._light0)
-    this._light1 = new THREE.DirectionalLight(0x11FF22, 1)
-    this._light1.position.set(-1, 1, 1)
-    this._scene.add(this._light1)
-    this._light2 = new THREE.DirectionalLight(0x0000FF, 1)
-    this._light2.position.set(-1, -1, 1)
-    this._scene.add(this._light2)
-    this._light3 = new THREE.DirectionalLight(0x880066, 1)
-    this._light3.position.set(1, 1, -1)
-    this._scene.add(this._light3)
+    // this._light1 = new THREE.DirectionalLight(0x11FF22, 1)
+    // this._light1.position.set(-1, 1, 1)
+    // this._scene.add(this._light1)
+    // this._light2 = new THREE.DirectionalLight(0x0000FF, 1)
+    // this._light2.position.set(-1, -1, 1)
+    // this._scene.add(this._light2)
+    // this._light3 = new THREE.DirectionalLight(0x880066, 1)
+    // this._light3.position.set(1, 1, -1)
+    // this._scene.add(this._light3)
 
     // 定义网格，网格的边长是1000，每个小网格的边长是50
-    this._grid = new THREE.GridHelper(1000, 50);
-    this._grid.setColors(0x0000ff, 0x808080);
+    this._grid = new THREE.GridHelper(1000, 50, 0xFFFFFF, 0x808080)
     this._scene.add(this._grid)
 
-    // 定义车体
-    // this._carMesh = new THREE.Mesh(new THREE.CubeGeometry(30, 30, 50, 4, 4, 4),
-    //   new THREE.MeshLambertMaterial({  // Lambert材质会受环境光的影响，呈现环境光的颜色，与材质本身颜色关系不大
-    //     color: 0xFFFFFF,
-    //   })
-    // )
-    // this._carMesh.position.set(0, 0, 0)
-    // this._scene.add(this._carMesh)
-
-    // let loader = new THREE.JSONLoader()
-    // loader.load( 'public/3D_models/mclaren-mp4-12c-vray.json', function ( geometry, materials ) {
-    //   this._carMesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+    const loader = new THREE.ObjectLoader()
+    // 靓车
+    // loader.load('assets/3d/mclaren-mp4-12c-vray.json', (obj) => {
+    //   this._carMesh = obj.children[1]
+    //   this._carMesh.scale.set(0.005, 0.005, 0.005)  // 改变模型的大小
+    //
+    //   this._changePose()
+    //
     //   this._carMesh.position.set(0, 0, 0)
     //   this._scene.add(this._carMesh)
-    //
-    //   console.log(this._carMesh)
-    //
-    // });
-
-    const loader = new THREE.ObjectLoader()
-    loader.load('assets/3d/mclaren-mp4-12c-vray.json', (obj) => {
+    // })
+    loader.load('assets/3d/car-model.json', (obj) => {
       // console.log(obj)
-      this._carMesh = obj.children[1]
-      this._carMesh.scale.set(0.005, 0.005, 0.005)  // 改变模型的大小
+      this._carMesh = obj
+      this._carMesh.scale.set(6, 6, 6)  // 改变模型的大小
 
       this._changePose()
-
       this._carMesh.position.set(0, 0, 0)
-      this._scene.add(this._carMesh)
 
-      // console.log(this._carMesh)
+      this._downLeftFrontMesh = this._carMesh.getObjectByName('downLeftFrontInfrared')
+      this._downRightFrontMesh = this._carMesh.getObjectByName('downRightFrontInfrared')
+      this._downRightBackMesh = this._carMesh.getObjectByName('downRightBackInfrared')
+      this._downLeftBacktMesh = this._carMesh.getObjectByName('downLeftBackInfrared')
+      this._frontLeftFrontMesh = this._carMesh.getObjectByName('frontLeftFrontInfrared')
+      this._frontRightFrontMesh = this._carMesh.getObjectByName('frontRightFrontInfrared')
+      this._frontRightBackMesh = this._carMesh.getObjectByName('frontRightBackInfrared')
+      this._frontLeftBacktMesh = this._carMesh.getObjectByName('frontLeftBackInfrared')
+
+      this._changeInfraredColor()
+
+      this._scene.add(this._carMesh)
+      console.log(this._scene);
     })
 
   }
@@ -159,13 +192,40 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       // 改变模型的旋转角，注意要保证初始车头指向three坐标系的Z轴，
       // 车左侧指向X轴，车上侧指向Y轴 (x:0 y:Math.PI z:Math.PI)
 
-      // jy901的x轴与three的相反，所以俯仰角要取负号
-      this._carMesh.rotation.x = -this.jy901Data.pitch * Math.PI / 180
-      // 加上初始化时的角度
-      this._carMesh.rotation.y = Math.PI + this.jy901Data.yaw * Math.PI / 180
-      // jy901的x轴与three的相反，所以侧滚角要取负号
-      this._carMesh.rotation.z = Math.PI - this.jy901Data.roll * Math.PI / 180
+      // jy901的x轴对应three坐标轴x，方向相同
+      this._carMesh.rotation.x = this.jy901Data.pitch * Math.PI / 180
+      // jy901的Z轴对应three的y轴，方向相同
+      this._carMesh.rotation.y = this.jy901Data.yaw * Math.PI / 180
+      // jy901的y轴对应three的z轴，方向相同
+      this._carMesh.rotation.z = this.jy901Data.roll * Math.PI / 180
     }
+  }
+
+  private _changeInfraredColor () {
+    this._downLeftFrontMesh.material.emissive = this.arduinoData.warning_down_left_front
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._downRightFrontMesh.material.emissive = this.arduinoData.warning_down_right_front
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._downRightBackMesh.material.emissive = this.arduinoData.warning_down_right_back
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._downLeftBacktMesh.material.emissive = this.arduinoData.warning_down_left_back
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._frontLeftFrontMesh.material.emissive = this.arduinoData.warning_front_left_front
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._frontRightFrontMesh.material.emissive = this.arduinoData.warning_front_right_front
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._frontRightBackMesh.material.emissive = this.arduinoData.warning_front_right_back
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
+    this._frontLeftBacktMesh.material.emissive = this.arduinoData.warning_front_left_back
+      ? {r: 0, g: 1, b: 0}
+      : {r: 1, g: 0, b: 0}
   }
 
   /**
@@ -193,18 +253,14 @@ export class TracePlotComponent implements OnInit, OnDestroy {
   }
 
   get titleShow () {
-    const p = this.jy901Data.pitch.toFixed(2)
-    const r = this.jy901Data.roll.toFixed(2)
-    const y = this.jy901Data.yaw.toFixed(2)
-    return `p: ${p}; r: ${r}; y: ${y}`
-
+    return '轨迹图'
   }
 
   ngOnInit () {
     this._initThree()
 
     this._jy901Subscription = this._wsService.jy901$
-      .subscribe((jy901Data) => {
+      .subscribe(jy901Data => {
           this.jy901Data = jy901Data
           this._changePose()
 
@@ -212,8 +268,9 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       )
 
     this._arduinoSubscription = this._wsService.arduino$
-      .subscribe((arduinoData) => {
+      .subscribe(arduinoData => {
           this.arduinoData = arduinoData
+          this._changeInfraredColor()
 
         }
       )

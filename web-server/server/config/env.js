@@ -51,4 +51,4 @@ let specific = {
   },
 };
 
-module.exports = _.merge(base, specific[NODE_ENV])
+export const env = _.merge(base, specific[NODE_ENV])

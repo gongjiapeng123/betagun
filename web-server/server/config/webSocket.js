@@ -1,8 +1,7 @@
 import { sendControlCommand } from './client4tcp'
 import webSocketServer from 'socket.io'
 import * as observables from './observables'
-import * as log4js from 'log4js'
-const logger = log4js.getLogger('default')
+import { logger } from './log'
 
 
 /**
@@ -13,11 +12,11 @@ function checkUser(username, password) {
   return users.has(username) && users.get(username) == password
 }
 
-export default function configWebsocket (server) {
+export function configWebSocket (server) {
   const io = webSocketServer(server)
-  logger.log('配置WebSocket')
+  logger.info('配置WebSocket')
   io.on('connection', (socket) => {  // 客户端WebSocket连接上服务器时
-    logger.log(`客户端 ${socket.handshake.headers.origin} 已连接WebSocket`)
+    logger.info(`客户端 ${socket.handshake.headers.origin} 已连接WebSocket`)
 
     let user = 'nobody'  // 该客户端的用户名
     let imageSubscription = null  // 该客户端对图像的订阅

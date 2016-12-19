@@ -18,7 +18,7 @@ router.use('/', routerMain.routes())
 //   ctx.redirect('/')
 // })
 
-export default function applyRoutes (app) {
+export function applyRoutes (app) {
   app
     .use(router.routes())
     .use(router.allowedMethods())

@@ -2,14 +2,13 @@
 
 import http from 'http'
 import Koa from 'koa'
-import applyMiddleware from './middleware'
-import applyRoutes from './routes'
-import { configLog, appInit, env, configWebSocket } from './config'
+import { applyMiddleware } from './middleware'
+import { applyRoutes } from './routes'
+import { logger, appInit, env, configWebSocket } from './config'
 
 const app = new Koa()
 
 // 日志
-const logger = configLog()
 app.context.logger = logger  // logger挂载在ctx
 
 // 常规中间件

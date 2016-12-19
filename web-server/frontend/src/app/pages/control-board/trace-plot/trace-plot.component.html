@@ -1,6 +1,33 @@
 <div class="wrapper">
-  <canvas id="canvas" width="320" height="120">
-    您的浏览器不支持画布！
-  </canvas>
+  <div class="canvas-wrapper">
+    <canvas id="canvas" width="320" height="480">
+      您的浏览器不支持画布！
+    </canvas>
+  </div>
+  <div class="trace-info">
+    <p>
+      俯仰角：{{jy901Data.pitch.toFixed(2)}}
+    </p>
+    <p>
+      侧滚角：{{jy901Data.roll.toFixed(2)}}
+    </p>
+    <p>
+      航向角：{{jy901Data.yaw.toFixed(2)}}
+    </p>
+  </div>
+  <div class="arduino-info">
+    <!--<p>-->
+      <!--湿度：{{arduinoData.HUMI}}-->
+    <!--</p>-->
+    <!--<p>-->
+      <!--温度: {{arduinoData.TEMP}}-->
+    <!--</p>-->
+    <p>
+      DOWN：{{arduinoData.infraredShow.down}}
+    </p>
+    <p>
+      FRONT：{{arduinoData.infraredShow.front}}
+    </p>
+  </div>
 </div>
 

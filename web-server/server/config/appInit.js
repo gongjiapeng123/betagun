@@ -11,9 +11,9 @@ import session from 'koa-generic-session'
 import './passport'  // 配置passport
 import passport from 'koa-passport'
 
-import env from './env'
+import { env } from './env'
 
-export default function appInit (app) {
+export function appInit (app) {
 
   app.name = 'server'
   app.proxy = true

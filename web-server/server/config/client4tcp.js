@@ -18,9 +18,8 @@
  */
 
 import * as net from 'net'
-import * as log4js from 'log4js'
-import env from './env'
-const logger = log4js.getLogger('default')
+import { env } from './env'
+import { logger } from './log'
 
 const directive = require('./directive')
 
@@ -35,10 +34,10 @@ const controlClient = net.connect(61611, env.tcp_host, () => {
 })
   .setEncoding('binary')
   .on('data', (data) => {  // 接收服务器发过来的数据（控制命令的反馈）
-    logger.log(data.toString())
+    logger.info(data.toString())
   })
   .on('end', () => {
-    logger.log('disconnected from 61611 control server')
+    logger.info('disconnected from 61611 control server')
   })
   .on('error', (error) => {
     // logger.error(error)
@@ -48,7 +47,7 @@ export function sendControlCommand (type, parameters) {  // 发送控制命令
   switch (type) {
     case 'motorsControl': {
       cmd = directive.makeControlMotorCommand(parameters.motorLeftSpeed, parameters.motorRightSpeed)
-      // logger.log(Buffer.from(cmd, 'binary'))
+      // logger.info(Buffer.from(cmd, 'binary'))
       controlClient.write(cmd, 'binary')  // 要以二进制方式发送字符串，否则使用默认编码会出错
     }
   }
@@ -72,7 +71,7 @@ const jy901Client = net.connect(61612, env.tcp_host, () => {
 
   })
   .on('end', () => {
-    logger.log('disconnected from 61612 jy901 server')
+    logger.info('disconnected from 61612 jy901 server')
   })
   .on('error', (error) => {
     // logger.error(error)
@@ -91,7 +90,7 @@ const arduinoClient = net.connect(61613, env.tcp_host, () => {
 
   })
   .on('end', () => {
-    logger.log('disconnected from 61613 arduino server')
+    logger.info('disconnected from 61613 arduino server')
   })
   .on('error', (error) => {
     // logger.error(error)
@@ -109,7 +108,7 @@ const imageClient = net.connect(61614, env.tcp_host, () => {
     directive.parseImage(data)
   })
   .on('end', () => {
-    logger.log('disconnected from 61614 image server')
+    logger.info('disconnected from 61614 image server')
   })
   .on('error', (error) => {
     // logger.error(error)
@@ -128,7 +127,7 @@ const infoClient = net.connect(61615, env.tcp_host, () => {
 
   })
   .on('end', () => {
-    logger.log('disconnected from 61615 info server')
+    logger.info('disconnected from 61615 info server')
   })
   .on('error', (error) => {
     // logger.error(error)

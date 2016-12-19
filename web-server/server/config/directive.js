@@ -6,8 +6,7 @@
 
 import * as observables from './observables'
 import crc from 'crc'
-import log4js from 'log4js'
-const logger = log4js.getLogger('default')
+import { logger } from './log'
 
 // 命令的一些固定字节
 const HEAD1 = '\x66'
@@ -374,8 +373,8 @@ function _check (dataLine) {
   const dataLen = Buffer.from(dataLine[2], 'binary')[0]
   const data = dataLine.substr(4, dataLen)
 
-  let checkSum = dataLine.slice(-2, -1)
-  let checkData = dataLine.slice(2, -2)  // 栈长度 + 命令字 + 数据
+  const checkSum = dataLine.slice(-2, -1)
+  const checkData = dataLine.slice(2, -2)  // 栈长度 + 命令字 + 数据
 
   // let b = Buffer.from(checkData, 'binary')
 

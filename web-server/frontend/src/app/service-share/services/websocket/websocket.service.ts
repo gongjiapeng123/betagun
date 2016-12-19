@@ -13,6 +13,10 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import * as io from 'socket.io-client'
+import {
+  JY901Data,
+  ArdiunoData,
+} from './models'
 
 
 @Injectable()
@@ -45,19 +49,19 @@ export class WebSocketService {
    * 从服务器获取得到JY901传感器数据
    * @type {Subject}
    */
-  public jy901$: Subject<any> = new Subject<any>()
+  public jy901$: Subject<JY901Data> = new Subject<JY901Data>()
   /**
    * 从服务器获取得到arduino的传感器数据
    * @type {Subject}
    */
-  public arduino$: Subject<any> = new Subject<any>()
+  public arduino$: Subject<ArdiunoData> = new Subject<ArdiunoData>()
 
 
   /**
    * 连接连接服务端WebSocket，并初始化该客户端WebSocket要监听的服务器端WebSocket发送过来的一系列事件
    */
   connect () {
-    const host = 'ws://127.0.0.1:61616'
+    const host = 'ws://192.168.78.215:61616'
     // const host = 'ws://' + location.host
     console.log(host)
     this._socket = io(host)
@@ -88,28 +92,42 @@ export class WebSocketService {
             this.isAuth$.next(false)
           })
           .on('jy901', (data: {jy901Data: string}) => {  // JY901传感器数据
-            let info = data.jy901Data.split(' ')  // web服务器传来的数据是用空格隔开的
+            const dataStrings = data.jy901Data.split(' ')  // web服务器传来的数据是用空格隔开的
             this.jy901$.next({
-              ax: parseFloat(info[0]), ay: parseFloat(info[1]), az: parseFloat(info[2]),  // 加速度
-              wx: parseFloat(info[3]), wy: parseFloat(info[4]), wz: parseFloat(info[5]),  // 角速度
-              pitch: parseFloat(info[6]), roll: parseFloat(info[7]), yaw: parseFloat(info[8]),  // 角度
-              temperature: parseFloat(info[9]),  // 温度
+              ax: parseFloat(dataStrings[0]),
+              ay: parseFloat(dataStrings[1]),
+              az: parseFloat(dataStrings[2]),  // 加速度
+              wx: parseFloat(dataStrings[3]),
+              wy: parseFloat(dataStrings[4]),
+              wz: parseFloat(dataStrings[5]),  // 角速度
+              pitch: parseFloat(dataStrings[6]),
+              roll: parseFloat(dataStrings[7]),
+              yaw: parseFloat(dataStrings[8]),  // 角度
+              temperature: parseFloat(dataStrings[9]),  // 温度
             })
 
           })
           .on('arduino', (data: {arduinoData: String}) => {  // arduino上的传感器数据
-            let info = data.arduinoData.split(' ')  // web服务器传来的数据是用空格隔开的
+            const dataStrings = data.arduinoData.split(' ')  // web服务器传来的数据是用空格隔开的
             this.arduino$.next({
-              HUMI: info[0], TEMP: info[1],  // 温湿度
-              warning_down_left_front: info[2] === '1',
-              warning_down_right_front: info[3] === '1',
-              warning_down_right_back: info[4] === '1',
-              warning_down_left_back: info[5] === '1',  // 向下的红外，true说明远离地面
-              warning_front_left_front: info[6] === '1',
-              warning_front_right_front: info[7] === '1',
-              warning_front_right_back: info[8] === '1',
-              warning_front_left_back: info[9] === '1',  // 向前的红外，true说明前方有障碍
-              dist0: info[10], dist1: info[11], dist2: info[12], dist3: info[13],  // 超声波
+              HUMI: parseFloat(dataStrings[0]),
+              TEMP: parseFloat(dataStrings[1]),  // 温湿度
+              warning_down_left_front: dataStrings[2] === '1',
+              warning_down_right_front: dataStrings[3] === '1',
+              warning_down_right_back: dataStrings[4] === '1',
+              warning_down_left_back: dataStrings[5] === '1',  // 向下的红外，true说明远离地面
+              warning_front_left_front: dataStrings[6] === '1',
+              warning_front_right_front: dataStrings[7] === '1',
+              warning_front_right_back: dataStrings[8] === '1',
+              warning_front_left_back: dataStrings[9] === '1',  // 向前的红外，true说明前方有障碍
+              dist0: parseFloat(dataStrings[10]),
+              dist1: parseFloat(dataStrings[11]),
+              dist2: parseFloat(dataStrings[12]),
+              dist3: parseFloat(dataStrings[13]),  // 超声波
+              infraredShow: {
+                down: dataStrings[2] + dataStrings[3] + dataStrings[4] + dataStrings[5],
+                front: dataStrings[6] + dataStrings[7] + dataStrings[8] + dataStrings[9]
+              }
             })
 
           })
