@@ -1,5 +1,3 @@
-# Example OpenCV Logitech Webcam C120 camera parameters
-
 # Parameters, according with OpenCV VideoCapture::set method.
 camera_index_left: 0
 camera_index_right: 1
