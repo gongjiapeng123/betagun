@@ -112,12 +112,13 @@ class JY901:
             print('角速度：', self.wx, self.wy, self.wz)
             print('位姿（俯仰、侧滚、航向）：', self.pitch, self.roll, self.yaw)
 
-        # 转换弧度
-        yaw_rad = pitch_rad = roll_rad = 0
-        yaw_rad = self.yaw * degrees2rad
-        # JY901的俯仰相关的轴指向右， 但是 ROS 指向左 (see REP 103)
-        pitch_rad = -self.pitch * degrees2rad
+        # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
+        pitch_rad = roll_rad = yaw_rad = 0
+        # JY901的俯仰相关的轴x指向右， ROS body 指向左(y) (see REP 103)
+        pitch_rad = self.pitch * degrees2rad
         roll_rad = self.roll * degrees2rad
+        # JY901的航向指向轴为y， ROS body 指向是x，有90度的差异
+        yaw_rad = self.yaw * degrees2rad
 
         # ROS中标准位x轴指向前，y轴指向左边，z轴指向上方，此处微调数值
         self.imu_msg.linear_acceleration.x = self.ay * 9.79 + 0.7
@@ -141,9 +142,21 @@ class JY901:
         if self.verbose == 'ros':
             print('*' * 20)
             print('温度：', self.temperature)
-            print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.linear_acceleration.x , self.imu_msg.linear_acceleration.y, self.imu_msg.linear_acceleration.z))
-            print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(self.imu_msg.angular_velocity.x, self.imu_msg.angular_velocity.y, self.imu_msg.angular_velocity.z))
-            print('位姿（俯仰、侧滚、航向）： {:0.2f} {:0.2f} {:0.2f}'.format(pitch_rad, roll_rad, yaw_rad))
+            print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(
+                self.imu_msg.linear_acceleration.x, 
+                self.imu_msg.linear_acceleration.y, 
+                self.imu_msg.linear_acceleration.z
+            ))
+            print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(
+                self.imu_msg.angular_velocity.x, 
+                self.imu_msg.angular_velocity.y, 
+                self.imu_msg.angular_velocity.z
+            ))
+            print('位姿（俯仰、侧滚、航向）： {:0.2f} {:0.2f} {:0.2f}'.format(
+                pitch_rad, 
+                roll_rad, 
+                yaw_rad
+            ))
 
         self.pub.publish(self.imu_msg)
 

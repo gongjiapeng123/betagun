@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <!-- Usage:
+  roslaunch cameras betagun_odometer.launch -->
+
+  <!-- Logger config -->
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find cameras)/config/cameras.config"/>
+
+  <!-- Publish transforms -->
+
+  <!-- Transform from odom frame to base_link frame -->
+  <node pkg="tf2_ros" 
+        type="static_transform_publisher" 
+        name="odom_to_base_link" 
+        args="0 0 0.08 0 0 0 base_link stereo_odom">
+  </node>
+
+  <!-- Transform from base_link frame to imu frame -->
+  <node pkg="tf2_ros" 
+        type="static_transform_publisher" 
+        name="base_link_to_imu" 
+        args="-0.2 0 0.05 0 0 0 base_link imu">
+  </node>
+
+  <!-- Transform from base_link frame to stereo_odom frame -->
+  <node pkg="tf2_ros" 
+        type="static_transform_publisher" 
+        name="base_link_to_stereo_odom" 
+        args="0.2 0 0.08 0 0 0 base_link stereo_odom">
+  </node>
+
+  <!-- Transform from stereo odom frame to stereo_optical frame -->
+  <node pkg="tf2_ros"
+        type="static_transform_publisher" 
+        name="stereo_odom_to_stereo_optical" 
+        args="0 0 0 -1.571 0 -1.571 stereo_odom stereo_optical">
+  </node>
+
+  <!-- Run stereo odometer. -->
+  <node name="stereo_odometer" pkg="viso2_ros" type="stereo_odometer" output="screen">
+    <!-- get stereo topics. -->
+    <remap from="stereo" to="stereo"/>
+    <remap from="image" to="image_rect"/>
+  </node>
+</launch>
+
