@@ -6,6 +6,7 @@
 
 const net = require('net')
 const directive = require('./directive')
+const logger = require('./log')
 
 const CMDNUMBER_PER_EVENTDATA = 10  // 一次data事件要执行的命令
 const cmdRegExp = /\x66\xaa.{3,}\xfc/g
@@ -25,7 +26,7 @@ const controlServer = net.createServer((client) => {  // 当每一个client连�
   let cmdLines = []  // 存储每个客户端的当前还未执行的命令
   const address = `${client.remoteAddress}:${client.remotePort}`
 
-  console.log(`client from ${address} connected`)
+  logger.info(`[control server]: client from ${address} connected`)
   client.write('Info: Welcome\r\n')
 
   // client socket的事件监听
@@ -53,7 +54,7 @@ const controlServer = net.createServer((client) => {  // 当每一个client连�
             if (username == 'python') {
               pyConnected = true
               user = 'python'
-              console.log(`controlServer: python client connected`)
+              logger.info(`[control server]: python client connected`)
 
             } else if (username == 'admin') {
               if (hasAdmin) {  // 如果已经有客户端以admin身份登入则不允许登入
@@ -122,7 +123,6 @@ const controlServer = net.createServer((client) => {  // 当每一个client连�
         if (todos.length > 0) {
           // 遍历每条命令
           todos.forEach((cmdLine) => {
-            console.log(cmdLine)
             const cmd = directive.parseCommand(cmdLine)
             directive.executeCommand(cmd)
           })
@@ -136,7 +136,7 @@ const controlServer = net.createServer((client) => {  // 当每一个client连�
       else if (user === 'admin') {
         hasAdmin = false
       }
-      console.log(`client disconnected.[user: ${user}, address: ${address}]`)
+      logger.info(`[control server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {  // 连接错误时
       if (user == 'python') {
@@ -145,18 +145,18 @@ const controlServer = net.createServer((client) => {  // 当每一个client连�
       else if (user == 'admin') {
         hasAdmin = false
       }
-      console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
+      logger.error(`[control server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 
 
 })
 
 controlServer.on('error', (err) => {
-  console.log(err);
+  logger.error(`[control server]: ${err}`)
 })
 
 controlServer.listen(61611, '0.0.0.0', () => {
-  console.log('control server bound')
+  logger.info('control server bound')
 })
 
 exports.controlServer = controlServer

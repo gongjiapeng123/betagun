@@ -6,7 +6,7 @@
 
 const net = require('net')
 const Rx = require('rxjs/Rx')
-
+const logger = require('./log')
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 
 const arduinoProxy = new Rx.Subject()
@@ -21,7 +21,7 @@ const arduinoServer = net.createServer((client) => {
 
   let address = `${client.remoteAddress}:${client.remotePort}`
 
-  console.log(`client from ${address} connected`)
+  logger.info(`[arduino_server]: client from ${address} connected`)
 
   // client socket的事件监听
   client
@@ -50,7 +50,7 @@ const arduinoServer = net.createServer((client) => {
                 client.write(data, 'binary')  // 广播给需要接收数据的客户端
               },
               (err) => {
-                console.error(err)
+                logger.error(`[arduino_server]: ${err}`)
               }
             )
 
@@ -68,22 +68,22 @@ const arduinoServer = net.createServer((client) => {
     })
     .on('end', () => {  // 连接结束时
       subscription && subscription.unsubscribe()
-      console.log(`client disconnected.[user: ${user}, address: ${address}]`)
+      logger.info(`[arduino_server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
       subscription && subscription.unsubscribe()
-      console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
+      logger.error(`[arduino_server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 
 
 })
 
 arduinoServer.on('error', (err) => {
-  console.log(err);
+  logger.error(`[arduino_server]: ${err}`)
 })
 
 arduinoServer.listen(61613, '0.0.0.0', () => {
-  console.log('arduino server bound')
+  logger.info('arduino server bound')
 })
 
 exports.arduinoServer = arduinoServer

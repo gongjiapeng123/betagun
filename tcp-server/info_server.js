@@ -6,6 +6,7 @@
 
 const net = require('net')
 const Rx = require('rxjs/Rx')
+const logger = require('./log')
 
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 let pyConnected = false  // python进程客户端是否已经连接上来
@@ -22,7 +23,7 @@ const infoServer = net.createServer((client) => {
 
   let address = `${client.remoteAddress}:${client.remotePort}`
 
-  console.log(`client from ${address} connected`)
+  logger.info(`[info server]: client from ${address} connected`)
 
   // client socket的事件监听
   client
@@ -48,7 +49,7 @@ const infoServer = net.createServer((client) => {
           if (require('./check_user')(username, password)) {  // 登陆成功
             if (username === 'python') {  // python进程连接进来
 
-              console.log(`infoServer: python client connected`)
+              logger.info(`[info server]: python client connected`)
               pyConnected = true
               user = 'python'
               client.write('Now you can send data to me!\r\n')
@@ -74,7 +75,7 @@ const infoServer = net.createServer((client) => {
                   client.write(data, 'binary')  // 广播给需要接收数据的客户端
                 },
                 (err) => {
-                  console.error(err)
+                  logger.error(`[info server]: ${err}`)
                 }
               )
 
@@ -97,25 +98,25 @@ const infoServer = net.createServer((client) => {
         pyConnected = false
 
       subscription && subscription.unsubscribe()
-      console.log(`client disconnected.[user: ${user}, address: ${address}]`)
+      logger.info(`[info server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
       if (user === 'python')
         pyConnected = false
 
       subscription && subscription.unsubscribe()
-      console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
+      logger.error(`[info server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 
 
 })
 
 infoServer.on('error', (err) => {
-  console.log(err)
+  logger.error(`[info server]: ${err}`)
 })
 
 infoServer.listen(61615, '0.0.0.0', () => {
-  console.log('info server bound')
+  logger.info('info server bound')
 })
 
 exports.infoServer = infoServer

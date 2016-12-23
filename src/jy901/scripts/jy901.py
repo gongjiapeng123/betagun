@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 '''
 连接小车61612，获取jy901数据并发送主题
 '''
@@ -107,26 +108,24 @@ class JY901:
 
         if self.verbose == 'raw':
             print('*' * 20)
-            print('温度：', self.temperature)
-            print('加速度：', self.ax, self.ay, self.az)
-            print('角速度：', self.wx, self.wy, self.wz)
-            print('位姿（俯仰、侧滚、航向）：', self.pitch, self.roll, self.yaw)
+            print('TEMP:', self.temperature)
+            print('A:', self.ax, self.ay, self.az)
+            print('W:', self.wx, self.wy, self.wz)
+            print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
 
         # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
         pitch_rad = roll_rad = yaw_rad = 0
-        # JY901的俯仰相关的轴x指向右， ROS body 指向左(y) (see REP 103)
         pitch_rad = self.pitch * degrees2rad
         roll_rad = self.roll * degrees2rad
-        # JY901的航向指向轴为y， ROS body 指向是x，有90度的差异
         yaw_rad = self.yaw * degrees2rad
 
-        # ROS中标准位x轴指向前，y轴指向左边，z轴指向上方，此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay * 9.79 + 0.7
-        self.imu_msg.linear_acceleration.y = -self.ax * 9.79 + 1.3
-        self.imu_msg.linear_acceleration.z = -self.az * 9.79 + 0.5
+        # 此处微调数值
+        self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
+        self.imu_msg.linear_acceleration.y = self.ax * 9.8 + 0.2
+        self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
 
-        self.imu_msg.angular_velocity.x = self.wy * degrees2rad - 0.005
-        self.imu_msg.angular_velocity.y = self.wx * degrees2rad + 0.035
+        self.imu_msg.angular_velocity.x = self.wy * degrees2rad
+        self.imu_msg.angular_velocity.y = self.wx * degrees2rad
         self.imu_msg.angular_velocity.z = self.wz * degrees2rad
 
         q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
@@ -135,24 +134,24 @@ class JY901:
         self.imu_msg.orientation.z = q[2]
         self.imu_msg.orientation.w = q[3]
         self.imu_msg.header.stamp = rospy.Time.now()
-        self.imu_msg.header.frame_id = 'base_imu_link'
+        self.imu_msg.header.frame_id = 'jy901_imu'
         self.imu_msg.header.seq = self.cnt
         self.cnt += 1
 
         if self.verbose == 'ros':
             print('*' * 20)
-            print('温度：', self.temperature)
-            print('加速度： {:0.2f} {:0.2f} {:0.2f}'.format(
+            print('TEMP:', self.temperature)
+            print('A: {:0.2f} {:0.2f} {:0.2f}'.format(
                 self.imu_msg.linear_acceleration.x, 
                 self.imu_msg.linear_acceleration.y, 
                 self.imu_msg.linear_acceleration.z
             ))
-            print('角速度： {:0.2f} {:0.2f} {:0.2f}'.format(
+            print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
                 self.imu_msg.angular_velocity.x, 
                 self.imu_msg.angular_velocity.y, 
                 self.imu_msg.angular_velocity.z
             ))
-            print('位姿（俯仰、侧滚、航向）： {:0.2f} {:0.2f} {:0.2f}'.format(
+            print('pitch, roll, yaw: {:0.2f} {:0.2f} {:0.2f}'.format(
                 pitch_rad, 
                 roll_rad, 
                 yaw_rad

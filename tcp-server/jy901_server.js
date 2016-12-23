@@ -6,6 +6,7 @@
 
 const net = require('net')
 const Rx = require('rxjs/Rx')
+const logger = require('./log')
 
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 
@@ -21,7 +22,7 @@ const jy901Server = net.createServer((client) => {
 
   let address = `${client.remoteAddress}:${client.remotePort}`
 
-  console.log(`client from ${address} connected`)
+  logger.info(`[jy901 server]: client from ${address} connected`)
 
   // client socket的事件监听
   client
@@ -50,7 +51,7 @@ const jy901Server = net.createServer((client) => {
                 client.write(data, 'binary')  // 广播给需要接收数据的客户端
               },
               (err) => {
-                console.error(err)
+                logger.error(`[jy901 server]: ${err}`)
               }
             )
 
@@ -68,22 +69,22 @@ const jy901Server = net.createServer((client) => {
     })
     .on('end', () => {  // 连接结束时
       subscription && subscription.unsubscribe()
-      console.log(`client disconnected.[user: ${user}, address: ${address}]`)
+      logger.info(`[jy901 server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
       subscription && subscription.unsubscribe()
-      console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
+      logger.error(`[jy901 server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 
 
 })
 
 jy901Server.on('error', (err) => {
-  console.log(err);
+  logger.info(`[jy901 server]: ${err}`);
 })
 
 jy901Server.listen(61612, '0.0.0.0', () => {
-  console.log('jy901 server bound')
+  logger.info('jy901 server bound')
 })
 
 exports.jy901Server = jy901Server

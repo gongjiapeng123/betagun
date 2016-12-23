@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    
+  <!-- jy901 IMU -->
+  <include file="$(find jy901)/launch/jy901.launch">
+
+  </include>
+    
+  <!-- VO -->
+  <include file="$(find cameras)/launch/camera_stereo.launch">
+    <arg name="odometry" value="true"/>
+  </include>
+  
+  <node pkg="robot_localization" 
+        type="ekf_localization_node" 
+        name="ekf_se"
+        clear_params="true">
+    <rosparam command="load"
+              file="$(find betagun)/params/odom_ekf.yaml"/>
+     
+  </node>
+  
+</launch>
+

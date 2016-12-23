@@ -8,6 +8,7 @@
 
 const net = require('net')
 const Rx = require('rxjs/Rx')
+const logger = require('./log')
 
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 let pyConnected = false  // python进程客户端是否已经连接上来
@@ -27,7 +28,7 @@ const imageServer = net.createServer((client) => {
 
   const address = `${client.remoteAddress}:${client.remotePort}`
 
-  console.log(`client from ${address} connected`)
+  logger.info(`[image server]: client from ${address} connected`)
 
   // client socket的事件监听
   client
@@ -53,7 +54,7 @@ const imageServer = net.createServer((client) => {
           if (require('./check_user')(username, password)) {  // 登陆成功
             if (username == 'python') {  // python进程连接61614端口
 
-              console.log(`imageServer: python client connected`)
+              logger.info(`[image server]: imageServer: python client connected`)
               pyConnected = true
               user = 'python'
               // client.write('Now you can send data to me!\r\n')
@@ -77,7 +78,7 @@ const imageServer = net.createServer((client) => {
                   client.write(data)
                 },
                 (err) => {  // 发生错误
-                  console.error(err)
+                  logger.error(`[image server]: ${err}`)
                 }
               )
 
@@ -100,25 +101,25 @@ const imageServer = net.createServer((client) => {
         pyConnected = false
 
       subscription && subscription.unsubscribe()
-      console.log(`client disconnected.[user: ${user}, address: ${address}]`)
+      logger.info(`[image server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
       if (user == 'python')
         pyConnected = false
 
       subscription && subscription.unsubscribe()
-      console.error(`client error: ${err}.[user: ${user}, address: ${address}]`)
+      logger.error(`[image server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 
 
 })
 
 imageServer.on('error', (err) => {
-  console.log(err)
+  logger.error(`[image server]: ${err}`)
 })
 
 imageServer.listen(61614, '0.0.0.0', () => {
-  console.log('image server bound')
+  logger.info('image server bound')
 })
 
 exports.imageServer = imageServer

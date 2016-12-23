@@ -6,6 +6,7 @@
 const serialport = require('serialport')
 const SerialPort = serialport.SerialPort
 const directive = require('./directive')
+const logger = require('./log')
 
 // 获取环境变量的串口号，当不同设备运行时，分配名为
 // BETAGUN_MOTOR_COMPORT、BETAGUN_JY901_COMPORT、BETAGUN_SENSORS_COMPORT的环境变量即可
@@ -26,24 +27,24 @@ const motorPort = new SerialPort(motorPortName, {
   parity: 'none',
   parser: serialport.parsers.readline('\r\n')
 })
-  .on('open', (error) => {  // 订阅事件
-    if (error) {
-      console.log(error)
+  .on('open', (err) => {  // 订阅事件
+    if (err) {
+      logger.error(err)
     } else {
-      console.log('Open motorPort!')
+      logger.info('[motor port]: opened!')
     }
 
   })
   .on('close', () => {
-    console.log('motorPort close!')
+    logger.info('[motor port]: closed!')
 
   })
-  .on('error', (error) => {
-    console.log('motorPort error: ' + error)
+  .on('error', (err) => {
+    logger.error(`[motor port]: error: ${err}`)
 
   })
-  .on('disconnect', (error) => {
-    console.log('motorPort disconnect: ' + error)
+  .on('disconnect', (err) => {
+    logger.info(`[motor port]: disconnect: ${err}`)
 
   })
 
@@ -122,11 +123,11 @@ const jy901Port = new SerialPort(jy901PortName, {
   parity: 'none',
   parser: packetParser()
 })
-  .on('open', (error) => {  // 订阅事件
-    if (error) {
-      console.log(error)
+  .on('open', (err) => {  // 订阅事件
+    if (err) {
+      logger.error(err)
     } else {
-      console.log('Open jy901Port!')
+      logger.info('[jy901 port]: opened')
     }
 
   })
@@ -135,15 +136,15 @@ const jy901Port = new SerialPort(jy901PortName, {
 
   })
   .on('close', () => {
-    console.log('jy901Port close!')
+    logger.info('[jy901 port]: closed!')
 
   })
-  .on('error', (error) => {
-    console.log('jy901Port error: ' + error)
+  .on('error', (err) => {
+    logger.error(`[jy901 port]:  error: ${err}`)
 
   })
-  .on('disconnect', (error) => {
-    console.log('jy901Port disconnect: ' + error)
+  .on('disconnect', (err) => {
+    logger.info(`[jy901 port]:  disconnect: ${err}`)
 
   })
 
@@ -159,18 +160,18 @@ if (process && process.env && process.env.BETAGUN_ARDUINO_COMPORT) {
   arduinoPortName = process.env.BETAGUN_ARDUINO_COMPORT
 }
 
-const sensorsPort = new SerialPort(arduinoPortName, {
+const arduinoPort = new SerialPort(arduinoPortName, {
   baudRate: 115200,
   dataBits: 8,
   stopBits: 1,
   parity: 'none',
   parser: packetParser()
 })
-  .on('open', (error) => {  // 订阅事件
-    if (error) {
-      console.log(error)
+  .on('open', (err) => {  // 订阅事件
+    if (err) {
+      logger.error(err)
     } else {
-      console.log('Open sensorsPort!')
+      logger.info('[arduino port]: opened')
     }
 
   })
@@ -179,17 +180,17 @@ const sensorsPort = new SerialPort(arduinoPortName, {
 
   })
   .on('close', () => {
-    console.log('sensorsPort close!')
+    logger.info('[arduino port]:  closed!')
 
   })
-  .on('error', (error) => {
-    console.log('sensorsPorterror: ' + error)
+  .on('error', (err) => {
+    logger.error(`[arduino port]: error: ${err}`)
 
   })
-  .on('disconnect', (error) => {
-    console.log('sensorsPort disconnect: ' + error)
+  .on('disconnect', (err) => {
+    logger.info(`[arduino port]:  disconnect: ${err}`)
 
   })
 
-exports.sensorsPort = sensorsPort
+exports.arduinoPort = arduinoPort
 
