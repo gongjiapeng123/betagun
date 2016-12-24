@@ -20,7 +20,7 @@ crc8 = mkPredefinedCrcFun('crc-8')
 # ROS
 import rospy
 from nav_msgs.msg import Odometry
-from tf.transformations import quaternion_from_euler
+from tf.transformations import euler_from_quaternion
 
 degrees2rad = math.pi / 180.0
 
@@ -63,46 +63,56 @@ class InfoCapture:
         监听滤波后的里程计数据
         '''
         def parse(data):
-            print(data)
-            pose = data['pose']
-            twist = data['twist']
+            position = data.pose.pose.position
+            orientation = data.pose.pose.orientation
+            linear = data.twist.twist.linear
+            angular = data.twist.twist.angular
 
-            (self.ax, self.ay, self.az, 
-            self.wx, self.wy, self.wz,
-            self.pitch, self.roll, self.yaw,
-            self.temperature) = data_to_list
+            self.info_odom['x'] = position.x
+            self.info_odom['y'] = position.y
+            self.info_odom['z'] = position.z
+            self.info_odom['ax'] = linear.x
+            self.info_odom['ay'] = linear.y
+            self.info_odom['az'] = linear.z
+            # 转换degree
+            self.info_odom['wx'] = angular.x / degrees2rad
+            self.info_odom['wy'] = angular.y / degrees2rad
+            self.info_odom['wz'] = angular.z / degrees2rad
+            
+            direction = euler_from_quaternion([
+                orientation.x,
+                orientation.y,
+                orientation.z,
+                orientation.w,
+            ])
+            
+            # 转换degree
+            self.info_odom['pitch'] = direction[0] / degrees2rad
+            self.info_odom['roll'] = direction[1] / degrees2rad
+            self.info_odom['yaw'] = direction[2] / degrees2rad
 
             if self.verbose:
                 print('*' * 20)
-                print('A:', self.ax, self.ay, self.az)
-                print('W:', self.wx, self.wy, self.wz)
-                print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
-                print('x, y, z:', self.pitch, self.roll, self.yaw)
-
-            # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
-            pitch_rad = roll_rad = yaw_rad = 0
-            pitch_rad = self.pitch * degrees2rad
-            roll_rad = self.roll * degrees2rad
-            yaw_rad = self.yaw * degrees2rad
-
-            # 此处微调数值
-            self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
-            self.imu_msg.linear_acceleration.y = self.ax * 9.8 + 0.2
-            self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
-
-            self.imu_msg.angular_velocity.x = self.wy * degrees2rad
-            self.imu_msg.angular_velocity.y = self.wx * degrees2rad
-            self.imu_msg.angular_velocity.z = self.wz * degrees2rad
-
-            q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
-            self.imu_msg.orientation.x = q[0]
-            self.imu_msg.orientation.y = q[1]
-            self.imu_msg.orientation.z = q[2]
-            self.imu_msg.orientation.w = q[3]
-            self.imu_msg.header.stamp = rospy.Time.now()
-            self.imu_msg.header.frame_id = 'jy901_imu'
-            self.imu_msg.header.seq = self.cnt
-            self.cnt += 1
+                print('A: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['ax'],
+                    self.info_odom['ay'],
+                    self.info_odom['az']
+                ))
+                print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['wx'],
+                    self.info_odom['wy'],
+                    self.info_odom['wz']
+                ))
+                print('pitch, roll, yaw: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['pitch'],
+                    self.info_odom['roll'],
+                    self.info_odom['yaw']
+                ))
+                print('x, y, z: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['x'],
+                    self.info_odom['y'],
+                    self.info_odom['z']
+                ))
 
         def make_packet(data):
             '''
@@ -114,14 +124,15 @@ class InfoCapture:
             :return: 发送给61615数据端口的数据
             '''
             parse(data)
-            data_bytes = b' '.join(list(self.info_odom.keys())  # 转换为二进制字符串发送
-            data_len_byte = chr(len(data_bytes))
-            data_check = data_len_byte + b'\xa0' + data_bytes  # 栈长度 + 命令字 + 数据
-            
+            data_bytes = b' '.join(list(self.info_odom.keys()))  # 转换为二进制字符串发送
+            data_bytes_len = chr(len(data_bytes))
+            data_check = b'{0}\xA0{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
+
             return HEAD + data_check + chr(crc8(data_check)) + END
         
         def callback(data):
             packet = make_packet(data)
+            self.sock.send(packet)
 
         rospy.Subscriber('/odometry/filtered', Odometry, callback)
 
