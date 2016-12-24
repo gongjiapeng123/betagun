@@ -14,14 +14,13 @@ from __future__ import absolute_import
 import socket
 import re
 import math
-from crcmod.predefined import mkCrcFun
+from crc import crc8
 
 # ROS
 import rospy
 from sensor_msgs.msg import Imu
 from tf.transformations import quaternion_from_euler
 
-crc = mkCrcFun('crc-8')
 degrees2rad = math.pi / 180.0
 
 def byte_value(uint8):
@@ -92,11 +91,11 @@ class JY901:
         check_sum = packet[-2]
         data_check = packet[2: -2]  # 栈长度 + 命令字 + 数据
 
-        # if crc(str(data_check)) == check_sum:
-        #     return data
+        if crc8(data_check) == check_sum:
+            return data
 
         # 本机传输且使用tcp，不校验也可以
-        return data
+        # return data
 
     def _parse_and_publish(self, data):
         data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
