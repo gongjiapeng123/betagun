@@ -36,9 +36,13 @@ const TABLE = [
 ]
 
 export function crc8 (buf) {
+  let buffer = buf
+  if (!Buffer.isBuffer(buf)) {
+    buffer = Buffer.from(buf, 'binary')
+  }
   let crc = 0
 
-  for (let item of buf) {
+  for (let item of buffer) {
     crc = ((TABLE[(crc ^ item) & 0xff]) & 0xff)
   }
 

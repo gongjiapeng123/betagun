@@ -380,8 +380,7 @@ function _check (dataLine) {
 
   // let b = Buffer.from(checkData, 'binary')
 
-  console.log(ByteToString(crc8(Buffer.from(checkData, 'binary'))) != checkSum);
-  if (ByteToString(crc8(Buffer.from(checkData, 'binary'))) != checkSum)  // 校验和不匹配
+  if (ByteToString(crc8(checkData)) != checkSum)  // 校验和不匹配
     dataID = '\x00'
 
   return DataPacketFactory(dataLine, dataID, data)
