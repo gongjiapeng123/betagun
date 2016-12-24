@@ -5,7 +5,7 @@
 
 
 import * as observables from './observables'
-import crc from 'crc'
+import { crc8 } from './crc'
 import { logger } from './log'
 
 // 命令的一些固定字节
@@ -59,7 +59,7 @@ export function makeControlMotorCommand (motorLeftSpeed, motorRightSpeed) {
   else
     data += '-' + temp
   let dataToCheck = '\x08' + '\x03' + data
-  return HEAD1 + HEAD2 + dataToCheck + ByteToString(crc.crc8(dataToCheck)) + END
+  return HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END
 }
 
 /**********************************************************************************************************************
@@ -378,7 +378,7 @@ function _check (dataLine) {
 
   // let b = Buffer.from(checkData, 'binary')
 
-  if (ByteToString(crc.crc8(checkData)) != checkSum)  // 校验和不匹配
+  if (ByteToString(crc8(checkData)) != checkSum)  // 校验和不匹配
     dataID = '\x00'
 
   return DataPacketFactory(dataLine, dataID, data)

@@ -3,8 +3,7 @@
  * 对下位机通信的串口的设置
  */
 
-const serialport = require('serialport')
-const SerialPort = serialport.SerialPort
+const SerialPort = require('serialport')
 const directive = require('./directive')
 const logger = require('./log')
 
@@ -25,7 +24,7 @@ const motorPort = new SerialPort(motorPortName, {
   dataBits: 8,
   stopBits: 1,
   parity: 'none',
-  parser: serialport.parsers.readline('\r\n')
+  parser: SerialPort.parsers.readline('\r\n')
 })
   .on('open', (err) => {  // 订阅事件
     if (err) {

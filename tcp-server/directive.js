@@ -398,7 +398,7 @@ exports.parseArduinoPacket = function (packet) {
   if (arduinoCompleted == 0b111) {  // 获取完毕，发送流
     // 0x66  0xaa     0x12      0x81    9 short       0x##     0xfc
     const dataToCheck = ByteToString(arduinoInfo.length) + '\x82' + arduinoInfo
-    arduinoObservable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc.crc8(dataToCheck)) + END)
+    arduinoObservable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
 
     // 复位
     arduinoInfo = ''
