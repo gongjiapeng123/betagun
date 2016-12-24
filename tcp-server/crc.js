@@ -36,13 +36,11 @@ const TABLE = [
 ]
 
 exports.crc8 = (buf) => {
-    if (!Buffer.isBuffer(buf)) buf = Buffer.from(buf, 'binary')
+  let crc = 0
 
-    let crc = 0
+  for (let item of buf) {
+    crc = ((TABLE[(crc ^ item) & 0xff]) & 0xff)
+  }
 
-    for (let item of buf) {
-        crc = ((TABLE[(crc ^ item) & 0xff]) & 0xff)
-    }
-
-    return crc
+  return crc
 }
