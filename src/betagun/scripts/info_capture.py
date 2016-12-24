@@ -13,27 +13,20 @@ from __future__ import absolute_import
 
 import socket
 import math
-from crcmod.predefined import mkCrcFun
+from crcmod.predefined import mkPredefinedCrcFun
+
+crc8 = mkPredefinedCrcFun('crc-8')
 
 # ROS
 import rospy
 from nav_msgs.msg import Odometry
 from tf.transformations import quaternion_from_euler
 
-crc = mkCrcFun('crc-8')
 degrees2rad = math.pi / 180.0
 
 # 命令的一些固定字节
 HEAD = b'\x66\xAA'
 END = b'\xFC'
-
-
-def byte_value(uint8):
-    '''
-    bytearray在python2中使用find时需要将uint8转换为byte str
-    '''
-    from platform import python_version
-    return uint8 if python_version()[0] == '3' else chr(uint8)
 
 class InfoCapture:
     
@@ -57,6 +50,11 @@ class InfoCapture:
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        '''
+        ROS
+        '''
+        rospy.init_node(b'oodometry', anonymous=True)
+
         # 连接tcp服务器
         self.connect_server()
 
@@ -64,23 +62,66 @@ class InfoCapture:
         '''
         监听滤波后的里程计数据
         '''
-        def make_packet():
+        def parse(data):
+            print(data)
+            pose = data['pose']
+            twist = data['twist']
+
+            (self.ax, self.ay, self.az, 
+            self.wx, self.wy, self.wz,
+            self.pitch, self.roll, self.yaw,
+            self.temperature) = data_to_list
+
+            if self.verbose:
+                print('*' * 20)
+                print('A:', self.ax, self.ay, self.az)
+                print('W:', self.wx, self.wy, self.wz)
+                print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
+                print('x, y, z:', self.pitch, self.roll, self.yaw)
+
+            # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
+            pitch_rad = roll_rad = yaw_rad = 0
+            pitch_rad = self.pitch * degrees2rad
+            roll_rad = self.roll * degrees2rad
+            yaw_rad = self.yaw * degrees2rad
+
+            # 此处微调数值
+            self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
+            self.imu_msg.linear_acceleration.y = self.ax * 9.8 + 0.2
+            self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
+
+            self.imu_msg.angular_velocity.x = self.wy * degrees2rad
+            self.imu_msg.angular_velocity.y = self.wx * degrees2rad
+            self.imu_msg.angular_velocity.z = self.wz * degrees2rad
+
+            q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
+            self.imu_msg.orientation.x = q[0]
+            self.imu_msg.orientation.y = q[1]
+            self.imu_msg.orientation.z = q[2]
+            self.imu_msg.orientation.w = q[3]
+            self.imu_msg.header.stamp = rospy.Time.now()
+            self.imu_msg.header.frame_id = 'jy901_imu'
+            self.imu_msg.header.seq = self.cnt
+            self.cnt += 1
+
+        def make_packet(data):
             '''
+            构造数据包
             头（2字节）    栈长度（）  数据字   数据           校验和    结束字节
             0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc
             :param frame:
             :param size: 要变换的大小
             :return: 发送给61615数据端口的数据
             '''
+            parse(data)
             data_bytes = b' '.join(list(self.info_odom.keys())  # 转换为二进制字符串发送
-            data_len_byte = chr(len(data_bytes)).encode() if python_version()[0] == '3' else chr(len(data_bytes))
-            # 本地传输，不计算校验和
-            return HEAD + data_len_byte + b'\xa0' + data_bytes + b'\x00' + END
+            data_len_byte = chr(len(data_bytes))
+            data_check = data_len_byte + b'\xa0' + data_bytes  # 栈长度 + 命令字 + 数据
+            
+            return HEAD + data_check + chr(crc8(data_check)) + END
         
         def callback(data):
-            self.flag |= 0b10         
-            self.frame_left = ros_numpy.numpify(data)
-            self.handle()
+            packet = make_packet(data)
 
         rospy.Subscriber('/odometry/filtered', Odometry, callback)
 
@@ -98,67 +139,6 @@ class InfoCapture:
             print('I connect successfully')
         except socket.error as e:
             print(e)
-
-    def _parse_and_publish(self, data):
-        data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
-		
-        (self.ax, self.ay, self.az, 
-        self.wx, self.wy, self.wz,
-        self.pitch, self.roll, self.yaw,
-        self.temperature) = data_to_list
-
-        if self.verbose == 'raw':
-            print('*' * 20)
-            print('TEMP:', self.temperature)
-            print('A:', self.ax, self.ay, self.az)
-            print('W:', self.wx, self.wy, self.wz)
-            print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
-
-        # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
-        pitch_rad = roll_rad = yaw_rad = 0
-        pitch_rad = self.pitch * degrees2rad
-        roll_rad = self.roll * degrees2rad
-        yaw_rad = self.yaw * degrees2rad
-
-        # 此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
-        self.imu_msg.linear_acceleration.y = self.ax * 9.8 + 0.2
-        self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
-
-        self.imu_msg.angular_velocity.x = self.wy * degrees2rad
-        self.imu_msg.angular_velocity.y = self.wx * degrees2rad
-        self.imu_msg.angular_velocity.z = self.wz * degrees2rad
-
-        q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
-        self.imu_msg.orientation.x = q[0]
-        self.imu_msg.orientation.y = q[1]
-        self.imu_msg.orientation.z = q[2]
-        self.imu_msg.orientation.w = q[3]
-        self.imu_msg.header.stamp = rospy.Time.now()
-        self.imu_msg.header.frame_id = 'jy901_imu'
-        self.imu_msg.header.seq = self.cnt
-        self.cnt += 1
-
-        if self.verbose == 'ros':
-            print('*' * 20)
-            print('TEMP:', self.temperature)
-            print('A: {:0.2f} {:0.2f} {:0.2f}'.format(
-                self.imu_msg.linear_acceleration.x, 
-                self.imu_msg.linear_acceleration.y, 
-                self.imu_msg.linear_acceleration.z
-            ))
-            print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
-                self.imu_msg.angular_velocity.x, 
-                self.imu_msg.angular_velocity.y, 
-                self.imu_msg.angular_velocity.z
-            ))
-            print('pitch, roll, yaw: {:0.2f} {:0.2f} {:0.2f}'.format(
-                pitch_rad, 
-                roll_rad, 
-                yaw_rad
-            ))
-
-        self.pub.publish(self.imu_msg)
 
     def run(self):
         '''

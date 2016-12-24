@@ -61,7 +61,7 @@ class JY901:
         ROS
         '''
         # node
-        rospy.init_node(b'jy901')
+        rospy.init_node(b'jy901', anonymous=True)
 
         # We only care about the most recent measurement, i.e. queue_size=1
         self.pub = rospy.Publisher(b'imu', Imu, queue_size=1)
