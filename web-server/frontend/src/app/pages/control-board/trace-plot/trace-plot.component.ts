@@ -26,6 +26,7 @@ import {
   WebSocketService,
   JY901Data,
   ArdiunoData,
+  OdomData,
 } from  '../../../service-share/services/websocket'
 import { Subscription }   from 'rxjs/Subscription'
 import * as THREE from 'three'
@@ -82,9 +83,16 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       front: '0000',
     }
   }
+  public odomData: OdomData = {
+    ax: 0, ay: 0, az: 0,  // 加速度
+    wx: 0, wy: 0, wz: 0,  // 角速度
+    pitch: 0, roll: 0, yaw: 0,  // 角度
+    x: 0, y: 0, z: 0,  // 位置
+  }
 
   private _jy901Subscription: Subscription
   private _arduinoSubscription: Subscription
+  private _odomSubscription: Subscription
 
   constructor (private _wsService: WebSocketService,
                private _elementRef: ElementRef) {
@@ -271,6 +279,13 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       .subscribe(arduinoData => {
           this.arduinoData = arduinoData
           this._changeInfraredColor()
+
+        }
+      )
+
+    this._odomSubscription = this._wsService.odom$
+      .subscribe(odomData => {
+          this.odomData = odomData
 
         }
       )

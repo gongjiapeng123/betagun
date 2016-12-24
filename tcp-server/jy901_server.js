@@ -12,7 +12,7 @@ const loginRexExp = /#.+:.+#/  // #guess:666666#
 
 const jy901Proxy = new Rx.Subject()
 // 接收jy901传感器串口信息 ！！！生产数据过程
-require('./directive').jy901Observable.subscribe(jy901Proxy)
+require('./directive').jy901$.subscribe(jy901Proxy)
 
 const jy901Server = net.createServer((client) => {
 

@@ -33,3 +33,18 @@ export interface ArdiunoData {
   dist3: number  // 超声波
   infraredShow: any
 }
+
+export interface OdomData {
+  ax: number
+  ay: number
+  az: number  // 加速度
+  wx: number
+  wy: number
+  wz: number  // 角速度
+  pitch: number
+  roll: number
+  yaw: number  // 角度
+  x: number
+  y: number
+  z: number  // 位置
+}

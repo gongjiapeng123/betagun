@@ -124,7 +124,20 @@ class InfoCapture:
             :return: 发送给61615数据端口的数据
             '''
             parse(data)
-            data_bytes = b' '.join(list(self.info_odom.keys()))  # 转换为二进制字符串发送
+            data_bytes = (b'{} ' * 12)[: -1].format(
+                self.info_odom['ax'],
+                self.info_odom['ay'],
+                self.info_odom['az'],
+                self.info_odom['wx'],
+                self.info_odom['wy'],
+                self.info_odom['wz'],
+                self.info_odom['pitch'],
+                self.info_odom['roll'],
+                self.info_odom['yaw'],
+                self.info_odom['x'],
+                self.info_odom['y'],
+                self.info_odom['z'],
+            )  # 转换为二进制字符串发送
             data_bytes_len = chr(len(data_bytes))
             data_check = b'{0}\xA0{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
 

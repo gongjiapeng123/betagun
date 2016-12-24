@@ -16,6 +16,7 @@ import * as io from 'socket.io-client'
 import {
   JY901Data,
   ArdiunoData,
+  OdomData,
 } from './models'
 
 
@@ -41,20 +42,25 @@ export class WebSocketService {
    */
   public isAuth$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
   /**
-   * 从服务器获取得到图片数据
+   * 从服务器获取得的图片数据
    * @type {Subject}
    */
   public image$: Subject<ArrayBuffer> = new Subject<ArrayBuffer>()
   /**
-   * 从服务器获取得到JY901传感器数据
+   * 从服务器获取得的JY901传感器数据
    * @type {Subject}
    */
   public jy901$: Subject<JY901Data> = new Subject<JY901Data>()
   /**
-   * 从服务器获取得到arduino的传感器数据
+   * 从服务器获取得的arduino的传感器数据
    * @type {Subject}
    */
   public arduino$: Subject<ArdiunoData> = new Subject<ArdiunoData>()
+  /**
+   * 从服务器获取得的融合滤波后的里程计数据
+   * @type {Subject}
+   */
+  public odom$: Subject<OdomData> = new Subject<OdomData>()
 
 
   /**
@@ -136,7 +142,26 @@ export class WebSocketService {
             this.image$.next(data.image)
           })
           .on('info', (data: {type: string, info: string}) => {  // 小车计算数据
-
+            const dataStrings = data.info.split(' ')
+            switch (data.type) {
+              case 'odom': {
+                this.odom$.next({
+                  ax: parseFloat(dataStrings[0]),
+                  ay: parseFloat(dataStrings[1]),
+                  az: parseFloat(dataStrings[2]),  // 加速度
+                  wx: parseFloat(dataStrings[3]),
+                  wy: parseFloat(dataStrings[4]),
+                  wz: parseFloat(dataStrings[5]),  // 角速度
+                  pitch: parseFloat(dataStrings[6]),
+                  roll: parseFloat(dataStrings[7]),
+                  yaw: parseFloat(dataStrings[8]),  // 角度
+                  x: parseFloat(dataStrings[9]),
+                  y: parseFloat(dataStrings[10]),
+                  z: parseFloat(dataStrings[11]),  // 位置
+                })
+              }
+                break
+            }
           })
 
       })

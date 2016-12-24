@@ -336,8 +336,10 @@ export function parseImage (data) {
  */
 const DATAMAP = new Map([
   ['\x00', {description: '未能解析参数'}],
-  ['\x81', {description: 'JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]'}],
-  ['\x82', {description: ''}]
+  ['\x81', {description: 'JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）'}],
+  ['\x82', {description: 'arduino数据（湿度、温度、8个红外（1表示不正常、0正常），4个超声波）'}],
+
+  ['\xa0', {description: '融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
 ])
 
 /**
@@ -400,6 +402,12 @@ function _emit (packet) {
     case '\x82':  // arduino的传感器数据
     {
       observables.arduino$.next(packet.data)
+    }
+      break
+
+    case '\xa0':  // odom数据
+    {
+      observables.info$.next({type: 'odom', info: packet.data})
     }
       break
 

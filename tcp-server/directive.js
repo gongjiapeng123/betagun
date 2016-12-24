@@ -17,9 +17,9 @@
  * 头             栈长度     数据字   数据          校验和      结束字节   意义
  * 0x66  0xaa     0x08      0x80     "5fdfasdgag"  0x00       0xfc      图像数据
  * 0x66  0xaa     0x##      0x81     10 个字符串    0x##       0xfc      JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
- * 0x66  0xaa     0x##      0x82     14 个字符串    0x##       0xfc      传感器数据（湿度、温度、8个红外（1表示不正常、0正常），4个超声波）
+ * 0x66  0xaa     0x##      0x82     14 个字符串    0x##       0xfc      arduino数据（湿度、温度、8个红外（1表示不正常、0正常），4个超声波）
  * 
- * 0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc      滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）
+ * 0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc      融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）
  * 
  */
 
@@ -170,8 +170,8 @@ exports.parseCommand = function (cmdLine) {
  * JY901 串口信息解析
  */
 
-const jy901Observable = new Rx.Subject()  // 发射JY901数据，这里它只发送数据，不观测数据，所以命名后边加上Observable
-exports.jy901Observable = jy901Observable
+const jy901$ = new Rx.Subject()  // 发射JY901数据，这里它只发送数据，不观测数据，所以命名后边加上Observable
+exports.jy901$ = jy901$
 let jy901Info = ''
 let jy901Completed = 0b000  // 数据完成的状态，0b111时表示获取完成
 /**
@@ -270,7 +270,7 @@ exports.parseJY901Packet = function (packet) {
     // JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
 
     const dataToCheck = ByteToString(jy901Info.length) + '\x81' + jy901Info
-    jy901Observable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)  // 发送可观测流
+    jy901$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)  // 发送可观测流
 
     // 复位
     jy901Info = ''
@@ -285,8 +285,8 @@ exports.parseJY901Packet = function (packet) {
  * arduino 串口信息解析
  */
 
-const arduinoObservable = new Rx.Subject()  // 发射arduino串口数据，这里它只发送数据，不观测数据，所以命名后边加上Observable
-exports.arduinoObservable = arduinoObservable
+const arduino$ = new Rx.Subject()  // 发射arduino串口数据，这里它只发送数据，不观测数据，所以命名后边加上Observable
+exports.arduino$ = arduino$
 let arduinoInfo = ''
 let arduinoCompleted = 0b000  // 数据完成的状态，0b111时表示获取完成
 /**
@@ -398,7 +398,7 @@ exports.parseArduinoPacket = function (packet) {
   if (arduinoCompleted == 0b111) {  // 获取完毕，发送流
     // 0x66  0xaa     0x12      0x81    9 short       0x##     0xfc
     const dataToCheck = ByteToString(arduinoInfo.length) + '\x82' + arduinoInfo
-    arduinoObservable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
+    arduino$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
 
     // 复位
     arduinoInfo = ''

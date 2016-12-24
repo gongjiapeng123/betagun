@@ -11,7 +11,7 @@ const loginRexExp = /#.+:.+#/  // #guess:666666#
 
 const arduinoProxy = new Rx.Subject()
 // 接收arduino串口信息 ！！！生产数据过程
-require('./directive').arduinoObservable.subscribe(arduinoProxy)
+require('./directive').arduino$.subscribe(arduinoProxy)
 
 const arduinoServer = net.createServer((client) => {
 
