@@ -29,7 +29,7 @@ const fs = require('fs')
 const path = require('path')
 const motorPort = require('./serial').motorPort
 const Rx = require('rxjs/Rx')
-const crc = require('crc')
+const { crc8 } = require('./crc')
 
 // 命令的一些固定字节
 const HEAD1 = '\x66'
@@ -159,7 +159,7 @@ exports.parseCommand = function (cmdLine) {
 
   // let b = Buffer.from(checkData, 'binary')
 
-  if (ByteToString(crc.crc8(checkData)) !== checkSum)  // 校验和不匹配
+  if (ByteToString(crc8(checkData)) !== checkSum)  // 校验和不匹配
     cmdID = '\x00'
 
   return CommandFactory(cmdLine, cmdID, data)
@@ -270,7 +270,7 @@ exports.parseJY901Packet = function (packet) {
     // JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
 
     const dataToCheck = ByteToString(jy901Info.length) + '\x81' + jy901Info
-    jy901Observable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc.crc8(dataToCheck)) + END)  // 发送可观测流
+    jy901Observable.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)  // 发送可观测流
 
     // 复位
     jy901Info = ''
