@@ -200,40 +200,47 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       // 改变模型的旋转角，注意要保证初始车头指向three坐标系的Z轴，
       // 车左侧指向X轴，车上侧指向Y轴 (x:0 y:Math.PI z:Math.PI)
 
-      // jy901的x轴对应three坐标轴x，方向相同
-      this._carMesh.rotation.x = this.jy901Data.pitch * Math.PI / 180
-      // jy901的Z轴对应three的y轴，方向相同
-      this._carMesh.rotation.y = this.jy901Data.yaw * Math.PI / 180
-      // jy901的y轴对应three的z轴，方向相同
-      this._carMesh.rotation.z = this.jy901Data.roll * Math.PI / 180
+      // ROS、jy901的轴对应three坐标轴，方向相同，传来的数据是角度制
+      this._carMesh.rotation.x = this.odomData.pitch * Math.PI / 180
+      this._carMesh.rotation.y = this.odomData.yaw * Math.PI / 180
+      this._carMesh.rotation.z = this.odomData.roll * Math.PI / 180
+
+      // 该场景y向北，x向西，小车初始指向北，对于REP103，小车的base_link
+      // 的x指向前，y指向左，Z指向上方，对于该场景的x、y是相反的
+      // 此处单位是cm，
+      this._carMesh.position.x = this.odomData.y * 100
+      this._carMesh.position.y = this.odomData.z * 100
+      this._carMesh.position.z = this.odomData.z * 100
     }
   }
 
   private _changeInfraredColor () {
-    this._downLeftFrontMesh.material.emissive = this.arduinoData.warning_down_left_front
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._downRightFrontMesh.material.emissive = this.arduinoData.warning_down_right_front
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._downRightBackMesh.material.emissive = this.arduinoData.warning_down_right_back
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._downLeftBacktMesh.material.emissive = this.arduinoData.warning_down_left_back
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._frontLeftFrontMesh.material.emissive = this.arduinoData.warning_front_left_front
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._frontRightFrontMesh.material.emissive = this.arduinoData.warning_front_right_front
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._frontRightBackMesh.material.emissive = this.arduinoData.warning_front_right_back
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
-    this._frontLeftBacktMesh.material.emissive = this.arduinoData.warning_front_left_back
-      ? {r: 0, g: 1, b: 0}
-      : {r: 1, g: 0, b: 0}
+    if (this._carMesh) {  // 确保车模型加载完成
+      this._downLeftFrontMesh.material.emissive = this.arduinoData.warning_down_left_front
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._downRightFrontMesh.material.emissive = this.arduinoData.warning_down_right_front
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._downRightBackMesh.material.emissive = this.arduinoData.warning_down_right_back
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._downLeftBacktMesh.material.emissive = this.arduinoData.warning_down_left_back
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._frontLeftFrontMesh.material.emissive = this.arduinoData.warning_front_left_front
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._frontRightFrontMesh.material.emissive = this.arduinoData.warning_front_right_front
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._frontRightBackMesh.material.emissive = this.arduinoData.warning_front_right_back
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+      this._frontLeftBacktMesh.material.emissive = this.arduinoData.warning_front_left_back
+        ? {r: 1, g: 0, b: 0}
+        : {r: 0, g: 1, b: 0}
+    }
   }
 
   /**

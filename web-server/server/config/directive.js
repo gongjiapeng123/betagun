@@ -378,10 +378,9 @@ function _check (dataLine) {
   const checkSum = dataLine.slice(-2, -1)
   const checkData = dataLine.slice(2, -2)  // 栈长度 + 命令字 + 数据
 
-  // let b = Buffer.from(checkData, 'binary')
-
-  if (ByteToString(crc8(checkData)) != checkSum)  // 校验和不匹配
-    dataID = '\x00'
+  // todo: 这里的校验和算法有问题，待研究。因为连接本地的tcp服务器，可以考虑暂时不校验
+  // if (ByteToString(crc8(checkData)) !== checkSum)  // 校验和不匹配
+  //   dataID = '\x00'
 
   return DataPacketFactory(dataLine, dataID, data)
 

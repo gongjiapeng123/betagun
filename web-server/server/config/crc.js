@@ -40,6 +40,7 @@ export function crc8 (buf) {
   if (!Buffer.isBuffer(buf)) {
     buffer = Buffer.from(buf, 'binary')
   }
+
   let crc = 0
 
   for (let item of buffer) {

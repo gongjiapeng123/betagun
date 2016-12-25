@@ -350,16 +350,16 @@ exports.parseArduinoPacket = function (packet) {
         for (let i = 0; i < 4; i++) {  // D0, D1, D2, D3
           tmp /= 2
           if ((d & tmp) != 0)  // 不为0，说明远离地面，不正常
-            arduinoInfo += `0 `
-          else
             arduinoInfo += `1 `
+          else
+            arduinoInfo += `0 `
         }
         for (let i = 0; i < 4; i++) {  // D4, D5, D6, D7
           tmp /= 2
           if ((d & tmp) != 0)  // 不为0，说明前方没有障碍物，正常
-            arduinoInfo += `1 `
-          else
             arduinoInfo += `0 `
+          else
+            arduinoInfo += `1 `
         }
 
         // arduinoCompleted |= 0b010
