@@ -69,19 +69,19 @@ class JY901:
         # msg
         self.imu_msg = Imu()
         self.imu_msg.orientation_covariance = [
-            0.0025, 0, 0,
-            0, 0.0025, 0,
-            0, 0, 0.0025
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0
         ]
         self.imu_msg.angular_velocity_covariance = [
-            0.02, 0, 0,
-            0, 0.02, 0,
-            0, 0, 0.02
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0
         ]
         self.imu_msg.linear_acceleration_covariance = [
-            0.04, 0, 0,
-            0, 0.04, 0,
-            0, 0, 0.04
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0
         ]
 
     def _check(self, packet):
@@ -119,7 +119,7 @@ class JY901:
 
         # 此处微调数值
         self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
-        self.imu_msg.linear_acceleration.y = self.ax * 9.8 + 0.2
+        self.imu_msg.linear_acceleration.y = self.ax * 9.8
         self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
 
         self.imu_msg.angular_velocity.x = self.wy * degrees2rad

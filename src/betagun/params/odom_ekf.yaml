@@ -6,7 +6,7 @@ frequency: 30
 # The period, in seconds, after which we consider a sensor to have timed out. In this event, we carry out a predict
 # cycle on the EKF without correcting it. This parameter can be thought of as the minimum frequency with which the
 # filter will generate new output. Defaults to 1 / frequency if not specified.
-sensor_timeout: 0.1
+sensor_timeout: 0.5
 
 # ekf_localization_node and ukf_localization_node both use a 3D omnidirectional motion model. If this parameter is
 # set to true, no 3D information will be used in your state estimate. Use this if you are operating in a planar
@@ -35,7 +35,7 @@ debug_out_file: /root/logs/odom_ekf_debug.txt
 publish_tf: true
 
 # Whether to publish the acceleration state. Defaults to false if unspecified.
-publish_acceleration: false
+publish_acceleration: true
 
 # REP-105 (http://www.ros.org/reps/rep-0105.html) specifies four principal coordinate frames: base_link, odom, map, and
 # earth. base_link is the coordinate frame that is affixed to the robot. Both odom and map are world-fixed frames.
@@ -56,10 +56,10 @@ publish_acceleration: false
 #     3a. Set your "world_frame" to your map_frame value
 #     3b. MAKE SURE something else is generating the odom->base_link transform. Note that this can even be another state
 #         estimation node from robot_localization! However, that instance should *not* fuse the global data.
-# map_frame: map              # Defaults to "map" if unspecified
-odom_frame: odom            # Defaults to "odom" if unspecified
-base_link_frame: base_link  # Defaults to "base_link" if unspecified
-world_frame: odom           # Defaults to the value of odom_frame if unspecified
+# map_frame: map                 # Defaults to "map" if unspecified
+odom_frame: odom                 # Defaults to "odom" if unspecified
+base_link_frame: base_footprint  # Defaults to "base_link" if unspecified
+world_frame: odom                # Defaults to the value of odom_frame if unspecified
 
 # The filter accepts an arbitrary number of inputs from each input message type (nav_msgs/Odometry,
 # geometry_msgs/PoseWithCovarianceStamped, geometry_msgs/TwistWithCovarianceStamped,
@@ -75,9 +75,9 @@ odom0: stereo_odometer/odometry
 # do not provide some of the state variables estimated by the filter. For example, a TwistWithCovarianceStamped message
 # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
 # if unspecified, effectively making this parameter required for each sensor.
-odom0_config: [false,  false, false,
+odom0_config: [true, true, false,
                false, false, false,
-               true, true, false,
+               true, false, false,
                false, false, true,
                false, false, false]
 

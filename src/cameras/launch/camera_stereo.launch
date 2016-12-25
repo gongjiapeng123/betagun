@@ -34,10 +34,10 @@
   <!-- Frame tf publisher (static_tf_publisher). -->
   <arg name="tf" default="true"/>
   <!-- Visual Odometry. -->
-  <arg name="odometry" default="false"/>
+  <arg name="vo" default="false"/>
   <!-- Rviz display config. -->
-  <arg if="$(arg odometry)" name="rviz_config" default="$(find cameras)/config/camera_stereo/rviz_odometry.rviz"/>
-  <arg unless="$(arg odometry)" name="rviz_config" default="$(find cameras)/config/camera_stereo/rviz.vcg"/>
+  <arg if="$(arg vo)" name="rviz_config" default="$(find cameras)/config/camera_stereo/rviz_odometry.rviz"/>
+  <arg unless="$(arg vo)" name="rviz_config" default="$(find cameras)/config/camera_stereo/rviz.vcg"/>
 
   <!-- Run driver. -->
   <node name="stereo" pkg="cameras" type="camera_stereo" output="screen">
@@ -104,7 +104,7 @@
     <include file="$(find cameras)/launch/frames/stereo_frames.launch"/>
   </group>
 
-  <group if="$(arg odometry)">
+  <group if="$(arg vo)">
     <include file="$(find cameras)/launch/visual_odometry/viso2_stereo_odometer.launch">
       <remap from="stereo" to="$(arg camera)"/>
       <remap from="image" to="image_rect"/>
