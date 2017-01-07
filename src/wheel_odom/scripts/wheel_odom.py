@@ -25,7 +25,9 @@ import tf
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
-degrees2rad = math.pi / 180.0
+WHEEL_DIAMETER = 0.04
+CODED_DISC_GRID_NUM = 50
+VHZ = 20
 
 def byte_value(uint8):
     '''
@@ -35,12 +37,14 @@ def byte_value(uint8):
     return uint8 if python_version()[0] == '3' else chr(uint8)
 
 class WheelOdom:
-    
+
     def __init__(self, verbose=''):
         self.verbose = verbose
         
         self.left_count = 0
         self.right_count = 0
+        self.left_speed = 0.0
+        self.right_speed = 0.0
         self.vx = 0.0
         self.vy = 0.0
         self.vth = 0.0
@@ -78,11 +82,24 @@ class WheelOdom:
         if crc8(str(data_check)) == check_sum:
             return data
 
+    def _get_velocity(self):
+        '''
+        获取速度
+        '''
+        self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+        self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+
     def _parse_and_publish(self, data):
+        '''
+        解析并发布里程数据
+        '''
+        # 获取左右码盘计数器的值
         data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
-		
         (self.left_count, self.right_count) = data_to_list
 
+        self._get_velocity()
+
+        current_time = rospy.Time.now()
         self.odom_msg.header.stamp = rospy.Time.now()
         self.odom_msg.header.frame_id = 'wheel_odom'
         self.odom_msg.child_frame_id = 'base_footprint'
@@ -95,13 +112,17 @@ class WheelOdom:
                 self.left_count, 
                 self.right_count
             ))
+            print('velocity(m/s): {} {}'.format(
+                self.left_speed, 
+                self.right_speed
+            ))
             #print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
                 #self.imu_msg.angular_velocity.x, 
                 #self.imu_msg.angular_velocity.y, 
                 #self.imu_msg.angular_velocity.z
             #))
             
-        self.pub.publish(self.imu_msg)
+        self.pub.publish(self.odom_msg)
 
     def start(self):
         dataBuf = bytearray()
@@ -114,7 +135,7 @@ class WheelOdom:
             # 数据格式
             # 头             栈长度     数据字   数据             校验和    结束字节
             # 0x66  0xaa     0x##      0x83    2 个 字符串       0x##     0xfc
-            # JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
+            # arduino传感器数据（两个计数器的值）
             while not rospy.is_shutdown():
                 data = self.sock.recv(1)
                 dataBuf.extend(data)

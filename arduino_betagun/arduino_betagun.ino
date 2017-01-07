@@ -122,7 +122,7 @@ void countHandler() {
 
 float getVelocity(int count) {
     float vel = (count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * PI) * VHZ;
-    return vel;  // cm/s
+    return vel;  // m/s
 }
 
 float leftCount() {
