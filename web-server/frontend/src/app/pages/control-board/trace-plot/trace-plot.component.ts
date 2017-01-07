@@ -37,6 +37,7 @@ import * as THREE from 'three'
   template: require('./trace-plot.component.html')
 })
 export class TracePlotComponent implements OnInit, OnDestroy {
+  private _status: string = '2D'
 
   private _canvasEl: HTMLCanvasElement
   private _id  // requestAnimationFrame id
@@ -130,7 +131,8 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     )
 
     // 在高度100处沿着Z轴观看场景，此时Z轴向频幕里（北）Y轴向上，X轴向左（西）
-    this._camera.position.set(0, 300, -300)
+    this._camera.position.set(0, 500, -500)
+    // this._camera.position.set(0, 500, -500)
     this._camera.up.set(0, 0, 1)
     this._camera.lookAt(new THREE.Vector3(0, 0, 0))
     this._scene.add(this._camera)
@@ -152,7 +154,8 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     // this._scene.add(this._light3)
 
     // 定义网格，网格的边长是1000，每个小网格的边长是50
-    this._grid = new THREE.GridHelper(1000, 50, 0xFFFFFF, 0x808080)
+    // 场景单位：cm
+    this._grid = new THREE.GridHelper(1000, 20, 0xFFFFFF, 0x808080)
     this._scene.add(this._grid)
 
     const loader = new THREE.ObjectLoader()
@@ -169,7 +172,7 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     loader.load('assets/3d/car-model.json', (obj) => {
       // console.log(obj)
       this._carMesh = obj
-      this._carMesh.scale.set(6, 6, 6)  // 改变模型的大小
+      this._carMesh.scale.set(15, 15, 15)  // 改变模型的大小
 
       this._changePose()
       this._carMesh.position.set(0, 0, 0)
@@ -201,16 +204,23 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       // 车左侧指向X轴，车上侧指向Y轴 (x:0 y:Math.PI z:Math.PI)
 
       // ROS、jy901的轴对应three坐标轴，方向相同，传来的数据是角度制
-      this._carMesh.rotation.x = this.odomData.pitch * Math.PI / 180
+      if (this._status === '3D') {
+        this._carMesh.rotation.x = this.odomData.pitch * Math.PI / 180
+        this._carMesh.rotation.z = this.odomData.roll * Math.PI / 180
+      }
       this._carMesh.rotation.y = this.odomData.yaw * Math.PI / 180
-      this._carMesh.rotation.z = this.odomData.roll * Math.PI / 180
 
-      // 该场景y向北，x向西，小车初始指向北，对于REP103，小车的base_link
-      // 的x指向前，y指向左，Z指向上方，对于该场景的x、y是相反的
+      // 该场景z向北，x向西，小车初始指向北，对于REP103，小车的base_link
+      // 的x指向前，y指向左，Z指向上方，对于该场景 => ROS:
+      // z => x; x => y; y => z
       // 此处单位是cm，
       this._carMesh.position.x = this.odomData.y * 100
-      this._carMesh.position.y = this.odomData.z * 100
-      this._carMesh.position.z = this.odomData.z * 100
+      this._carMesh.position.z = this.odomData.x * 100
+      if (this._status === '3D') {
+        this._carMesh.position.y = this.odomData.z * 100
+
+      }
+
     }
   }
 
@@ -277,7 +287,6 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     this._jy901Subscription = this._wsService.jy901$
       .subscribe(jy901Data => {
           this.jy901Data = jy901Data
-          this._changePose()
 
         }
       )
@@ -292,6 +301,7 @@ export class TracePlotComponent implements OnInit, OnDestroy {
 
     this._odomSubscription = this._wsService.odom$
       .subscribe(odomData => {
+          this._changePose()
           this.odomData = odomData
 
         }

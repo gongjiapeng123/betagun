@@ -18,7 +18,8 @@
  * 0x66  0xaa     0x08      0x80     "5fdfasdgag"  0x00       0xfc      图像数据
  * 0x66  0xaa     0x##      0x81     10 个字符串    0x##       0xfc      JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）
  * 0x66  0xaa     0x##      0x82     14 个字符串    0x##       0xfc      arduino数据（湿度、温度、8个红外（1表示不正常、0正常），4个超声波）
- * 
+ * 0x66  0xaa     0x##      0x83     2 个字符串     0x##       0xfc      arduino测速数据（左右轮编码计数器数值）
+ *
  * 0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc      融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）
  * 
  */
@@ -305,6 +306,7 @@ let arduinoCompleted = 0b000  // 数据完成的状态，0b111时表示获取完
  * 超声波：0x55     0x51      DL0 DH0 DL1 DH1 DL2 DH2 DL3 DH3        校验和
  * DLX DHX 表示第X个超声波传感器获得的距离值，以小端short方式存储
  *
+ * 霍尔测速：0x55 0x53 left_count right_count 0x0 0x0 0x0 0x0 0x0 0x0       校验和
  *
  * 解析过程中填充arduinoInfo字符串，最终构造0x82数据包：
  * 0x66  0xaa     0x##      0x82    14 个字符串     0x##     0xfc
@@ -313,8 +315,7 @@ let arduinoCompleted = 0b000  // 数据完成的状态，0b111时表示获取完
 exports.parseArduinoPacket = function (packet) {
   let shortBuf = Buffer.alloc(2)
   switch (packet[1]) {
-    case '\x50':  // 温湿度
-    {
+    case '\x50': {  // 温湿度
       shortBuf.write(packet.substr(2, 1), 'binary')
       const HUMI = shortBuf.readUInt8(0)
       shortBuf.write(packet.substr(3, 1), 'binary')
@@ -324,8 +325,7 @@ exports.parseArduinoPacket = function (packet) {
       arduinoCompleted |= 0b100
     }
       break
-    case '\x51':  // 红外
-    {
+    case '\x51': {  // 红外
       if ((arduinoCompleted & 0b100) !== 0b100) {
         // 如果接收该信息前未接收到温湿度，由于传感器是按顺序发送的故说明本轮接收不完整，抛弃此次数据
         arduinoInfo = ''
@@ -367,8 +367,7 @@ exports.parseArduinoPacket = function (packet) {
       }
     }
       break
-    case '\x52':  // 超声波
-    {
+    case '\x52': {  // 超声波
       if ((arduinoCompleted & 0b100) !== 0b100 || (arduinoCompleted & 0b010) !== 0b010) {
         // 如果接收该信息前未接收到温湿度和红外，由于传感器是按顺序发送的故说明本轮接收不完整，抛弃此次数据
         arduinoInfo = ''
@@ -390,7 +389,17 @@ exports.parseArduinoPacket = function (packet) {
       }
     }
       break
+    case '\x53': {  // 测速，arduino发送测速的速率与其他的不同，所以此处作为另一种类型的数据发送出去
+      shortBuf.write(packet.substr(2, 2), 'binary')
+      const left_count = shortBuf.readInt16LE(0)
+      shortBuf.write(packet.substr(4, 2), 'binary')
+      const right_count = shortBuf.readInt16LE(0)
 
+      // 发送流
+      const dataToCheck = ByteToString(arduinoInfo.length) + '\x83' + `${left_count} ${right_count}`
+      arduino$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
+    }
+      break
     default:
       break
   }
