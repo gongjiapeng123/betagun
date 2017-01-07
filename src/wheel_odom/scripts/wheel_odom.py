@@ -94,7 +94,7 @@ class WheelOdom:
         解析并发布里程数据
         '''
         # 获取左右码盘计数器的值
-        data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
+        data_to_list = list(map(lambda s: int(s), str(data).split(b' ')))
         (self.left_count, self.right_count) = data_to_list
 
         self._get_velocity()

@@ -394,9 +394,10 @@ exports.parseArduinoPacket = function (packet) {
       const left_count = shortBuf.readInt16LE(0)
       shortBuf.write(packet.substr(4, 2), 'binary')
       const right_count = shortBuf.readInt16LE(0)
-
+      
       // 发送流
-      const dataToCheck = ByteToString(arduinoInfo.length) + '\x83' + `${left_count} ${right_count}`
+      const infos = `${left_count} ${right_count}`
+      const dataToCheck = ByteToString(infos.length) + '\x83' + infos
       arduino$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
     }
       break
