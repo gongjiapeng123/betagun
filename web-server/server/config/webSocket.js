@@ -23,18 +23,18 @@ export function configWebSocket (server) {
 
     // 该客户端对数据的订阅，客户端都会订阅数据
     const jy901Subscription = observables.jy901$.subscribe(
-      (jy901Data) => {
-        socket.emit('jy901', {jy901Data})  // data: {jy901Data: string}
+      ({type, data}) => {
+        socket.emit('jy901', {jy901Data: data})  // data: {jy901Data: string}
       }
     )
     const arduinoSubscription = observables.arduino$.subscribe(
-      (arduinoData) => {
-        socket.emit('arduino', {arduinoData})  // data: {arduinoData: string}
+      ({type, data}) => {
+        socket.emit('arduino', {type, arduinoData: data})  // data: {arduinoData: string}
       }
     )
     const infoSubscription = observables.info$.subscribe(
-      (infoData) => {  // 小车计算结果数据
-        socket.emit('info', infoData)  // data: {type: string, info: string}
+      ({type, data}) => {  // 小车计算结果数据
+        socket.emit('info', {type, data})  // data: {type: string, info: string}
       }
     )
 

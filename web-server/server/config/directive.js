@@ -338,6 +338,7 @@ const DATAMAP = new Map([
   ['\x00', {description: '未能解析参数'}],
   ['\x81', {description: 'JY901数据（3个加速度，3个角速度，3个角度[pitch、roll、yaw]，温度）'}],
   ['\x82', {description: 'arduino数据（湿度、温度、8个红外（1表示不正常、0正常），4个超声波）'}],
+  ['\x83', {description: 'arduino编码器计数数据（left_count, right_count）'}],
 
   ['\xa0', {description: '融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
 ])
@@ -395,12 +396,17 @@ function _emit (packet) {
   switch (packet.dataID) {
     case '\x81':  // jy901传感器数据
     {
-      observables.jy901$.next(packet.data)
+      observables.jy901$.next({type: '\x81', data: packet.data})
     }
       break
     case '\x82':  // arduino的传感器数据
     {
-      observables.arduino$.next(packet.data)
+      observables.arduino$.next({type: '\x82', data: packet.data})
+    }
+      break
+    case '\x83':  // arduino的传感器数据
+    {
+      observables.arduino$.next({type: '\x83', data: packet.data})
     }
       break
 

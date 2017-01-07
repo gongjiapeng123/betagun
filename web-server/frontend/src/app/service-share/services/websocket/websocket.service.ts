@@ -113,7 +113,10 @@ export class WebSocketService {
             })
 
           })
-          .on('arduino', (data: {arduinoData: String}) => {  // arduino上的传感器数据
+          .on('arduino', (data: {type: string, arduinoData: string}) => {  // arduino上的传感器数据
+            if (data.type === '\x83') {
+              return
+            }
             const dataStrings = data.arduinoData.split(' ')  // web服务器传来的数据是用空格隔开的
             this.arduino$.next({
               HUMI: parseFloat(dataStrings[0]),

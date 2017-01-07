@@ -82,7 +82,9 @@ void setup()
 		; // wait for serial port to connect. Needed for Leonardo only
 	}
 
+#if debug
 	Serial.println("Serial initialized");
+#endif
 
 	pinMode(d0_down_pin, INPUT);
 	pinMode(d1_down_pin, INPUT);
@@ -97,12 +99,15 @@ void setup()
     attachInterrupt(hall_sensor_d1_interrupt_num, leftCount, FALLING);
     attachInterrupt(hall_sensor_d2_interrupt_num, rightCount, FALLING);
 
-    // 100ms进行一次计算速度
-    FlexiTimer2::set(FLEXITIMER2UNIT, RESOLUTION, countHandler);
+    FlexiTimer2::set(FLEXITIMER2UNIT, RESOLUTION, handler);
     FlexiTimer2::start();
 }
 
-void countHandler() {
+// 中断处理函数
+void handler() {
+	// getDHT11();
+	getInfrated();
+	// getHCSR04();
 
 #if debug
 #if debug_hall
@@ -112,17 +117,16 @@ void countHandler() {
     Serial.println();
 #endif
 #else
-    // 发放计数信息给上位机进行计算
+    // 发送信息给上位机进行计算
+	sendPacket(0x50);
+	sendPacket(0x51);
+	sendPacket(0x52);
     sendPacket(0x53);
+	
 #endif
     // 清空
     left_count = 0;
     right_count = 0;    
-}
-
-float getVelocity(int count) {
-    float vel = (count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * PI) * VHZ;
-    return vel;  // m/s
 }
 
 float leftCount() {
@@ -133,13 +137,13 @@ void rightCount() {
     right_count++;
 }
 
-void loop()
-{
-	//delayMicroseconds(1000);
+void getDHT11() {
 	// 读取温湿度传感器值，经过这个函数后，myDHT11.TEM_Buffer_Int和myDHT11.HUMI_Buffer_Int被分别填充上了温度和湿度值
 	// myDHT11.DHT11_Read();
+}
 
-	// 获取红外避障传感器数据，0表示距离小于阈值，1表示大于阈值
+void getInfrated() {
+    // 获取红外避障传感器数据，0表示距离小于阈值，1表示大于阈值
 	D0 = digitalRead(d0_down_pin);
 	D1 = digitalRead(d1_down_pin);
 	D2 = digitalRead(d2_down_pin);
@@ -148,11 +152,16 @@ void loop()
 	D5 = digitalRead(d5_front_pin);
 	D6 = digitalRead(d6_front_pin);
 	D7 = digitalRead(d7_front_pin);
+}
 
+void getHCSR04() {
 	// 获取超声波传感器数据
 	// HCSR04_0.GetDistance();
 	// HCSR04_1.GetDistance();
-	
+}
+
+void loop()
+{
     // 获取测速计数器
     
 #if debug
@@ -184,10 +193,7 @@ void loop()
 #endif
 	
 #else
-	
-    sendPacket(0x50);
-	sendPacket(0x51);
-	sendPacket(0x52);
+
 #endif // debug
 
 }
