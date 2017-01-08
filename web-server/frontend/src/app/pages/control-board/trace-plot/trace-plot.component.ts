@@ -299,8 +299,8 @@ export class TracePlotComponent implements OnInit, OnDestroy {
         }
       )
 
-    // const odom = this._wsService.ekf_odom$
-    const odom = this._wsService.wheel_odom$
+    const odom = this._wsService.ekf_odom$
+    // const odom = this._wsService.wheel_odom$
     // const odom = this._wsService.vo$
     this._odomSubscription = odom
       .subscribe(odomData => {
