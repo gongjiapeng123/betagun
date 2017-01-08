@@ -135,10 +135,9 @@ exports.executeCommand = function (cmd) {
 
       const speedLAbs = parseInt(cmd.data.substr(1, 3))
       const speedRAbs = parseInt(cmd.data.substr(5, 3))
-      if (cmd.data[0] === '-')
-        speedL = -speedLAbs
-      if (cmd.data[4] === '-')
-        speedR = -speedRAbs
+      
+      speedL = cmd.data[0] === '-' ? -speedLAbs : speedLAbs
+      speedR = cmd.data[4] === '-' ? -speedRAbs : speedRAbs
 
       motorLeftCmd.writeInt16LE(speedL, 3)
       motorRightCmd.writeInt16LE(speedR, 3)

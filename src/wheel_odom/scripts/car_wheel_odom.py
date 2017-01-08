@@ -22,12 +22,16 @@ crc8 = mkPredefinedCrcFun('crc-8')
 import rospy
 import roslib
 import tf
+from wheel_odom.msg import CarSpeed
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
+roslib.load_manifest('wheel_odom')
 
 WHEEL_DIAMETER = 0.04
 CODED_DISC_GRID_NUM = 50.0
 VHZ = 20.0
+DELTA_T = 1 / VHZ
+WHEEL_L = 0.185
 
 def byte_value(uint8):
     '''
@@ -62,11 +66,13 @@ class WheelOdom:
         # node
         rospy.init_node(b'wheel_odom', anonymous=True)
 
-        self.pub = rospy.Publisher(b'odom', Odometry, queue_size=3)
+        self.pub_car_speed = rospy.Publisher(b'car_speed', CarSpeed, queue_size=3)
+        self.pub_odom = rospy.Publisher(b'odom', Odometry, queue_size=3)
         self.odom_broadcaster = tf.TransformBroadcaster()
 
         # msg
         self.odom_msg = Odometry()
+        self.car_speed_msg = CarSpeed()
 
     def _check(self, packet):
         '''
@@ -89,20 +95,23 @@ class WheelOdom:
         self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
         self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
 
-    def speed_to_odom(self):  
+    def _speed_to_odom(self):  
         '''
         将两轮的速度转化为x轴的速度(即前进方向的速度)和绕z轴旋转的速度。
         程序中VHZ为速度采样频率。此处需将y轴速度设为0，即假定1/VHZ(s)内，
         机器人没有在垂直于轮子的方向上发生位移。
         左右轮速度的平均就是前进速度（即x轴速度），左右轮速度的差转化为旋转速度。
         '''
-        delta_speed = self.left_speed - self.right_speed
+        delta_speed = self.right_speed - self.left_speed
+        '''
         if delta_speed < 0:
             theta_to_speed = 0.0077  # 右转系数
         else:
             theta_to_speed = 0.0076  # 左转系数
-
         self.vth = delta_speed  * theta_to_speed * VHZ
+        '''
+        
+        self.vth = (delta_speed) * DELTA_T / WHEEL_L
         self.vx = (self.left_speed + self.right_speed) / 2.0
         self.vy = 0.0
 
@@ -115,9 +124,20 @@ class WheelOdom:
         (self.left_count, self.right_count) = data_to_list
 
         self._get_velocity()
+        self._speed_to_odom()
+        
+        current_time = rospy.Time.now()
+        
+        self.car_speed_msg.left_speed = self.left_speed
+        self.car_speed_msg.right_speed = self.right_speed
+        self.car_speed_msg.vx = self.vx
+        self.car_speed_msg.vy = self.vy
+        self.car_speed_msg.vth = self.vth
+        self.odom_msg.header.stamp = current_time
+        self.odom_msg.header.seq = self.cnt
 
         current_time = rospy.Time.now()
-        self.odom_msg.header.stamp = rospy.Time.now()
+        self.odom_msg.header.stamp = current_time
         self.odom_msg.header.frame_id = 'wheel_odom'
         self.odom_msg.child_frame_id = 'base_footprint'
         self.odom_msg.header.seq = self.cnt
@@ -133,13 +153,18 @@ class WheelOdom:
                 self.left_speed, 
                 self.right_speed
             ))
+            print('car_speed: vx: {} vth: {}'.format(
+                self.vx, 
+                self.vth
+            ))
             #print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
                 #self.imu_msg.angular_velocity.x, 
                 #self.imu_msg.angular_velocity.y, 
                 #self.imu_msg.angular_velocity.z
             #))
             
-        self.pub.publish(self.odom_msg)
+        self.pub_car_speed.publish(self.car_speed_msg)
+        self.pub_odom.publish(self.odom_msg)
 
     def start(self):
         dataBuf = bytearray()
