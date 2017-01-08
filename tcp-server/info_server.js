@@ -16,7 +16,7 @@ const infoServer = net.createServer((client) => {
 
   let user = 'nobody'
   let buf = ''  // 分配一个字符串buffer
-  let subscriptions = []  // 每个客户端都会有多个订阅，在客户端断开时应该关闭它
+  let subscription = null  // 每个客户端都会有多个订阅，在客户端断开时应该关闭它
 
   let address = `${client.remoteAddress}:${client.remotePort}`
 
