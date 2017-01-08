@@ -165,11 +165,11 @@ function connectInfo () {
 }
 connectInfo()
 
-// 61615 infoClient
+// 61616 wheelOdomClient
 let wheelOdomClient
 function connectWheelOdom () {
   wheelOdomClient = net.connect(61616, env.tcp_host, () => {
-    logger.info('connect 61615 info server')
+    logger.info('connect 61616 wheel odom server')
     wheelOdomClient.write('#admin:gxnu#')  // 一连接就登录
 
 
@@ -180,7 +180,7 @@ function connectWheelOdom () {
 
     })
     .on('end', () => {
-      logger.info('disconnected from 61615 info server')
+      logger.info('disconnected from 61616 wheel odom server')
       connectWheelOdom()
     })
     .on('error', (error) => {
@@ -188,4 +188,4 @@ function connectWheelOdom () {
       connectWheelOdom()
     })
 }
-connectInfo()
+connectWheelOdom()

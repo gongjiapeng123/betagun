@@ -419,7 +419,6 @@ function _emit (packet) {
       break
     case '\xa1':  // odom数据
     {
-      console.log(packet.data);
       observables.info$.next({type: 'wheel_odom', data: packet.data})
     }
       break
