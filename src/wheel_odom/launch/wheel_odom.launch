@@ -2,16 +2,16 @@
 
 <launch>
   
-  <!-- Transform from base_footprint frame to jy901_imu frame -->
+  <!-- Transform from base_footprint frame to wheel frame -->
   <node pkg="tf2_ros" 
         type="static_transform_publisher" 
-        name="base_footprint_to_jy901_imu" 
-        args="-0.2 0 0.13 0 0 0 base_footprint jy901_imu">
+        name="base_footprint_to_wheel" 
+        args="-0.18 0 0 0 0 0 base_footprint wheel">
   </node>
 
-  <node pkg="jy901"
-        type="jy901.py" 
-        name="jy901" >
+  <node pkg="wheel_odom"
+        type="car_wheel_odom.py" 
+        name="car_wheel_odom" >
     
   </node>
 </launch>

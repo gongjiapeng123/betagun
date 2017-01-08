@@ -69,7 +69,7 @@ class WheelOdom:
         rospy.init_node(b'wheel_odom', anonymous=True)
 
         self.pub_car_speed = rospy.Publisher(b'car_speed', CarSpeed, queue_size=3)
-        self.pub_odom = rospy.Publisher(b'odom', Odometry, queue_size=3)
+        self.pub_odom = rospy.Publisher(b'wheel_odom', Odometry, queue_size=3)
         self.odom_broadcaster = tf.TransformBroadcaster()
 
         # msg
@@ -157,7 +157,7 @@ class WheelOdom:
 
         self.odom_msg.header.stamp = self.current_time
         self.odom_msg.header.frame_id = 'wheel_odom'
-        self.odom_msg.child_frame_id = 'base_footprint'
+        self.odom_msg.child_frame_id = 'wheel'
         self.odom_msg.header.seq = self.cnt
 
     def _parse_and_publish(self, data):
