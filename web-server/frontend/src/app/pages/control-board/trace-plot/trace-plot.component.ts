@@ -20,6 +20,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  OnChanges,
   ElementRef,
 } from '@angular/core'
 import {
@@ -30,13 +31,25 @@ import {
 } from  '../../../service-share/services/websocket'
 import { Subscription }   from 'rxjs/Subscription'
 import * as THREE from 'three'
+import { SelectItem } from 'primeng/primeng'
 
 @Component({
   selector: 'trace-plot',
   styles: [require('./trace-plot.component.scss')],
   template: require('./trace-plot.component.html')
 })
-export class TracePlotComponent implements OnInit, OnDestroy {
+export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
+  private _odomSelected: string = 'wo'
+  private _odoms: SelectItem[] = [{
+    label: 'eo',
+    value: 'eo'
+  }, {
+    label: 'wo',
+    value: 'wo'
+  }, {
+    label: 'vo',
+    value: 'vo'
+  }]
   private _status: string = '2D'
 
   private _canvasEl: HTMLCanvasElement
@@ -52,6 +65,11 @@ export class TracePlotComponent implements OnInit, OnDestroy {
   private _light3
   private _grid
   private _carMesh
+  private _traceGeometry
+  private _positions
+  private _traceLine
+  private _traceIndex = 0
+  private _drawCount
 
   private _downLeftFrontMesh
   private _downRightFrontMesh
@@ -95,9 +113,82 @@ export class TracePlotComponent implements OnInit, OnDestroy {
   private _arduinoSubscription: Subscription
   private _odomSubscription: Subscription
 
+  MAX_POINTS = 500
+
   constructor (private _wsService: WebSocketService,
                private _elementRef: ElementRef) {
 
+  }
+
+  ngOnInit () {
+    this._initThree()
+
+    this._jy901Subscription = this._wsService.jy901$
+      .subscribe(jy901Data => {
+          this.jy901Data = jy901Data
+
+        }
+      )
+
+    this._arduinoSubscription = this._wsService.arduino$
+      .subscribe(arduinoData => {
+          this.arduinoData = arduinoData
+          this._changeInfraredColor()
+
+        }
+      )
+
+    let odom
+    if (this._odomSelected === 'eo') {
+      odom = this._wsService.ekf_odom$
+    }
+    if (this._odomSelected === 'wo') {
+      odom = this._wsService.wheel_odom$
+    }
+    if (this._odomSelected === 'vo') {
+      odom = this._wsService.vo$
+    }
+    this._odomSubscription = odom
+      .subscribe(odomData => {
+          this._changePose()
+          this.odomData = odomData
+
+        }
+      )
+
+    this._animation()
+  }
+
+  ngOnDestroy () {  // 取消订阅jy901Observable 并 停止动画
+    this._jy901Subscription.unsubscribe()
+    this._arduinoSubscription.unsubscribe()
+    this._odomSubscription.unsubscribe()
+    this._stopAnimation()
+  }
+
+  ngOnChanges () {
+
+  }
+
+  onOdomChanged (event) {
+    this._odomSubscription && this._odomSubscription.unsubscribe()
+    let odom
+    if (event.value === 'eo') {
+      odom = this._wsService.ekf_odom$
+    }
+    if (event.value === 'wo') {
+      odom = this._wsService.wheel_odom$
+    }
+    if (event.value === 'vo') {
+      odom = this._wsService.vo$
+    }
+    this._odomSubscription = odom
+      .subscribe(odomData => {
+          this._changePose()
+          this.odomData = odomData
+
+        }
+      )
   }
 
   /**
@@ -190,6 +281,25 @@ export class TracePlotComponent implements OnInit, OnDestroy {
 
       this._scene.add(this._carMesh)
       console.log(this._scene);
+
+      // 轨迹
+      this._traceGeometry = new THREE.BufferGeometry()
+      this._positions = new Float32Array(this.MAX_POINTS * 3)  // 3 vertices per point
+      this._traceGeometry.addAttribute(
+        'position',
+        new THREE.BufferAttribute(this._positions, 3)
+      )
+      this._drawCount = 2
+      this._traceGeometry.setDrawRange(0, this._drawCount)
+
+      const material = new THREE.LineBasicMaterial({
+        color: 0xff0000,
+        linewidth: 2
+      })
+
+      this._traceLine = new THREE.Line(this._traceGeometry, material)
+      this._traceLine.geometry.attributes.position.needsUpdate = true
+      this._scene.add(this._traceLine)
     })
 
   }
@@ -218,9 +328,9 @@ export class TracePlotComponent implements OnInit, OnDestroy {
       this._carMesh.position.z = this.odomData.x * 100
       if (this._status === '3D') {
         this._carMesh.position.y = this.odomData.z * 100
-
       }
 
+      // this._drawTrace()
     }
   }
 
@@ -253,6 +363,25 @@ export class TracePlotComponent implements OnInit, OnDestroy {
     }
   }
 
+  private _drawTrace () {
+    if (this._traceLine) {
+      this._drawCount = ( this._drawCount + 1 ) % this.MAX_POINTS
+      this._traceLine.geometry.setDrawRange( 0, this._drawCount )
+      this._positions[this._traceIndex++] = this._carMesh.position.x
+      if (this._status === '3D') {
+        this._positions[this._traceIndex++] = this._carMesh.position.y
+      } else {
+        this._positions[this._traceIndex++] = 0
+      }
+      this._positions[this._traceIndex++] = this._carMesh.position.z
+
+      this._traceLine.geometry.attributes.position.needsUpdate = true
+      if (this._traceIndex >= this.MAX_POINTS * 3) {
+        this._traceIndex = 0
+      }
+    }
+  }
+
   /**
    * 绘制动画
    * @private
@@ -279,45 +408,6 @@ export class TracePlotComponent implements OnInit, OnDestroy {
 
   get titleShow () {
     return '轨迹图'
-  }
-
-  ngOnInit () {
-    this._initThree()
-
-    this._jy901Subscription = this._wsService.jy901$
-      .subscribe(jy901Data => {
-          this.jy901Data = jy901Data
-
-        }
-      )
-
-    this._arduinoSubscription = this._wsService.arduino$
-      .subscribe(arduinoData => {
-          this.arduinoData = arduinoData
-          this._changeInfraredColor()
-
-        }
-      )
-
-    const odom = this._wsService.ekf_odom$
-    // const odom = this._wsService.wheel_odom$
-    // const odom = this._wsService.vo$
-    this._odomSubscription = odom
-      .subscribe(odomData => {
-          this._changePose()
-          this.odomData = odomData
-
-        }
-      )
-
-    this._animation()
-  }
-
-  ngOnDestroy () {  // 取消订阅jy901Observable 并 停止动画
-    this._jy901Subscription.unsubscribe()
-    this._arduinoSubscription.unsubscribe()
-    this._odomSubscription.unsubscribe()
-    this._stopAnimation()
   }
 
 }
