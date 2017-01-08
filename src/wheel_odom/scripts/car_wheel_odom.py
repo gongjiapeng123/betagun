@@ -52,9 +52,11 @@ class WheelOdom:
         self.vx = 0.0
         self.vy = 0.0
         self.vth = 0.0
+
+        # 初始位置、角度
         self.x = 0.0
         self.y = 0.0
-        self.th = 0.0
+        self.th = 0.0  # yaw
 		
         self.cnt = 0
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -74,6 +76,9 @@ class WheelOdom:
         self.odom_msg = Odometry()
         self.car_speed_msg = CarSpeed()
 
+        self.current_time = rospy.Time.now()
+        self.last_time = rospy.Time.now()
+
     def _check(self, packet):
         '''
         校验数据包，并获取其中数据
@@ -88,20 +93,17 @@ class WheelOdom:
         if crc8(str(data_check)) == check_sum:
             return data
 
-    def _get_velocity(self):
-        '''
-        获取速度，计数器信息带有正负
-        '''
-        self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
-        self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
-
-    def _speed_to_odom(self):  
+    def _velocity_to_speed(self):
         '''
         将两轮的速度转化为x轴的速度(即前进方向的速度)和绕z轴旋转的速度。
         程序中VHZ为速度采样频率。此处需将y轴速度设为0，即假定1/VHZ(s)内，
         机器人没有在垂直于轮子的方向上发生位移。
         左右轮速度的平均就是前进速度（即x轴速度），左右轮速度的差转化为旋转速度。
         '''
+        # 获取速度，计数器信息带有正负
+        self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+        self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+
         delta_speed = self.right_speed - self.left_speed
         '''
         if delta_speed < 0:
@@ -110,64 +112,93 @@ class WheelOdom:
             theta_to_speed = 0.0076  # 左转系数
         self.vth = delta_speed  * theta_to_speed * VHZ
         '''
-        
+
         self.vth = (delta_speed) * DELTA_T / WHEEL_L
         self.vx = (self.left_speed + self.right_speed) / 2.0
         self.vy = 0.0
 
-    def _parse_and_publish(self, data):
-        '''
-        解析并发布里程数据
-        '''
-        # 获取左右码盘计数器的值
-        data_to_list = list(map(lambda s: int(s), str(data).split(b' ')))
-        (self.left_count, self.right_count) = data_to_list
-
-        self._get_velocity()
-        self._speed_to_odom()
-        
-        current_time = rospy.Time.now()
-        
         self.car_speed_msg.left_speed = self.left_speed
         self.car_speed_msg.right_speed = self.right_speed
         self.car_speed_msg.vx = self.vx
         self.car_speed_msg.vy = self.vy
         self.car_speed_msg.vth = self.vth
-        self.odom_msg.header.stamp = current_time
+        self.odom_msg.header.stamp = self.current_time
         self.odom_msg.header.seq = self.cnt
 
-        current_time = rospy.Time.now()
-        self.odom_msg.header.stamp = current_time
+    def _speed_to_odom(self):
+        '''
+        将速度信息转换为里程计信息
+        '''
+        dt = (self.current_time - self.last_time).to_sec()
+        delta_x = (self.vx * math.cos(self.th) - self.vy * math.sin(self.th)) * dt
+        delta_y = (self.vx * math.sin(self.th) + self.vy * math.cos(self.th)) * dt
+        delta_th = self.vth * dt
+
+        self.x += delta_x
+        self.y += delta_y
+        self.th += delta_th
+
+        # 根据yaw获得四元数
+        odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.th)
+
+        # 发布坐标变换
+        self.odom_broadcaster.sendTransform(
+            (self.x, self.y, 0.),
+            odom_quat,
+            self.current_time,
+            "base_footprint",
+            "odom"
+        )
+        # set the position
+        self.odom_msg.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
+
+        # set the velocity
+        self.odom_msg.twist.twist = Twist(Vector3(self.vx, self.vy, 0), Vector3(0, 0, self.vth))
+
+        self.odom_msg.header.stamp = self.current_time
         self.odom_msg.header.frame_id = 'wheel_odom'
         self.odom_msg.child_frame_id = 'base_footprint'
         self.odom_msg.header.seq = self.cnt
-        self.cnt += 1
+
+    def _parse_and_publish(self, data):
+        '''
+        解析并发布里程数据
+        '''
+        self.current_time = rospy.Time.now()
+        # 获取左右码盘计数器的值
+        data_to_list = list(map(lambda s: int(s), str(data).split(b' ')))
+        (self.left_count, self.right_count) = data_to_list
+
+        self._velocity_to_speed()
+        self._speed_to_odom()
 
         if self.verbose:
             print('*' * 20)
             print('count: {} {}'.format(
-                self.left_count, 
+                self.left_count,
                 self.right_count
             ))
             print('velocity(m/s): {} {}'.format(
-                self.left_speed, 
+                self.left_speed,
                 self.right_speed
             ))
             print('car_speed: vx: {} vth: {}'.format(
-                self.vx, 
+                self.vx,
                 self.vth
             ))
             #print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
-                #self.imu_msg.angular_velocity.x, 
-                #self.imu_msg.angular_velocity.y, 
+                #self.imu_msg.angular_velocity.x,
+                #self.imu_msg.angular_velocity.y,
                 #self.imu_msg.angular_velocity.z
             #))
-            
+
         self.pub_car_speed.publish(self.car_speed_msg)
         self.pub_odom.publish(self.odom_msg)
+        self.cnt += 1
+        self.last_time = rospy.Time.now()
 
     def start(self):
-        dataBuf = bytearray()
+        data_buf = bytearray()
         try:
             self.sock.connect(('127.0.0.1', 61613))
             print("I connect successfully")
@@ -180,18 +211,18 @@ class WheelOdom:
             # arduino传感器数据（两个计数器的值）
             while not rospy.is_shutdown():
                 data = self.sock.recv(1)
-                dataBuf.extend(data)
-                lastIndex = 0
-                for match in self.pattern.finditer(dataBuf):
+                data_buf.extend(data)
+                last_index = 0
+                for match in self.pattern.finditer(data_buf):
                     data = self._check(match.group())
                     if data is not None:
                         self._parse_and_publish(data)
-                    lastIndex = match.end()
+                    last_index = match.end()
                 # 将已经进行正则匹配过的字符串剪掉
-                if lastIndex > 0:
-                    dataBuf = dataBuf[lastIndex:-1]
+                if last_index > 0:
+                    data_buf = data_buf[last_index:-1]
 
-            self.sock.close() 
+            self.sock.close()
         except socket.error as e:
             print("connect error")
 
