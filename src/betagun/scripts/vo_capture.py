@@ -144,7 +144,7 @@ class InfoCapture:
                 self.info_odom['z'],
             )  # 转换为二进制字符串发送
             data_bytes_len = chr(len(data_bytes))
-            data_check = b'{0}\xA0{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
+            data_check = b'{0}\xA2{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
 
             return HEAD + data_check + chr(crc8(data_check)) + END
 
