@@ -299,7 +299,10 @@ export class TracePlotComponent implements OnInit, OnDestroy {
         }
       )
 
-    this._odomSubscription = this._wsService.odom$
+    // const odom = this._wsService.ekf_odom$
+    const odom = this._wsService.wheel_odom$
+    // const odom = this._wsService.vo$
+    this._odomSubscription = odom
       .subscribe(odomData => {
           this._changePose()
           this.odomData = odomData
@@ -313,6 +316,7 @@ export class TracePlotComponent implements OnInit, OnDestroy {
   ngOnDestroy () {  // 取消订阅jy901Observable 并 停止动画
     this._jy901Subscription.unsubscribe()
     this._arduinoSubscription.unsubscribe()
+    this._odomSubscription.unsubscribe()
     this._stopAnimation()
   }
 

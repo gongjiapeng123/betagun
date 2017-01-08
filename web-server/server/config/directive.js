@@ -341,6 +341,8 @@ const DATAMAP = new Map([
   ['\x83', {description: 'arduino编码器计数数据（left_count, right_count）'}],
 
   ['\xa0', {description: '融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
+  ['\xa1', {description: '轮式里程计的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
+  ['\xa2', {description: 'VO的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
 ])
 
 /**
@@ -412,7 +414,17 @@ function _emit (packet) {
 
     case '\xa0':  // odom数据
     {
-      observables.info$.next({type: 'odom', info: packet.data})
+      observables.info$.next({type: 'ekf_odom', data: packet.data})
+    }
+      break
+    case '\xa1':  // odom数据
+    {
+      observables.info$.next({type: 'wheel_odom', data: packet.data})
+    }
+      break
+    case '\xa2':  // odom数据
+    {
+      observables.info$.next({type: 'vo', data: packet.data})
     }
       break
 

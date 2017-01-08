@@ -49,5 +49,18 @@
 
   </node>
   
+  <node pkg="betagun"
+        type="wheel_odom_capture.py"
+        name="wheel_odom_capture">
+  
+  </node>
+
+  <node if="$(arg vo)"
+        pkg="betagun"
+        type="vo_capture.py"
+        name="vo_capture">
+        
+  </node>
+  
 </launch>
 

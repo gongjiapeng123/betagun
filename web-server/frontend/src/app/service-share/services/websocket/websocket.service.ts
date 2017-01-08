@@ -60,7 +60,17 @@ export class WebSocketService {
    * 从服务器获取得的融合滤波后的里程计数据
    * @type {Subject}
    */
-  public odom$: Subject<OdomData> = new Subject<OdomData>()
+  public ekf_odom$: Subject<OdomData> = new Subject<OdomData>()
+  /**
+   * 从服务器获取得的轮式里程计数据
+   * @type {Subject}
+   */
+  public wheel_odom$: Subject<OdomData> = new Subject<OdomData>()
+  /**
+   * 从服务器获取得的诗句里程计数据
+   * @type {Subject}
+   */
+  public vo$: Subject<OdomData> = new Subject<OdomData>()
 
 
   /**
@@ -144,11 +154,45 @@ export class WebSocketService {
             // 服务端发送图片过来
             this.image$.next(data.image)
           })
-          .on('info', (data: {type: string, info: string}) => {  // 小车计算数据
-            const dataStrings = data.info.split(' ')
+          .on('info', (data: {type: string, infoData: string}) => {  // 小车计算数据
+            const dataStrings = data.infoData.split(' ')
             switch (data.type) {
-              case 'odom': {
-                this.odom$.next({
+              case 'ekf_odom': {
+                this.ekf_odom$.next({
+                  ax: parseFloat(dataStrings[0]),
+                  ay: parseFloat(dataStrings[1]),
+                  az: parseFloat(dataStrings[2]),  // 加速度
+                  wx: parseFloat(dataStrings[3]),
+                  wy: parseFloat(dataStrings[4]),
+                  wz: parseFloat(dataStrings[5]),  // 角速度
+                  pitch: parseFloat(dataStrings[6]),
+                  roll: parseFloat(dataStrings[7]),
+                  yaw: parseFloat(dataStrings[8]),  // 角度
+                  x: parseFloat(dataStrings[9]),
+                  y: parseFloat(dataStrings[10]),
+                  z: parseFloat(dataStrings[11]),  // 位置
+                })
+              }
+                break
+              case 'wheel_odom': {
+                this.wheel_odom$.next({
+                  ax: parseFloat(dataStrings[0]),
+                  ay: parseFloat(dataStrings[1]),
+                  az: parseFloat(dataStrings[2]),  // 加速度
+                  wx: parseFloat(dataStrings[3]),
+                  wy: parseFloat(dataStrings[4]),
+                  wz: parseFloat(dataStrings[5]),  // 角速度
+                  pitch: parseFloat(dataStrings[6]),
+                  roll: parseFloat(dataStrings[7]),
+                  yaw: parseFloat(dataStrings[8]),  // 角度
+                  x: parseFloat(dataStrings[9]),
+                  y: parseFloat(dataStrings[10]),
+                  z: parseFloat(dataStrings[11]),  // 位置
+                })
+              }
+                break
+              case 'vo': {
+                this.vo$.next({
                   ax: parseFloat(dataStrings[0]),
                   ay: parseFloat(dataStrings[1]),
                   az: parseFloat(dataStrings[2]),  // 加速度

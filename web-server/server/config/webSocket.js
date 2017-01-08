@@ -34,7 +34,7 @@ export function configWebSocket (server) {
     )
     const infoSubscription = observables.info$.subscribe(
       ({type, data}) => {  // 小车计算结果数据
-        socket.emit('info', {type, data})  // data: {type: string, info: string}
+        socket.emit('info', {type, infoData: data})  // data: {type: string, info: string}
       }
     )
 
