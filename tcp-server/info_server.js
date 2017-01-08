@@ -10,10 +10,7 @@ const logger = require('./log')
 const _ = require('lodash')
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 
-
-// 记录对python进程数据的代理列表，给客户端订阅以广播数据，在client连接之前python进程应该连接完毕
-// 即client连进来之前infoProxies的列表应该已经确定长度，否则新连接的python进程的数据对于之前的client将获取不到
-const infoProxies = []
+const infoProxy = new Rx.Subject()  // 一个代理，接收到python发来的数据后，立马广播给其他客户端
 
 const infoServer = net.createServer((client) => {
 
@@ -58,10 +55,7 @@ const infoServer = net.createServer((client) => {
                * python进程登陆成功后会开始持续发送数据流，此时可以开始让infoProxy订阅python client的事件可观测对象
                * 这样订阅了infoProxy这个subject（此时作为Observer）的客户端就可以接收infoProxy广播的python数据了
                */
-              const infoProxy = new Rx.Subject()
-              infoProxies.push(infoProxy)
-              const subscription = Rx.Observable.fromEvent(client, 'data').subscribe(infoProxy)
-              subscriptions.push(subscription)
+              subscription = Rx.Observable.fromEvent(client, 'data').subscribe(infoProxy)
 
             } else {  // 其他用户登录成功
               user = username
@@ -72,17 +66,15 @@ const infoServer = net.createServer((client) => {
                * 我们的infoProxy以代理身份将发送python发来的数据广播给客户端
                */
 
-              subscriptions = infoProxies.map(infoProxy => {
-                return infoProxy.subscribe(
-                  (data) => {  // infoProxy从python进程获取到数据后传递到这里
+              subscription = infoProxy.subscribe(
+                (data) => {  // infoProxy从python进程获取到数据后传递到这里
 
-                    client.write(data, 'binary')  // 广播给需要接收数据的客户端
-                  },
-                  (err) => {
-                    logger.error(`[info server]: ${err}`)
-                  }
-                )
-              })
+                  client.write(data, 'binary')  // 广播给需要接收数据的客户端
+                },
+                (err) => {
+                  logger.error(`[wheel_odom_server]: ${err}`)
+                }
+              )
 
             }
 
@@ -99,11 +91,11 @@ const infoServer = net.createServer((client) => {
 
     })
     .on('end', () => {  // 连接结束时
-      subscriptions.forEach(subscription => subscription && subscription.unsubscribe())
+      subscription && subscription.unsubscribe()
       logger.info(`[info server]: client disconnected.[user: ${user}, address: ${address}]`)
     })
     .on('error', (err) => {
-      subscriptions.forEach(subscription => subscription && subscription.unsubscribe())
+      subscription && subscription.unsubscribe()
       logger.error(`[info server]: client error: ${err}.[user: ${user}, address: ${address}]`)
     })
 

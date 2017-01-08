@@ -19,7 +19,7 @@ const wheelOdomServer = net.createServer((client) => {
 
   let address = `${client.remoteAddress}:${client.remotePort}`
 
-  logger.info(`[arduino_server]: client from ${address} connected`)
+  logger.info(`[wheel_odom_server]: client from ${address} connected`)
 
   // client socket的事件监听
   client
@@ -38,19 +38,39 @@ const wheelOdomServer = net.createServer((client) => {
           const username = tmp[0]
           const password = tmp[1]
           if (require('./check_user')(username, password)) {  // 登陆成功
-            user = username
+            if (username === 'python') {  // python进程连接进来
 
-            /**
-             * ！！！消费数据过程
-             */
-            subscription = wheelOdomProxy.subscribe(
-              (data) => {
-                client.write(data, 'binary')  // 广播给需要接收数据的客户端
-              },
-              (err) => {
-                logger.error(`[wheel_odom_server]: ${err}`)
-              }
-            )
+              logger.info(`[info server]: python client connected`)
+              user = 'python'
+              client.write('Now you can send data to me!\r\n')
+
+              /**
+               * ！！！生产数据过程
+               * python进程登陆成功后会开始持续发送数据流，此时可以开始让infoProxy订阅python client的事件可观测对象
+               * 这样订阅了wheelOdomProxy这个subject（此时作为Observer）的客户端就可以接收infoProxy广播的python数据了
+               */
+              subscription = Rx.Observable.fromEvent(client, 'data').subscribe(wheelOdomProxy)
+
+            } else {  // 其他用户登录成功
+              user = username
+
+              /**
+               * ！！！消费数据过程
+               * 登陆成功后就可以开始订阅可观测对象，一有数据流则发送给对端socket（消费者客户端），
+               * 我们的infoProxy以代理身份将发送python发来的数据广播给客户端
+               */
+
+              subscription = wheelOdomProxy.subscribe(
+                (data) => {  // wheelOdomProxy从python进程获取到数据后传递到这里
+
+                  client.write(data, 'binary')  // 广播给需要接收数据的客户端
+                },
+                (err) => {
+                  logger.error(`[wheel_odom_server]: ${err}`)
+                }
+              )
+
+            }
 
           } else {
             client.write('Wrong username or password!\r\n')
