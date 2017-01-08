@@ -87,6 +87,13 @@ class Command {
 }
 exports.Command = Command
 
+// /**
+//  * 发送电机控制命令信息，与编码器计数的流进行组合从而判断电机正反转
+//  * @type {Subject<object>} {speedL: 50, speedR: -50}
+//  */
+// const motorCmd$ = new Rx.BehaviorSubject({speedL: 0, speedR: 0})
+let speedL = 0
+let speedR = 0
 /**
  * 执行命令
  * @param cmd Command实例
@@ -126,12 +133,12 @@ exports.executeCommand = function (cmd) {
       motorRightCmd.write(cmd.cmdID, 1, 'binary')
       motorRightCmd.write('\x01', 2, 'binary')
 
-      let speedL = parseInt(cmd.data.substr(1, 3))
-      let speedR = parseInt(cmd.data.substr(5, 3))
+      const speedLAbs = parseInt(cmd.data.substr(1, 3))
+      const speedRAbs = parseInt(cmd.data.substr(5, 3))
       if (cmd.data[0] === '-')
-        speedL = -speedL
+        speedL = -speedLAbs
       if (cmd.data[4] === '-')
-        speedR = -speedR
+        speedR = -speedRAbs
 
       motorLeftCmd.writeInt16LE(speedL, 3)
       motorRightCmd.writeInt16LE(speedR, 3)
@@ -286,7 +293,11 @@ exports.parseJY901Packet = function (packet) {
  * arduino 串口信息解析
  */
 
-const arduino$ = new Rx.Subject()  // 发射arduino串口数据，这里它只发送数据，不观测数据，所以命名后边加上Observable
+/**
+ * 发射arduino串口通用数据
+ * @type {Subject}
+ */
+const arduino$ = new Rx.Subject()
 exports.arduino$ = arduino$
 let arduinoInfo = ''
 let arduinoCompleted = 0b000  // 数据完成的状态，0b111时表示获取完成
@@ -389,14 +400,17 @@ exports.parseArduinoPacket = function (packet) {
       }
     }
       break
-    case '\x53': {  // 测速，arduino发送测速的速率与其他的不同，所以此处作为另一种类型的数据发送出去
+    case '\x53': {  // 测速，这里需要根据控制电机的命令的正负来判断前进后退，所以此处作为另一种类型的数据发送出去
       shortBuf.write(packet.substr(2, 2), 'binary')
-      const left_count = shortBuf.readInt16LE(0)
+      let leftCount = shortBuf.readInt16LE(0)
       shortBuf.write(packet.substr(4, 2), 'binary')
-      const right_count = shortBuf.readInt16LE(0)
-      
+      let rightCount = shortBuf.readInt16LE(0)
+
+      leftCount = speedL < 0 ? -leftCount : leftCount
+      rightCount = speedR < 0 ? -rightCount : rightCount
+
       // 发送流
-      const infos = `${left_count} ${right_count}`
+      const infos = `${leftCount} ${rightCount}`
       const dataToCheck = ByteToString(infos.length) + '\x83' + infos
       arduino$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
     }

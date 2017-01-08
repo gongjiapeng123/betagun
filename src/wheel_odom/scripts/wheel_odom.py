@@ -26,8 +26,8 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 WHEEL_DIAMETER = 0.04
-CODED_DISC_GRID_NUM = 50
-VHZ = 20
+CODED_DISC_GRID_NUM = 50.0
+VHZ = 20.0
 
 def byte_value(uint8):
     '''
@@ -84,10 +84,27 @@ class WheelOdom:
 
     def _get_velocity(self):
         '''
-        获取速度
+        获取速度，计数器信息带有正负
         '''
         self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
         self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+
+    def speed_to_odom(self):  
+        '''
+        将两轮的速度转化为x轴的速度(即前进方向的速度)和绕z轴旋转的速度。
+        程序中VHZ为速度采样频率。此处需将y轴速度设为0，即假定1/VHZ(s)内，
+        机器人没有在垂直于轮子的方向上发生位移。
+        左右轮速度的平均就是前进速度（即x轴速度），左右轮速度的差转化为旋转速度。
+        '''
+        delta_speed = self.left_speed - self.right_speed
+        if delta_speed < 0:
+            theta_to_speed = 0.0077  # 右转系数
+        else:
+            theta_to_speed = 0.0076  # 左转系数
+
+        self.vth = delta_speed  * theta_to_speed * VHZ
+        self.vx = (self.left_speed + self.right_speed) / 2.0
+        self.vy = 0.0
 
     def _parse_and_publish(self, data):
         '''
