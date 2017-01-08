@@ -105,9 +105,6 @@ void setup()
 
 // 中断处理函数
 void handler() {
-	// getDHT11();
-	getInfrated();
-	// getHCSR04();
 
 #if debug
 #if debug_hall
@@ -118,9 +115,6 @@ void handler() {
 #endif
 #else
     // 发送信息给上位机进行计算
-	sendPacket(0x50);
-	sendPacket(0x51);
-	sendPacket(0x52);
     sendPacket(0x53);
 	
 #endif
@@ -162,8 +156,10 @@ void getHCSR04() {
 
 void loop()
 {
-    // 获取测速计数器
-    
+    // getDHT11();
+	getInfrated();
+	// getHCSR04();
+
 #if debug
 	// Serial.print("HUMI = ");
 	// Serial.print(myDHT11.HUMI_Buffer_Int);
@@ -193,7 +189,9 @@ void loop()
 #endif
 	
 #else
-
+    // sendPacket(0x50);
+	// sendPacket(0x51);
+	// sendPacket(0x52);
 #endif // debug
 
 }

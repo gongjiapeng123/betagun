@@ -23,7 +23,7 @@ let base = {
 let specific = {
   development: {
     app: {
-      port: 61616,
+      port: 61620,
       excluded: "excluded_path"
     },
     tcp_host: '192.168.78.134',
@@ -37,7 +37,7 @@ let specific = {
   },
   production: {
     app: {
-      port: process.env.PORT || 61616,
+      port: process.env.PORT || 61620,
       excluded: "excluded_path"
     },
     tcp_host: '127.0.0.1',

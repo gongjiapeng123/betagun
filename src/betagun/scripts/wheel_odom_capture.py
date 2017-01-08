@@ -160,7 +160,7 @@ class InfoCapture:
         :return:
         '''
         try:
-            self.sock.connect(('127.0.0.1', 61615))
+            self.sock.connect(('127.0.0.1', 61616))
 
             # 告诉服务器本进程是python进程
             self.sock.send(b'#python:gxnu#')

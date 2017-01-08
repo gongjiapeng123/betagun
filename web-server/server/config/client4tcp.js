@@ -27,21 +27,29 @@ const directive = require('./directive')
  * 控制
  */
 
-const controlClient = net.connect(61611, env.tcp_host, () => {
-  controlClient.write('#admin:gxnu#')  // 一连接就登录
+let controlClient
+function connectControl () {
+  controlClient = net.connect(61611, env.tcp_host, () => {
+    logger.info('connect 61611 control server')
+    controlClient.write('#admin:gxnu#')  // 一连接就登录
 
 
-})
-  .setEncoding('binary')
-  .on('data', (data) => {  // 接收服务器发过来的数据（控制命令的反馈）
-    logger.info(data.toString())
   })
-  .on('end', () => {
-    logger.info('disconnected from 61611 control server')
-  })
-  .on('error', (error) => {
-    // logger.error(error)
-  })
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的数据（控制命令的反馈）
+      logger.info(data.toString())
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61611 control server')
+      connectControl()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectControl()
+    })
+}
+connectControl()
+
 export function sendControlCommand (type, parameters) {  // 发送控制命令
   let cmd = ''
   switch (type) {
@@ -59,76 +67,125 @@ export function sendControlCommand (type, parameters) {  // 发送控制命令
  */
 
 // 61612 jy901
+let jy901Client
+function connectJy901 () {
+  jy901Client = net.connect(61612, env.tcp_host, () => {
+    logger.info('connect 61612 jy901 server')
+    jy901Client.write('#admin:gxnu#')  // 一连接就登录
 
-const jy901Client = net.connect(61612, env.tcp_host, () => {
-  jy901Client.write('#admin:gxnu#')  // 一连接就登录
-
-
-})
-  .setEncoding('binary')
-  .on('data', (data) => {  // 接收服务器发过来的数据
-    directive.parseData(data)
 
   })
-  .on('end', () => {
-    logger.info('disconnected from 61612 jy901 server')
-  })
-  .on('error', (error) => {
-    // logger.error(error)
-  })
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的数据
+      directive.parseData(data)
+
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61612 jy901 server')
+      connectJy901()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectJy901()
+    })
+}
+connectJy901()
 
 // 61613 arduino
+let arduinoClient
+function connectArduino () {
+  arduinoClient = net.connect(61613, env.tcp_host, () => {
+    logger.info('connect 61613 arduino server')
+    arduinoClient.write('#admin:gxnu#')  // 一连接就登录
 
-const arduinoClient = net.connect(61613, env.tcp_host, () => {
-  arduinoClient.write('#admin:gxnu#')  // 一连接就登录
-
-
-})
-  .setEncoding('binary')
-  .on('data', (data) => {  // 接收服务器发过来的数据
-    directive.parseData(data)
 
   })
-  .on('end', () => {
-    logger.info('disconnected from 61613 arduino server')
-  })
-  .on('error', (error) => {
-    // logger.error(error)
-  })
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的数据
+      directive.parseData(data)
+
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61613 arduino server')
+      connectArduino()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectArduino()
+    })
+}
+connectArduino()
 
 // 61614 image
+let imageClient
+function connectImage () {
+  imageClient = net.connect(61614, env.tcp_host, () => {
+    logger.info('connect 61614 image server')
+    imageClient.write('#admin:gxnu#')  // 一连接就登录
 
-const imageClient = net.connect(61614, env.tcp_host, () => {
-  imageClient.write('#admin:gxnu#')  // 一连接就登录
-
-})
-  .setEncoding('binary')
-  .on('data', (data) => {  // 接收服务器发过来的图像数据
-    // 解析并由directive.imageProxy发射图片流
-    directive.parseImage(data)
   })
-  .on('end', () => {
-    logger.info('disconnected from 61614 image server')
-  })
-  .on('error', (error) => {
-    // logger.error(error)
-  })
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的图像数据
+      // 解析并由directive.imageProxy发射图片流
+      directive.parseImage(data)
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61614 image server')
+      connectImage()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectImage()
+    })
+}
+connectImage()
 
 // 61615 infoClient
+let infoClient
+function connectInfo () {
+  infoClient = net.connect(61615, env.tcp_host, () => {
+    logger.info('connect 61615 info server')
+    infoClient.write('#admin:gxnu#')  // 一连接就登录
 
-const infoClient = net.connect(61615, env.tcp_host, () => {
-  infoClient.write('#admin:gxnu#')  // 一连接就登录
-
-
-})
-  .setEncoding('binary')
-  .on('data', (data) => {  // 接收服务器发过来的数据
-    directive.parseData(data)
 
   })
-  .on('end', () => {
-    logger.info('disconnected from 61615 info server')
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的数据
+      directive.parseData(data)
+
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61615 info server')
+      connectInfo()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectInfo()
+    })
+}
+connectInfo()
+
+// 61615 infoClient
+let wheelOdomClient
+function connectWheelOdom () {
+  wheelOdomClient = net.connect(61616, env.tcp_host, () => {
+    logger.info('connect 61615 info server')
+    wheelOdomClient.write('#admin:gxnu#')  // 一连接就登录
+
+
   })
-  .on('error', (error) => {
-    // logger.error(error)
-  })
+    .setEncoding('binary')
+    .on('data', (data) => {  // 接收服务器发过来的数据
+      directive.parseData(data)
+
+    })
+    .on('end', () => {
+      logger.info('disconnected from 61615 info server')
+      connectWheelOdom()
+    })
+    .on('error', (error) => {
+      // logger.error(error)
+      connectWheelOdom()
+    })
+}
+connectInfo()

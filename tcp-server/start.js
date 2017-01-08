@@ -6,7 +6,8 @@
  * 3、61613端口接受client的连接并持续向client发送arduino信息；
  * 4、61614端口接受client的连接并持续向client发送小车的图像数据；
  * 5、61615端口接受client的连接并持续向client发送小车的运算结果；
- * 所以一个完整的小车服务器将会有5个TCP服务和一个web服务（61616端口），
+ * 6、61616端口接受client的连接并持续向client发送小车的轮式里程计结果；
+ * 所以一个完整的小车服务器将会有多个TCP服务和一个web服务（61620端口），
  *
  * 而小车客户端，则视情况而定来连接5个服务器以获取数据
  *
@@ -29,3 +30,4 @@ const jy901Server = require('./jy901_server').jy901Server
 const arduinoServer = require('./arduino_server').arduinoServer
 const imageServer = require('./image_server').imageServer
 const infoServer = require('./info_server').infoServer
+const wheelOdomServer = require('./wheel_odom_server').wheelOdomServer
