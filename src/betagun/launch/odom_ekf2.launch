@@ -43,8 +43,8 @@
 
   <!-- 监听计算信息并传递信息给tcp server的node -->
   <node pkg="betagun"
-        type="info_capture.py"
-        name="info_capture"
+        type="ekf_odom_capture.py"
+        name="ekf_odom_capture"
         args="robot_pose_ekf">
 
   </node>
