@@ -77,8 +77,9 @@ export class WebSocketService {
    * 连接连接服务端WebSocket，并初始化该客户端WebSocket要监听的服务器端WebSocket发送过来的一系列事件
    */
   connect () {
-    const host = 'ws://192.168.78.215:61620'
-    // const host = 'ws://' + location.host
+    const host = ENV === 'development' 
+      ? 'ws://192.168.66.107:61620' 
+      : `ws://${location.host}`
     console.log(host)
     this._socket = io(host)
 

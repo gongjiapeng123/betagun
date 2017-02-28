@@ -151,9 +151,25 @@ class WheelOdom:
         )
         # set the position
         self.odom_msg.pose.pose = Pose(Point(self.x, self.y, 0.), Quaternion(*odom_quat))
+        self.odom_msg.pose.covariance = [
+            0.001, 0, 0, 0, 0, 0,
+            0, 0.001, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0.001,
+        ]
 
         # set the velocity
         self.odom_msg.twist.twist = Twist(Vector3(self.vx, self.vy, 0), Vector3(0, 0, self.vth))
+        self.odom_msg.twist.covariance = [
+            0.001, 0, 0, 0, 0, 0,
+            0, 0.001, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0.001,
+        ]
 
         self.odom_msg.header.stamp = self.current_time
         self.odom_msg.header.frame_id = 'wheel_odom'

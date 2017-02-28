@@ -153,7 +153,7 @@ module.exports = function (options) {
       devServer: {
         proxy: {
           '/': {
-            target: 'ws://127.0.0.1:61616',
+            target: 'ws://127.0.0.1:61620',
             ws: true
           },
         },

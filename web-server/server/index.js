@@ -24,8 +24,8 @@ applyRoutes(app)
 import './config/client4tcp'  // 先启动tcp客户端
 const server = http.createServer(app.callback())
 configWebSocket(server)
-server.listen(env.app.port)
+server.listen(env.http_port)
 
-logger.info("Server started, listening on port: " + env.app.port)
+logger.info("Server started, listening on port: " + env.http_port)
 
 export default app

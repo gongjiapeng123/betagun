@@ -18,6 +18,10 @@ router.use('/', routerMain.routes())
 //   ctx.redirect('/')
 // })
 
+router.use(async (ctx, next) => {
+  ctx.sendFile("index.html");
+})
+
 export function applyRoutes (app) {
   app
     .use(router.routes())

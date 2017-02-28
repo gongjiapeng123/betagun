@@ -3,7 +3,7 @@
 
 
 '''
-监听ros发布的主题，连接61615端口并发送计算结果
+监听ros发布的主题，连接61616端口并发送轮式里程计信息
 '''
 
 from __future__ import print_function
@@ -126,7 +126,7 @@ class InfoCapture:
             0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc
             :param frame:
             :param size: 要变换的大小
-            :return: 发送给61615数据端口的数据
+            :return: 发送给61616数据端口的数据
             '''
             parse_odom(data)
             data_bytes = (b'{} ' * 12)[: -1].format(
