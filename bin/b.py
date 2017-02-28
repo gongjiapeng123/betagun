@@ -16,6 +16,7 @@ import textwrap
 import os
 import sys
 import time
+import subprocess
 
 DIR = os.path.dirname(os.path.abspath(__file__))  # 脚本所在目录
 BETAGUN_DIR = os.path.abspath(os.path.join(DIR, '..'))
@@ -24,19 +25,19 @@ WEB_SERVER_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'web-server'))
 ROS_SRC_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'src'))
 
 def start_tcp_server():
-    os.system('node {}'.format(os.path.abspath(os.path.join(TCP_SERVER_DIR, 'start.js'))))
+    subprocess.Popen('node {}'.format(os.path.abspath(os.path.join(TCP_SERVER_DIR, 'start.js'))), shell=True)
 
 def stop_tcp_server():
     os.system("ps aux| grep 'tcp-server/start.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
 
 def start_web_server():
-    os.system('node {}'.format(os.path.abspath(os.path.join(WEB_SERVER_DIR, 'env.js'))))
+    subprocess.Popen('node {}'.format(os.path.abspath(os.path.join(WEB_SERVER_DIR, 'dev.js'))), shell=True)
 
 def stop_web_server():
-    os.system("ps aux| grep 'web-server/env.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
+    os.system("ps aux| grep 'web-server/dev.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
 
 def start_ros(vo):
-    os.system('roslauch betagun odom_ekf.launch vo:={}'.format('true' if vo else 'false'))
+    subprocess.Popen('roslaunch betagun odom_ekf.launch vo:={}'.format('true' if vo else 'false'), shell=True)
 
 def stop_ros():
     os.system("ps aux| grep 'odom_ekf.launch' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
@@ -111,6 +112,10 @@ if __name__ == '__main__':
             time.sleep(3)
             start_ros(ns.vo)
         else:
-            stop_tcp_server()
-            stop_web_server()
             stop_ros()
+            time.sleep(3)
+            stop_web_server()
+            time.sleep(3)
+            stop_tcp_server()
+            
+            
