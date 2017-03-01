@@ -4,6 +4,8 @@
     
   <!-- open vo? -->
   <arg name="vo" default="false"/>
+  <!-- tcp server open cam? -->
+  <arg name="cam" default="false"/>
   
   <!-- jy901 IMU 从tcp server 获取jy901数据并发布imu主题-->
   <include file="$(find jy901)/launch/jy901.launch">
@@ -49,6 +51,14 @@
         pkg="betagun"
         type="vo_capture.py"
         name="vo_capture">
+  
+  </node>
+  
+  <node if="$(arg cam)"
+        pkg="capture"
+        type="capture.py"
+        name="capture"
+        args="-c">
   
   </node>
   

@@ -178,6 +178,14 @@ def run():
         '-c', '--connect', action='store_true', dest='need_to_connect_server',
         help=u'连接服务器',
     )
+    parser.add_argument(
+        '__name', action='store',
+        help=u'ros',
+    )
+    parser.add_argument(
+        '__log', action='store',
+        help=u'ros',
+    )
 
     ns = parser.parse_args()
     Capture(

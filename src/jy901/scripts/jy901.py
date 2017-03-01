@@ -79,9 +79,9 @@ class JY901:
             0, 0, 0.02
         ]
         self.imu_msg.linear_acceleration_covariance = [
-            0.01, 0, 0,
-            0, 0.01, 0,
-            0, 0, 0.01
+            0.00001, 0, 0,
+            0, 0.00001, 0,
+            0, 0, 0.00001
         ]
 
     def _check(self, packet):

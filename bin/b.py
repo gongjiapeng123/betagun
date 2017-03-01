@@ -44,9 +44,9 @@ def stop_web_server():
     os.system("ps aux| grep 'web-server/dev.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
-def start_ros(vo):
+def start_ros(vo, cam):
     print('start ros')
-    subprocess.Popen('roslaunch betagun odom_ekf.launch vo:={} > /dev/null 2>&1'.format('true' if vo else 'false'), shell=True)
+    subprocess.Popen('roslaunch betagun odom_ekf.launch vo:={} cam:={} > /dev/null 2>&1'.format('true' if vo else 'false', 'true' if cam else 'false'), shell=True)
     time.sleep(3)
 
 def stop_ros():
@@ -90,6 +90,12 @@ if __name__ == '__main__':
         help=u'仅对ros action',
     )
     parser.add_argument(
+        '-c', 
+        '--cam', 
+        action='store_true',
+        help=u'是否打开cameras',
+    )
+    parser.add_argument(
         '-v', 
         '--vo', 
         action='store_true',
@@ -120,10 +126,10 @@ if __name__ == '__main__':
 
         if ns.ros:
             if ns.action == 'start':
-                start_ros(ns.vo)
+                start_ros(ns.vo, ns.cam)
             elif ns.action == 'restart':
                 stop_ros()
-                start_ros(ns.vo)
+                start_ros(ns.vo, ns.cam)
             else:
                 stop_ros()
 
@@ -131,7 +137,7 @@ if __name__ == '__main__':
         if ns.action == 'start':
             start_tcp_server()
             start_web_server()
-            start_ros(ns.vo)
+            start_ros(ns.vo, ns.cam)
         elif ns.action == 'restart':
             stop_ros()
             stop_web_server()
@@ -139,7 +145,7 @@ if __name__ == '__main__':
 
             start_tcp_server()
             start_web_server()
-            start_ros(ns.vo)
+            start_ros(ns.vo, ns.cam)
         else:
             stop_ros()
             stop_web_server()
