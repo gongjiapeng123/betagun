@@ -25,26 +25,32 @@ WEB_SERVER_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'web-server'))
 ROS_SRC_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'src'))
 
 def start_tcp_server():
-    subprocess.Popen('node {}'.format(os.path.abspath(os.path.join(TCP_SERVER_DIR, 'start.js'))), shell=True)
+    print('start tcp server')
+    subprocess.Popen('node {} > /dev/null 2>&1'.format(os.path.abspath(os.path.join(TCP_SERVER_DIR, 'start.js'))), shell=True)
     time.sleep(3)
 
 def stop_tcp_server():
+    print('stop tcp server')
     os.system("ps aux| grep 'tcp-server/start.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
 def start_web_server():
-    subprocess.Popen('node {}'.format(os.path.abspath(os.path.join(WEB_SERVER_DIR, 'dev.js'))), shell=True)
+    print('start web server')
+    subprocess.Popen('node {} > /dev/null 2>&1'.format(os.path.abspath(os.path.join(WEB_SERVER_DIR, 'dev.js'))), shell=True)
     time.sleep(3)
 
 def stop_web_server():
+    print('stop web server')
     os.system("ps aux| grep 'web-server/dev.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
 def start_ros(vo):
-    subprocess.Popen('roslaunch betagun odom_ekf.launch vo:={}'.format('true' if vo else 'false'), shell=True)
+    print('start ros')
+    subprocess.Popen('roslaunch betagun odom_ekf.launch vo:={} > /dev/null 2>&1'.format('true' if vo else 'false'), shell=True)
     time.sleep(3)
 
 def stop_ros():
+    print('stop ros')
     os.system("ps aux| grep 'odom_ekf.launch' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
