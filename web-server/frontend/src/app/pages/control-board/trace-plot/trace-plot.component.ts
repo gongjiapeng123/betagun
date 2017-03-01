@@ -39,7 +39,7 @@ import { SelectItem } from 'primeng/primeng'
   template: require('./trace-plot.component.html')
 })
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
-  private _odomSelected: string = 'wo'
+  private _odomSelected: string = 'eo'
   private _odoms: SelectItem[] = [{
     label: 'eo',
     value: 'eo'

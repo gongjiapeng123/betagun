@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
+import { ServiceShareModule } from './service-share/service-share.module'
 
 /*
  * Platform and Environment providers/directives/pipes
@@ -17,7 +18,6 @@ import { AppState, InternalStateType } from './app.service';
 import { GlobalState } from './global.state';
 import { NgaModule } from './theme/nga.module';
 import { PagesModule } from './pages/pages.module';
-import { ServiceShareModule } from './service-share/service-share.module'
 
 // Application wide providers
 const APP_PROVIDERS = [
@@ -25,7 +25,7 @@ const APP_PROVIDERS = [
   GlobalState
 ];
 
-type StoreType = {
+export type StoreType = {
   state: InternalStateType,
   restoreInputValues: () => void,
   disposeOldHosts: () => void

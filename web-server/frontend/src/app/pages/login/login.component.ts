@@ -10,11 +10,12 @@ import { FormGroup, AbstractControl, FormBuilder, Validators } from '@angular/fo
 import { WebSocketService } from '../../service-share/services'
 import { Subscription } from 'rxjs/Subscription'
 
+import 'style-loader!./login.scss'
+
 @Component({
   selector: 'login',
   encapsulation: ViewEncapsulation.None,
-  styles: [require('./login.scss')],
-  template: require('./login.html'),
+  templateUrl: './login.html',
 })
 export class Login implements OnInit, OnDestroy {
 

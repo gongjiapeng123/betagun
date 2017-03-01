@@ -5,15 +5,14 @@ const commonConfig = require('./webpack.common.js'); // the settings that are co
 /**
  * Webpack Plugins
  */
-const DedupePlugin = require('webpack/lib/optimize/DedupePlugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const IgnorePlugin = require('webpack/lib/IgnorePlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const NormalModuleReplacementPlugin = require('webpack/lib/NormalModuleReplacementPlugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
-const WebpackMd5Hash = require('webpack-md5-hash');
-
+const OptimizeJsPlugin = require('optimize-js-plugin');
 /**
  * Webpack Constants
  */
@@ -86,12 +85,15 @@ module.exports = function (env) {
     plugins: [
 
       /**
-       * Plugin: WebpackMd5Hash
-       * Description: Plugin to replace a standard webpack chunkhash with md5.
+       * Webpack plugin to optimize a JavaScript file for faster initial load
+       * by wrapping eagerly-invoked functions.
        *
-       * See: https://www.npmjs.com/package/webpack-md5-hash
+       * See: https://github.com/vigneshshanmugam/optimize-js-plugin
        */
-      new WebpackMd5Hash(),
+
+      new OptimizeJsPlugin({
+        sourceMap: false
+      }),
 
       /**
        * Plugin: DedupePlugin
@@ -148,9 +150,25 @@ module.exports = function (env) {
 
 
         beautify: false, //prod
-        // mangle: { screw_ie8 : true, keep_fnames: true }, //prod
-        mangle: false,
-        compress: { screw_ie8: true }, //prod
+        output: {
+          comments: false
+        },
+        mangle: {
+          screw_ie8: true
+        }, //prod
+        compress: {
+          screw_ie8: true,
+          warnings: false,
+          conditionals: true,
+          unused: true,
+          comparisons: true,
+          sequences: true,
+          dead_code: true,
+          evaluate: true,
+          if_return: true,
+          join_vars: true,
+          negate_iife: false // we need this for lazy v8
+        },
         comments: false //prod
       }),
 
@@ -163,7 +181,12 @@ module.exports = function (env) {
 
       new NormalModuleReplacementPlugin(
         /angular2-hmr/,
-        helpers.root('config/modules/angular2-hmr-prod.js')
+        helpers.root('config/empty.js')
+      ),
+
+      new NormalModuleReplacementPlugin(
+        /zone\.js(\\|\/)dist(\\|\/)long-stack-trace-zone/,
+        helpers.root('config/empty.js')
       ),
 
       /**
@@ -194,6 +217,7 @@ module.exports = function (env) {
        * See: https://gist.github.com/sokra/27b24881210b56bbaff7
        */
       new LoaderOptionsPlugin({
+        minimize: true,
         debug: false,
         options: {
           context: helpers.root('src'),

@@ -1,12 +1,25 @@
 import {Injectable} from '@angular/core';
 import {Router, Routes} from '@angular/router';
+import * as _ from 'lodash';
+
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class BaMenuService {
+  menuItems = new BehaviorSubject<any[]>([]);
 
   protected _currentMenuItem = {};
 
-  constructor(private _router:Router) {
+  constructor(private _router:Router) { }
+
+  /**
+   * Updates the routes in the menu
+   *
+   * @param {Routes} routes Type compatible with app.menu.ts
+   */
+  public updateMenuByRoutes(routes: Routes) {
+    let convertedRoutes = this.convertRoutesToMenus(_.cloneDeep(routes));
+    this.menuItems.next(convertedRoutes);
   }
 
   public convertRoutesToMenus(routes:Routes):any[] {

@@ -1,1 +1,1 @@
-export * from './control-board.component'
+export * from './control-board.module'

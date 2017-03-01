@@ -10,11 +10,12 @@ import { Subscription } from 'rxjs/Subscription'
 import { GlobalState } from '../../../global.state'
 import { WebSocketService } from '../../../service-share/services'
 
+import 'style-loader!./baPageTop.scss'
+
 @Component({
   selector: 'ba-page-top',
-  styles: [require('./baPageTop.scss')],
-  template: require('./baPageTop.html'),
-  encapsulation: ViewEncapsulation.None
+  templateUrl: './baPageTop.html',
+  encapsulation: ViewEncapsulation.None,
 })
 export class BaPageTop implements OnInit, OnDestroy {
 
@@ -30,7 +31,8 @@ export class BaPageTop implements OnInit, OnDestroy {
 
   ngOnInit () {
     // 开发时自动登录
-    if (process.env.NODE_ENV === 'development') {
+    const env = process.env.NODE_ENV
+    if (env === 'development') {
       this._wsService.login('admin', '666')
     }
 

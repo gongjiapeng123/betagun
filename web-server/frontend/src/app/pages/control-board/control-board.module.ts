@@ -34,5 +34,5 @@ import {
 
   ]
 })
-export default class ControlBoardModule {
+export class ControlBoardModule {
 }

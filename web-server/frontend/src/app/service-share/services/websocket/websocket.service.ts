@@ -72,6 +72,9 @@ export class WebSocketService {
    */
   public vo$: Subject<OdomData> = new Subject<OdomData>()
 
+  constructor () {
+    this.connect()
+  }
 
   /**
    * 连接连接服务端WebSocket，并初始化该客户端WebSocket要监听的服务器端WebSocket发送过来的一系列事件
@@ -229,7 +232,7 @@ export class WebSocketService {
   /**
    * 向后台提示不需要图像了
    */
-  imageOff () {
+  imageOff () {  
     this._socket.emit('imageOff', {})
   }
 

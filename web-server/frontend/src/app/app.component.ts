@@ -1,16 +1,12 @@
-import './app.loader.ts'
-import {
-  Component,
-  ViewEncapsulation,
-  ViewContainerRef,
-  OnInit,
-  AfterViewInit
-} from '@angular/core'
-import { GlobalState } from './global.state'
-import { BaImageLoaderService, BaThemePreloader, BaThemeSpinner } from './theme/services'
-import { layoutPaths } from './theme/theme.constants'
-import { BaThemeConfig } from './theme/theme.config'
-import { WebSocketService } from './service-share/services'
+import { Component, ViewContainerRef } from '@angular/core';
+
+import { GlobalState } from './global.state';
+import { BaImageLoaderService, BaThemePreloader, BaThemeSpinner } from './theme/services';
+import { BaThemeConfig } from './theme/theme.config';
+import { layoutPaths } from './theme/theme.constants';
+
+import 'style-loader!./app.scss';
+import 'style-loader!./theme/initial.scss';
 
 /*
  * App Component
@@ -18,8 +14,6 @@ import { WebSocketService } from './service-share/services'
  */
 @Component({
   selector: 'app',
-  encapsulation: ViewEncapsulation.None,
-  styles: [require('normalize.css'), require('./app.scss')],
   template: `
     <main [ngClass]="{'menu-collapsed': isMenuCollapsed}" baThemeRun>
       <div class="additional-bg"></div>
@@ -27,37 +21,35 @@ import { WebSocketService } from './service-share/services'
     </main>
   `
 })
-export class App implements OnInit, AfterViewInit {
+export class App {
 
-  isMenuCollapsed: boolean = false
+  isMenuCollapsed: boolean = false;
 
-  constructor (private _state: GlobalState,
-               private _imageLoader: BaImageLoaderService,
-               private _spinner: BaThemeSpinner,
-               private _config: BaThemeConfig,
-               private viewContainerRef: ViewContainerRef,
-               private _wsService: WebSocketService) {
+  constructor(private _state: GlobalState,
+              private _imageLoader: BaImageLoaderService,
+              private _spinner: BaThemeSpinner,
+              private viewContainerRef: ViewContainerRef,
+              private themeConfig: BaThemeConfig) {
 
-    this._loadImages()
+    themeConfig.config();
+
+    this._loadImages();
 
     this._state.subscribe('menu.isCollapsed', (isCollapsed) => {
-      this.isMenuCollapsed = isCollapsed
-    })
+      this.isMenuCollapsed = isCollapsed;
+    });
   }
 
-  ngOnInit () {
-    this._wsService.connect()
-  }
-
-  public ngAfterViewInit (): void {
+  public ngAfterViewInit(): void {
     // hide spinner once all loaders are completed
     BaThemePreloader.load().then((values) => {
-      this._spinner.hide()
-    })
+      this._spinner.hide();
+    });
   }
 
-  private _loadImages (): void {
+  private _loadImages(): void {
     // register some loaders
-    BaThemePreloader.registerLoader(this._imageLoader.load(layoutPaths.images.root + 'sky-bg.jpg'))
+    BaThemePreloader.registerLoader(this._imageLoader.load(layoutPaths.images.root + 'sky-bg.jpg'));
   }
+
 }

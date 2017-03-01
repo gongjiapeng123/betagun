@@ -2,6 +2,7 @@ import { NgModule, ModuleWithProviders }      from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { NgUploaderModule } from 'ngx-uploader';
 
 import {
   BaThemeConfig
@@ -44,6 +45,7 @@ import {
 
 import {
   BaImageLoaderService,
+  BaMenuService,
   BaThemePreloader,
   BaThemeSpinner
 } from './services';
@@ -86,7 +88,8 @@ const NGA_PIPES = [
 const NGA_SERVICES = [
   BaImageLoaderService,
   BaThemePreloader,
-  BaThemeSpinner
+  BaThemeSpinner,
+  BaMenuService,
 ];
 
 const NGA_VALIDATORS = [
@@ -105,11 +108,12 @@ const NGA_VALIDATORS = [
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    NgUploaderModule,
   ],
   exports: [
     ...NGA_PIPES,
     ...NGA_DIRECTIVES,
-    ...NGA_COMPONENTS
+    ...NGA_COMPONENTS,
   ]
 })
 export class NgaModule {

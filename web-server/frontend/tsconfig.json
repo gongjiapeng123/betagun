@@ -7,21 +7,15 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "noEmit": true,
     "noEmitHelpers": true,
     "strictNullChecks": false,
-    "baseUrl": "./src",
-    "paths": {
-    },
     "lib": [
       "dom",
       "es6"
     ],
-    "types": [
-      "hammerjs",
-      "node",
-      "source-map",
-      "uglify-js",
-      "webpack"
+    "typeRoots": [
+      "node_modules/@types"
     ]
   },
   "exclude": [
@@ -34,5 +28,7 @@
   },
   "compileOnSave": false,
   "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }
