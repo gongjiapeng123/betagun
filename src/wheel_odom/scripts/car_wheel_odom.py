@@ -163,7 +163,7 @@ class WheelOdom:
         # set the velocity
         self.odom_msg.twist.twist = Twist(Vector3(self.vx, self.vy, 0), Vector3(0, 0, self.vth))
         self.odom_msg.twist.covariance = [
-            0.3, 0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0, 0,
             0, 0.1, 0, 0, 0, 0,
             0, 0, 10000, 0, 0, 0,
             0, 0, 0, 10000, 0, 0,

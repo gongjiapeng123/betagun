@@ -18,9 +18,9 @@
   </include>
 
   <!-- VO -->
-  <group if="$(arg vo)">
+  <group if="$(arg cam)">
     <include file="$(find cameras)/launch/camera_stereo.launch">
-      <arg name="vo" value="true"/>
+      <arg name="vo" value="$(arg vo)"/>
     </include>
   </group>
 

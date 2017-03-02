@@ -195,11 +195,11 @@ def run():
         help=u'print info',
     )
     parser.add_argument(
-        '__name', action='store',
+        '__name', action='store', default='', nargs='?',
         help=u'ros',
     )
     parser.add_argument(
-        '__log', action='store',
+        '__log', action='store', default='', nargs='?',
         help=u'ros',
     )
     
