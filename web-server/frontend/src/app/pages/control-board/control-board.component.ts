@@ -7,6 +7,7 @@ import {
 import { WebSocketService } from  '../../service-share/services'
 import { Subscription } from 'rxjs/Subscription'
 
+import 'style-loader!./control-board.component.scss'
 
 @Component({
   selector: 'dashboard',

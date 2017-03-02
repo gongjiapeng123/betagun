@@ -1,7 +1,10 @@
 <div class="select-wrapper">
   <p-dropdown [options]="_odoms"
               [(ngModel)]="_odomSelected"
-              (onChange)="onOdomChanged($event)">
+              (onChange)="onOdomChanged($event)"
+              [style]="{
+                width: '100px'
+              }">
 
   </p-dropdown>
 </div>

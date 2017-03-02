@@ -39,8 +39,9 @@ import { SelectItem } from 'primeng/primeng'
   template: require('./trace-plot.component.html')
 })
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
-  private _odomSelected: string = 'eo'
-  private _odoms: SelectItem[] = [{
+  MAX_POINTS = 10000  // 轨迹最大点数
+  private _odomSelected: string = 'eo'  // 默认选择的轨迹
+  private _odoms: SelectItem[] = [{  // 选择的轨迹
     label: 'eo',
     value: 'eo'
   }, {
@@ -50,8 +51,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     label: 'vo',
     value: 'vo'
   }]
-  private _status: string = '2D'
-
+  private _status: string = '2D'  // 位姿2d模式
+  
   private _canvasEl: HTMLCanvasElement
   private _id  // requestAnimationFrame id
   // three.js 对象
@@ -65,6 +66,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _light3
   private _grid
   private _carMesh
+  
+  // 轨迹
   private _traceGeometry
   private _positions
   private _traceLine
@@ -112,8 +115,6 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _jy901Subscription: Subscription
   private _arduinoSubscription: Subscription
   private _odomSubscription: Subscription
-
-  MAX_POINTS = 500
 
   constructor (private _wsService: WebSocketService,
                private _elementRef: ElementRef) {
@@ -186,7 +187,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe(odomData => {
           this._changePose()
           this.odomData = odomData
-
+          
         }
       )
   }
@@ -222,7 +223,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     )
 
     // 在高度100处沿着Z轴观看场景，此时Z轴向频幕里（北）Y轴向上，X轴向左（西）
-    this._camera.position.set(0, 500, -500)
+    this._camera.position.set(0, 750, -1000)
     // this._camera.position.set(0, 500, -500)
     this._camera.up.set(0, 0, 1)
     this._camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -260,6 +261,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     //   this._carMesh.position.set(0, 0, 0)
     //   this._scene.add(this._carMesh)
     // })
+    // 自制小车模型
     loader.load('assets/3d/car-model.json', (obj) => {
       // console.log(obj)
       this._carMesh = obj
@@ -289,10 +291,10 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
         'position',
         new THREE.BufferAttribute(this._positions, 3)
       )
-      this._drawCount = 2
+      this._drawCount = 0
       this._traceGeometry.setDrawRange(0, this._drawCount)
 
-      const material = new THREE.LineBasicMaterial({
+      const material = new THREE.LineBasicMaterial({  // 线的材质
         color: 0xff0000,
         linewidth: 2
       })
@@ -330,7 +332,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
         this._carMesh.position.y = this.odomData.z * 100
       }
 
-      // this._drawTrace()
+      this._drawTrace()
     }
   }
 
@@ -363,10 +365,38 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /**
+   * 绘制轨迹
+   * @private
+   */
   private _drawTrace () {
     if (this._traceLine) {
-      this._drawCount = ( this._drawCount + 1 ) % this.MAX_POINTS
-      this._traceLine.geometry.setDrawRange( 0, this._drawCount )
+      // 判断是否有位移  // cm
+      let lastPointX = 0
+      let lastPointY = 0
+      let lastPointZ = 0
+      if (this._traceIndex !== 0) {
+        lastPointX = this._positions[this._traceIndex - 3]
+        lastPointY = this._positions[this._traceIndex - 2]
+        lastPointZ = this._positions[this._traceIndex - 1]
+      }
+
+      let dist2 = 0  // cm^2
+      if (this._status === '3D') {
+        dist2 = Math.pow(lastPointX - this._carMesh.position.x, 2)
+          + Math.pow(lastPointY - this._carMesh.position.y, 2)
+          + Math.pow(lastPointZ - this._carMesh.position.z, 2)
+      } else {
+        dist2 = Math.pow(lastPointX - this._carMesh.position.x, 2)
+          + Math.pow(lastPointZ - this._carMesh.position.z, 2)
+      }
+      // console.log(dist2, this._traceIndex, this._drawCount)
+      if (dist2 < 25) {
+        return
+      }
+
+      this._drawCount = (this._drawCount + 1) % this.MAX_POINTS
+      this._traceLine.geometry.setDrawRange(0, this._drawCount)
       this._positions[this._traceIndex++] = this._carMesh.position.x
       if (this._status === '3D') {
         this._positions[this._traceIndex++] = this._carMesh.position.y
