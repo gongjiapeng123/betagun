@@ -163,9 +163,9 @@ export class WebSocketService {
             switch (data.type) {
               case 'ekf_odom': {
                 this.ekf_odom$.next({
-                  ax: parseFloat(dataStrings[0]),
-                  ay: parseFloat(dataStrings[1]),
-                  az: parseFloat(dataStrings[2]),  // 加速度
+                  vx: parseFloat(dataStrings[0]),
+                  vy: parseFloat(dataStrings[1]),
+                  vz: parseFloat(dataStrings[2]),  // 加速度
                   wx: parseFloat(dataStrings[3]),
                   wy: parseFloat(dataStrings[4]),
                   wz: parseFloat(dataStrings[5]),  // 角速度
@@ -180,9 +180,9 @@ export class WebSocketService {
                 break
               case 'wheel_odom': {
                 this.wheel_odom$.next({
-                  ax: parseFloat(dataStrings[0]),
-                  ay: parseFloat(dataStrings[1]),
-                  az: parseFloat(dataStrings[2]),  // 加速度
+                  vx: parseFloat(dataStrings[0]),
+                  vy: parseFloat(dataStrings[1]),
+                  vz: parseFloat(dataStrings[2]),  // 加速度
                   wx: parseFloat(dataStrings[3]),
                   wy: parseFloat(dataStrings[4]),
                   wz: parseFloat(dataStrings[5]),  // 角速度
@@ -197,9 +197,9 @@ export class WebSocketService {
                 break
               case 'vo': {
                 this.vo$.next({
-                  ax: parseFloat(dataStrings[0]),
-                  ay: parseFloat(dataStrings[1]),
-                  az: parseFloat(dataStrings[2]),  // 加速度
+                  vx: parseFloat(dataStrings[0]),
+                  vy: parseFloat(dataStrings[1]),
+                  vz: parseFloat(dataStrings[2]),  // 加速度
                   wx: parseFloat(dataStrings[3]),
                   wy: parseFloat(dataStrings[4]),
                   wz: parseFloat(dataStrings[5]),  // 角速度

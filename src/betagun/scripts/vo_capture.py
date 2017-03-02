@@ -39,9 +39,9 @@ class InfoCapture:
         self.verbose = verbose
 
         self.info_odom = {
-            'ax': 0,  # 加速度
-            'ay': 0,
-            'az': 0,
+            'vx': 0,  # 速度
+            'vy': 0,
+            'vz': 0,
             'wx': 0,  # 角速度
             'wy': 0,
             'wz': 0,
@@ -76,9 +76,9 @@ class InfoCapture:
             self.info_odom['x'] = position.x
             self.info_odom['y'] = position.y
             self.info_odom['z'] = position.z
-            self.info_odom['ax'] = linear.x
-            self.info_odom['ay'] = linear.y
-            self.info_odom['az'] = linear.z
+            self.info_odom['vx'] = linear.x
+            self.info_odom['vy'] = linear.y
+            self.info_odom['vz'] = linear.z
             # 转换degree
             self.info_odom['wx'] = angular.x / degrees2rad
             self.info_odom['wy'] = angular.y / degrees2rad
@@ -99,9 +99,9 @@ class InfoCapture:
             if self.verbose:
                 print('*' * 20)
                 print('A: {:0.2f} {:0.2f} {:0.2f}'.format(
-                    self.info_odom['ax'],
-                    self.info_odom['ay'],
-                    self.info_odom['az']
+                    self.info_odom['vx'],
+                    self.info_odom['vy'],
+                    self.info_odom['vz']
                 ))
                 print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
                     self.info_odom['wx'],
@@ -130,9 +130,9 @@ class InfoCapture:
             '''
             parse_odom(data)
             data_bytes = (b'{} ' * 12)[: -1].format(
-                self.info_odom['ax'],
-                self.info_odom['ay'],
-                self.info_odom['az'],
+                self.info_odom['vx'],
+                self.info_odom['vy'],
+                self.info_odom['vz'],
                 self.info_odom['wx'],
                 self.info_odom['wy'],
                 self.info_odom['wz'],

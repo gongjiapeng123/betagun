@@ -35,9 +35,9 @@ export interface ArdiunoData {
 }
 
 export interface OdomData {
-  ax: number
-  ay: number
-  az: number  // 加速度
+  vx: number
+  vy: number
+  vz: number  // 速度
   wx: number
   wy: number
   wz: number  // 角速度

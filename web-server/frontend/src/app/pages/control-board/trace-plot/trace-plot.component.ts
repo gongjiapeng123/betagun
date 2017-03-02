@@ -103,7 +103,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
   public odomData: OdomData = {
-    ax: 0, ay: 0, az: 0,  // 加速度
+    vx: 0, vy: 0, vz: 0,  // 速度
     wx: 0, wy: 0, wz: 0,  // 角速度
     pitch: 0, roll: 0, yaw: 0,  // 角度
     x: 0, y: 0, z: 0,  // 位置
