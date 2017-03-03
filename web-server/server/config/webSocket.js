@@ -11,13 +11,16 @@ function checkUser(username, password) {
   const users = new Map().set('admin', '666')
   return users.has(username) && users.get(username) == password
 }
-const adminHasLogin = false
+let adminHasLogin = false
 
 export function configWebSocket (server) {
   const io = webSocketServer(server)
   logger.info('配置WebSocket')
   io.on('connection', (socket) => {  // 客户端WebSocket连接上服务器时
     logger.info(`客户端 ${socket.handshake.headers.origin} 已连接WebSocket`)
+    socket.extra = {
+      admin: false
+    }
 
     let user = 'nobody'  // 该客户端的用户名
     let imageSubscription = null  // 该客户端对图像的订阅
@@ -44,6 +47,10 @@ export function configWebSocket (server) {
 
     socket
       .on('disconnect', () => {  // 连接断开
+        if (socket.extra.admin) {
+          adminHasLogin = false
+          socket.extra.admin = false
+        }
         jy901Subscription && jy901Subscription.unsubscribe()
         arduinoSubscription && arduinoSubscription.unsubscribe()
         imageSubscription && imageSubscription.unsubscribe()
@@ -56,6 +63,7 @@ export function configWebSocket (server) {
             succeeded = false
           } else {
             adminHasLogin = true
+            socket.extra.admin = true
           }
         }
         if (succeeded) {
@@ -68,6 +76,7 @@ export function configWebSocket (server) {
       .on('logout', (data) => {  // 获得客户端传来的login事件，data:{username:string}
         if (data.username === 'admin') {
           adminHasLogin = false
+          socket.extra.admin = false
         }
 
         user = 'nobody'
