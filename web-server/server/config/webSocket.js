@@ -11,6 +11,7 @@ function checkUser(username, password) {
   const users = new Map().set('admin', '666')
   return users.has(username) && users.get(username) == password
 }
+const adminHasLogin = false
 
 export function configWebSocket (server) {
   const io = webSocketServer(server)
@@ -49,16 +50,26 @@ export function configWebSocket (server) {
         infoSubscription && infoSubscription.unsubscribe()
       })
       .on('login', (data) => {  // 获得客户端传来的login事件，data:{username:string, password:string}
-        const succeeded = checkUser(data.username, data.password)
-
+        let succeeded = checkUser(data.username, data.password)
+        if (data.username === 'admin') {  // 只允许一个admin登录
+          if (adminHasLogin) {
+            succeeded = false
+          } else {
+            adminHasLogin = true
+          }
+        }
         if (succeeded) {
           user = data.username
         }
         // 发送登录结果事件给客户端
-        socket.emit('login_rs', {succeeded: succeeded, username: data.username, action: 'login'})
+        socket.emit('login_rs', {succeeded, username: data.username, action: 'login'})
 
       })
       .on('logout', (data) => {  // 获得客户端传来的login事件，data:{username:string}
+        if (data.username === 'admin') {
+          adminHasLogin = false
+        }
+
         user = 'nobody'
         socket.emit('logout_rs', {succeeded: true, username: '', action: 'logout'})
       })
