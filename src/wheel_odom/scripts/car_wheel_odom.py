@@ -27,11 +27,11 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 roslib.load_manifest('wheel_odom')
 
-WHEEL_DIAMETER = 0.04
-CODED_DISC_GRID_NUM = 50.0
-VHZ = 20.0
-DELTA_T = 1 / VHZ
-WHEEL_L = 0.185
+WHEEL_DIAMETER = 0.04  # 轮子直径
+CODED_DISC_GRID_NUM = 50.0  # 栅格数
+VHZ = 20.0  # 采样频率
+DELTA_T = 1 / VHZ  # 采样周期
+WHEEL_L = 0.185  # 轮间距
 
 def byte_value(uint8):
     '''
@@ -202,11 +202,6 @@ class WheelOdom:
                 self.vx,
                 self.vth
             ))
-            #print('W: {:0.2f} {:0.2f} {:0.2f}'.format(
-                #self.imu_msg.angular_velocity.x,
-                #self.imu_msg.angular_velocity.y,
-                #self.imu_msg.angular_velocity.z
-            #))
 
         self.pub_car_speed.publish(self.car_speed_msg)
         self.pub_odom.publish(self.odom_msg)

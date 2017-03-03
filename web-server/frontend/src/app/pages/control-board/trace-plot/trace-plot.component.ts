@@ -39,12 +39,9 @@ import { SelectItem } from 'primeng/primeng'
   template: require('./trace-plot.component.html')
 })
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
-  MAX_POINTS = 10000  // 轨迹最大点数
-  private _odomSelected: string = 'eo'  // 默认选择的轨迹
+  MAX_POINTS = 5000  // 轨迹最大点数
+  private _odomsSelected: string[] = []  // 选择的轨迹
   private _odoms: SelectItem[] = [{  // 选择的轨迹
-    label: 'eo',
-    value: 'eo'
-  }, {
     label: 'wo',
     value: 'wo'
   }, {
@@ -68,11 +65,32 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _carMesh
   
   // 轨迹
-  private _traceGeometry
-  private _positions
-  private _traceLine
+  private _eoTraceGeometry = new THREE.BufferGeometry()
+  private _eoPositions = new Float32Array(this.MAX_POINTS * 3)  // (x, y, z)
+  private _eoMaterial = new THREE.LineBasicMaterial({  // 线的材质
+    color: 0x00ff00,
+    linewidth: 2
+  })
+  private _eoTraceLine = new THREE.Line(this._eoTraceGeometry, this._eoMaterial)
+
+  private _woTraceGeometry = new THREE.BufferGeometry()
+  private _woPositions = new Float32Array(this.MAX_POINTS * 3)
+  private _woMaterial = new THREE.LineBasicMaterial({
+    color: 0xff0000,
+    linewidth: 2
+  })
+  private _woTraceLine = new THREE.Line(this._woTraceGeometry, this._woMaterial)
+
+  private _voTraceGeometry = new THREE.BufferGeometry()
+  private _voPositions = new Float32Array(this.MAX_POINTS * 3)
+  private _voMaterial = new THREE.LineBasicMaterial({
+    color: 0x0000ff,
+    linewidth: 2
+  })
+  private _voTraceLine = new THREE.Line(this._voTraceGeometry, this._voMaterial)
+
   private _traceIndex = 0
-  private _drawCount
+  private _drawCount = 0
 
   private _downLeftFrontMesh
   private _downRightFrontMesh
@@ -105,16 +123,21 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       front: '0000',
     }
   }
-  public odomData: OdomData = {
+  public eoData: OdomData = {
     vx: 0, vy: 0, vz: 0,  // 速度
     wx: 0, wy: 0, wz: 0,  // 角速度
     pitch: 0, roll: 0, yaw: 0,  // 角度
     x: 0, y: 0, z: 0,  // 位置
   }
+  public woData: OdomData = this.eoData
+  public voData: OdomData = this.eoData
+  odomData: OdomData = this.eoData
 
   private _jy901Subscription: Subscription
   private _arduinoSubscription: Subscription
-  private _odomSubscription: Subscription
+  private _eoSubscription: Subscription
+  private _woSubscription: Subscription
+  private _voSubscription: Subscription
 
   constructor (private _wsService: WebSocketService,
                private _elementRef: ElementRef) {
@@ -139,31 +162,32 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
         }
       )
 
-    let odom
-    if (this._odomSelected === 'eo') {
-      odom = this._wsService.ekf_odom$
-    }
-    if (this._odomSelected === 'wo') {
-      odom = this._wsService.wheel_odom$
-    }
-    if (this._odomSelected === 'vo') {
-      odom = this._wsService.vo$
-    }
-    this._odomSubscription = odom
-      .subscribe(odomData => {
-          this._changePose()
-          this.odomData = odomData
+    this._eoSubscription = this._wsService.ekf_odom$
+      .subscribe(eoData => {
+        this._changePose()
+        this.eoData = eoData
+        this.odomData = eoData
+      })
+    this._woSubscription = this._wsService.wheel_odom$
+      .subscribe(woData => {
+        this.woData = woData
 
-        }
-      )
+      })
+    this._voSubscription = this._wsService.vo$
+      .subscribe(voData => {
+        this.voData = voData
+
+      })
 
     this._animation()
   }
 
-  ngOnDestroy () {  // 取消订阅jy901Observable 并 停止动画
+  ngOnDestroy () {  // 取消订阅并停止动画
     this._jy901Subscription.unsubscribe()
     this._arduinoSubscription.unsubscribe()
-    this._odomSubscription.unsubscribe()
+    this._eoSubscription.unsubscribe()
+    this._woSubscription.unsubscribe()
+    this._eoSubscription.unsubscribe()
     this._stopAnimation()
   }
 
@@ -171,25 +195,24 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
+  /**
+   * 根据选择添加或取消wo、vo轨迹绘制
+   * @param event
+   */
   onOdomChanged (event) {
-    this._odomSubscription && this._odomSubscription.unsubscribe()
-    let odom
-    if (event.value === 'eo') {
-      odom = this._wsService.ekf_odom$
+    const selectWo = this._odomsSelected.indexOf('wo') > -1
+    const selectVo = this._odomsSelected.indexOf('vo') > -1
+    if (selectWo) {
+      this._scene.add(this._woTraceLine)
+    } else {
+      this._scene.remove(this._woTraceLine)
     }
-    if (event.value === 'wo') {
-      odom = this._wsService.wheel_odom$
+
+    if (selectVo) {
+      this._scene.add(this._voTraceLine)
+    } else {
+      this._scene.remove(this._voTraceLine)
     }
-    if (event.value === 'vo') {
-      odom = this._wsService.vo$
-    }
-    this._odomSubscription = odom
-      .subscribe(odomData => {
-          this._changePose()
-          this.odomData = odomData
-          
-        }
-      )
   }
 
   /**
@@ -284,26 +307,70 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       this._scene.add(this._carMesh)
       console.log(this._scene);
 
-      // 轨迹
-      this._traceGeometry = new THREE.BufferGeometry()
-      this._positions = new Float32Array(this.MAX_POINTS * 3)  // 3 vertices per point
-      this._traceGeometry.addAttribute(
-        'position',
-        new THREE.BufferAttribute(this._positions, 3)
-      )
-      this._drawCount = 0
-      this._traceGeometry.setDrawRange(0, this._drawCount)
+      this._configTraceLine()
 
-      const material = new THREE.LineBasicMaterial({  // 线的材质
-        color: 0xff0000,
-        linewidth: 2
-      })
-
-      this._traceLine = new THREE.Line(this._traceGeometry, material)
-      this._traceLine.geometry.attributes.position.needsUpdate = true
-      this._scene.add(this._traceLine)
     })
 
+  }
+
+  /**
+   * 配置轨迹直线
+   * @private
+   */
+  private _configTraceLine () {
+
+    this._eoTraceGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(this._eoPositions, 3)
+    )
+    this._eoTraceGeometry.setDrawRange(0, this._drawCount)
+    this._eoTraceLine.geometry.attributes.position.needsUpdate = true
+    this._scene.add(this._eoTraceLine)
+
+    this._woTraceGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(this._woPositions, 3)
+    )
+    this._woTraceGeometry.setDrawRange(0, this._drawCount)
+    if (this._odomsSelected.indexOf('wo') > -1) {
+      this._woTraceLine.geometry.attributes.position.needsUpdate = true
+      this._scene.add(this._woTraceLine)
+    }
+
+    this._voTraceGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(this._voPositions, 3)
+    )
+    this._voTraceGeometry.setDrawRange(0, this._drawCount)
+    if (this._odomsSelected.indexOf('vo') > -1) {
+      this._voTraceLine.geometry.attributes.position.needsUpdate = true
+      this._scene.add(this._voTraceLine)
+    }
+    
+  }
+
+  /**
+   * ros位姿 => three
+   * @param odomData
+   * @returns three position {x, y, z}
+   * @private
+   */
+  private _poseConvert (odomData: OdomData) {
+    // 该场景z向北，x向西，小车初始指向北，对于REP103，小车的base_link
+    // 的x指向前，y指向左，Z指向上方，对于该场景 => ROS:
+    // z => x; x => y; y => z
+    // 此处单位是cm
+    const position = {
+      x: 0,
+      y: 0,
+      z: 0
+    }
+
+    position.x = odomData.y * 100
+    position.y = odomData.z * 100
+    position.z = odomData.x * 100
+
+    return position
   }
 
   /**
@@ -317,19 +384,16 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       // ROS、jy901的轴对应three坐标轴，方向相同，传来的数据是角度制
       if (this._status === '3D') {
-        this._carMesh.rotation.x = this.odomData.pitch * Math.PI / 180
-        this._carMesh.rotation.z = this.odomData.roll * Math.PI / 180
+        this._carMesh.rotation.x = this.eoData.pitch * Math.PI / 180
+        this._carMesh.rotation.z = this.eoData.roll * Math.PI / 180
       }
-      this._carMesh.rotation.y = this.odomData.yaw * Math.PI / 180
-
-      // 该场景z向北，x向西，小车初始指向北，对于REP103，小车的base_link
-      // 的x指向前，y指向左，Z指向上方，对于该场景 => ROS:
-      // z => x; x => y; y => z
-      // 此处单位是cm，
-      this._carMesh.position.x = this.odomData.y * 100
-      this._carMesh.position.z = this.odomData.x * 100
+      this._carMesh.rotation.y = this.eoData.yaw * Math.PI / 180
+ 
+      const position = this._poseConvert(this.eoData)
+      this._carMesh.position.x = position.x
+      this._carMesh.position.z = position.z
       if (this._status === '3D') {
-        this._carMesh.position.y = this.odomData.z * 100
+        this._carMesh.position.y = position.y
       }
 
       this._drawTrace()
@@ -370,42 +434,69 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    * @private
    */
   private _drawTrace () {
-    if (this._traceLine) {
+    if (this._eoTraceLine) {
       // 判断是否有位移  // cm
       let lastPointX = 0
       let lastPointY = 0
       let lastPointZ = 0
       if (this._traceIndex !== 0) {
-        lastPointX = this._positions[this._traceIndex - 3]
-        lastPointY = this._positions[this._traceIndex - 2]
-        lastPointZ = this._positions[this._traceIndex - 1]
+        lastPointX = this._eoPositions[this._traceIndex - 3]
+        lastPointY = this._eoPositions[this._traceIndex - 2]
+        lastPointZ = this._eoPositions[this._traceIndex - 1]
       }
 
       let dist2 = 0  // cm^2
+
+      const eoPosition = this._poseConvert(this.eoData)
+      const woPosition = this._poseConvert(this.woData)
+      const voPosition = this._poseConvert(this.voData)
+
       if (this._status === '3D') {
-        dist2 = Math.pow(lastPointX - this._carMesh.position.x, 2)
-          + Math.pow(lastPointY - this._carMesh.position.y, 2)
-          + Math.pow(lastPointZ - this._carMesh.position.z, 2)
+        dist2 = Math.pow(lastPointX - eoPosition.x, 2)
+          + Math.pow(lastPointY - eoPosition.y, 2)
+          + Math.pow(lastPointZ - eoPosition.z, 2)
       } else {
-        dist2 = Math.pow(lastPointX - this._carMesh.position.x, 2)
-          + Math.pow(lastPointZ - this._carMesh.position.z, 2)
+        dist2 = Math.pow(lastPointX - eoPosition.x, 2)
+          + Math.pow(lastPointZ - eoPosition.z, 2)
       }
       // console.log(dist2, this._traceIndex, this._drawCount)
+      // 位移太小，不存入buf (5cm)
       if (dist2 < 25) {
         return
       }
 
       this._drawCount = (this._drawCount + 1) % this.MAX_POINTS
-      this._traceLine.geometry.setDrawRange(0, this._drawCount)
-      this._positions[this._traceIndex++] = this._carMesh.position.x
-      if (this._status === '3D') {
-        this._positions[this._traceIndex++] = this._carMesh.position.y
-      } else {
-        this._positions[this._traceIndex++] = 0
-      }
-      this._positions[this._traceIndex++] = this._carMesh.position.z
 
-      this._traceLine.geometry.attributes.position.needsUpdate = true
+      this._eoTraceLine.geometry.setDrawRange(0, this._drawCount)
+      this._woTraceLine.geometry.setDrawRange(0, this._drawCount)
+      this._voTraceLine.geometry.setDrawRange(0, this._drawCount)
+
+      this._eoPositions[this._traceIndex] = eoPosition.x
+      this._woPositions[this._traceIndex] = woPosition.x
+      this._voPositions[this._traceIndex] = voPosition.x
+      this._traceIndex++
+
+      if (this._status === '3D') {
+        this._eoPositions[this._traceIndex] = eoPosition.y
+        this._woPositions[this._traceIndex] = woPosition.y
+        this._voPositions[this._traceIndex] = voPosition.y
+        this._traceIndex++
+      } else {
+        this._eoPositions[this._traceIndex] = 0
+        this._woPositions[this._traceIndex] = 0
+        this._voPositions[this._traceIndex] = 0
+        this._traceIndex++
+      }
+      this._eoPositions[this._traceIndex] = eoPosition.z
+      this._woPositions[this._traceIndex] = woPosition.z
+      this._voPositions[this._traceIndex] = voPosition.z
+      this._traceIndex++
+
+      // 绘制结果轨迹，根据选择是否绘制wo、vo
+      this._eoTraceLine.geometry.attributes.position.needsUpdate = true
+      this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
+      this._voTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('vo') > -1
+
       if (this._traceIndex >= this.MAX_POINTS * 3) {
         this._traceIndex = 0
       }
@@ -438,6 +529,13 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
   get titleShow () {
     return '轨迹图'
+  }
+
+  /**
+   * 导出轨迹数据
+   */
+  exportData () {
+
   }
 
 }

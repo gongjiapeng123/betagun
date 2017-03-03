@@ -11,7 +11,6 @@ import { TracePlotComponent } from './trace-plot'
 
 import {
   SelectButtonModule,
-  DropdownModule,
 } from 'primeng/primeng'
 
 @NgModule({
@@ -22,7 +21,6 @@ import {
     routing,
 
     SelectButtonModule,
-    DropdownModule,
   ],
   declarations: [
     ControlBoard,
