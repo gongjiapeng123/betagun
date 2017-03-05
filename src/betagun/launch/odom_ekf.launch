@@ -6,6 +6,8 @@
   <arg name="vo" default="false"/>
   <!-- tcp server open cam? -->
   <arg name="cam" default="false"/>
+  <!-- imu0_relative? -->
+  <arg name="imu0_relative" default="false"/>
   
   <!-- jy901 IMU 从tcp server 获取jy901数据并发布imu主题-->
   <include file="$(find jy901)/launch/jy901.launch">
@@ -30,7 +32,7 @@
         clear_params="true">
     <rosparam command="load"
               file="$(find betagun)/params/odom_ekf.yaml"/>
-
+    <rosparam if="$(arg imu0_relative)" param="imu0_relative">true</rosparam>
   </node>
 
   <!-- 监听计算信息并传递信息给tcp server的node -->
