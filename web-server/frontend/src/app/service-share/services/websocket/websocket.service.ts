@@ -1,8 +1,4 @@
 /**
- * Created by alvin.liu on 2016/11/20.
- */
-
-/**
  * Created by Administrator on 2016/4/19.
  * 整个应用的WebSocket服务，这个服务用来与后台进行长时间通信
  */

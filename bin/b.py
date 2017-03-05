@@ -3,7 +3,7 @@
 
 
 '''
-监听ros发布的主题，连接61615端口并发送计算结果
+betagun 启动脚本
 '''
 
 from __future__ import print_function
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(u'''\
-                betagun 传输info给tcpserver
+                betagun 启动命令
                 --------------------------------
                 '''),
         fromfile_prefix_chars='@'

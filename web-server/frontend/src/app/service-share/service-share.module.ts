@@ -7,11 +7,13 @@ import { NgModule }      from '@angular/core';
 import {
   MotorService,
   WebSocketService,
+  CsvService,
 } from './services'
 
 const services = [
   MotorService,
   WebSocketService,
+  CsvService,
 ]
 
 

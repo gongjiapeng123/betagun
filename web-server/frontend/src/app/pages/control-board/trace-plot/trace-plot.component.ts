@@ -24,11 +24,12 @@ import {
   ElementRef,
 } from '@angular/core'
 import {
+  CsvService,
   WebSocketService,
   JY901Data,
   ArdiunoData,
   OdomData,
-} from  '../../../service-share/services/websocket'
+} from  '../../../service-share/services'
 import { Subscription }   from 'rxjs/Subscription'
 import * as THREE from 'three'
 import { SelectItem } from 'primeng/primeng'
@@ -140,6 +141,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _voSubscription: Subscription
 
   constructor (private _wsService: WebSocketService,
+               private _csvService: CsvService,
                private _elementRef: ElementRef) {
 
   }
@@ -356,8 +358,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    * @private
    */
   private _poseConvert (odomData: OdomData) {
-    // 该场景z向北，x向西，小车初始指向北，对于REP103，小车的base_link
-    // 的x指向前，y指向左，Z指向上方，对于该场景 => ROS:
+    // 该场景z向北，x向西，y向上，小车初始指向北，对于REP103，小车的base_link
+    // 的x指向前，y指向左，Z指向上方，故对于 场景 => ROS 变换:
     // z => x; x => y; y => z
     // 此处单位是cm
     const position = {
@@ -534,8 +536,12 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   /**
    * 导出轨迹数据
    */
-  exportData () {
-
+  onExportClick (event) {
+    this._csvService.exportToCsv([
+      this._eoPositions,
+      this._woPositions,
+      this._voPositions,
+    ])
   }
 
 }
