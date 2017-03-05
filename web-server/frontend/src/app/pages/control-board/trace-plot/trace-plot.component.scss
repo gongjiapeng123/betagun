@@ -6,11 +6,18 @@
     left: 65px;
   }
 
-  .export-button {
+  .export-trace-button {
     position: absolute;
-    width: 100px;
+    width: 90px;
     top: -50px;
-    left: 175px;
+    left: 165px;
+  }
+
+  .reset-trace-button {
+    position: absolute;
+    width: 90px;
+    top: -50px;
+    left: 260px;
   }
 }
 

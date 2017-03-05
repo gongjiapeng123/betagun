@@ -536,12 +536,29 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   /**
    * 导出轨迹数据
    */
-  onExportClick (event) {
+  onExportTraceClick (event) {
     this._csvService.exportToCsv([
       this._eoPositions,
       this._woPositions,
       this._voPositions,
     ])
+  }
+
+  /**
+   * 重置轨迹数据
+   */
+  onResetTraceClick (event) {
+    for (let i = 0; i < this._eoPositions.length; i++) {
+      this._eoPositions[i] = 0
+    }
+
+    for (let i = 0; i < this._woPositions.length; i++) {
+      this._woPositions[i] = 0
+    }
+
+    for (let i = 0; i < this._voPositions.length; i++) {
+      this._voPositions[i] = 0
+    }
   }
 
 }

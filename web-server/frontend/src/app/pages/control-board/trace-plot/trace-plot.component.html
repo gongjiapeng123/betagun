@@ -9,10 +9,17 @@
   </p-selectButton>
 
   <button pButton 
-          class="export-button ui-button-success"
+          class="export-trace-button ui-button-success"
           type="button" 
-          (click)="onExportClick($event)" 
+          (click)="onExportTraceClick($event)" 
           label="导出轨迹">
+  </button>
+
+  <button pButton 
+          class="reset-trace-button ui-button-success"
+          type="button" 
+          (click)="onResetTraceClick($event)" 
+          label="重置轨迹">
   </button>
 </div>
 
