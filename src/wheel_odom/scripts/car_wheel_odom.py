@@ -27,7 +27,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 roslib.load_manifest('wheel_odom')
 
-WHEEL_DIAMETER = 0.04  # 轮子直径
+WHEEL_DIAMETER = 0.035  # 轮子直径
 CODED_DISC_GRID_NUM = 50.0  # 栅格数
 VHZ = 20.0  # 采样频率
 DELTA_T = 1 / VHZ  # 采样周期
@@ -44,7 +44,7 @@ class WheelOdom:
 
     def __init__(self, verbose=''):
         self.verbose = verbose
-        
+
         self.left_count = 0
         self.right_count = 0
         self.left_speed = 0.0
@@ -57,7 +57,7 @@ class WheelOdom:
         self.x = 0.0
         self.y = 0.0
         self.th = 0.0  # yaw
-		
+
         self.cnt = 0
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.pattern = re.compile(r'\x66\xaa.{3,}\xfc')
@@ -237,7 +237,7 @@ class WheelOdom:
         except socket.error as e:
             print("connect error")
 
-    
+
 if __name__ == '__main__':
     wheelOdom = WheelOdom(verbose = True)
     wheelOdom.start()
