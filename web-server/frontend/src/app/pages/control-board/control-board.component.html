@@ -8,10 +8,10 @@
   </ba-card>
 
   <ba-card *ngIf="loginUser === 'admin'"
-           class="col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"
-           [title]="wheel.titleShow"
+           class="control-card col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"
+           [title]="steering.titleShow"
            baCardClass="xsmall-card">
-    <steering-wheel #wheel></steering-wheel>
+    <steering #steering></steering>
   </ba-card>
 
   <ba-card class="col-xlg-3 col-xl-3 col-lg-6 col-sm-12 col-xs-12"

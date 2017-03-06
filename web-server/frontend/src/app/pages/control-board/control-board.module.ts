@@ -6,12 +6,17 @@ import { ControlBoard } from './control-board.component'
 import { routing } from './control-board.routing'
 
 import { BetaImageComponent } from './beta-image'
-import { SteeringWheelComponent } from './steering-wheel'
+import { 
+  SteeringDragComponent,
+  SteeringWheelComponent,
+  SteeringComponent
+} from './steering'
 import { TracePlotComponent } from './trace-plot'
 
 import {
   SelectButtonModule,
   ButtonModule,
+  InputSwitchModule,
 } from 'primeng/primeng'
 
 @NgModule({
@@ -23,11 +28,14 @@ import {
 
     SelectButtonModule,
     ButtonModule,
+    InputSwitchModule,
   ],
   declarations: [
     ControlBoard,
     BetaImageComponent,
+    SteeringComponent,
     SteeringWheelComponent,
+    SteeringDragComponent,
     TracePlotComponent,
   ],
   providers: [

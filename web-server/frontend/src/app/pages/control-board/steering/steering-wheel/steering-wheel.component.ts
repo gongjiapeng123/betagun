@@ -8,8 +8,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import {
   WebSocketService,
   MotorService
-} from  '../../../service-share/services'
-import { MotorState } from '../../../service-share/services/motor'
+} from  '../../../../service-share/services'
+import { MotorState } from '../../../../service-share/services/motor'
 // import {Subject} from 'rxjs/Subject'
 
 
@@ -350,7 +350,8 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
   }
 
   get titleShow () {
-    return `L: ${this.motorLeftSpeed}; R: ${this.motorRightSpeed}; ${this.motorState}; ${this.flag}`
+    // return `L: ${this.motorLeftSpeed}; R: ${this.motorRightSpeed}; ${this.motorState}; ${this.flag}`
+    return `L: ${this.motorLeftSpeed}; R: ${this.motorRightSpeed}`
   }
 
   get motorLeftSpeed () {
