@@ -22,6 +22,7 @@ import {
   OnDestroy,
   OnChanges,
   ElementRef,
+  Input,
 } from '@angular/core'
 import {
   CsvService,
@@ -40,6 +41,7 @@ import { SelectItem } from 'primeng/primeng'
   template: require('./trace-plot.component.html')
 })
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() loginUser
   MAX_POINTS = 5000  // 轨迹最大点数
   private _odomsSelected: string[] = []  // 选择的轨迹
   private _odoms: SelectItem[] = [{  // 选择的轨迹
@@ -548,6 +550,10 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    * 重置轨迹数据
    */
   onResetTraceClick (event) {
+    if (this.loginUser === 'admin') {
+      this._wsService.restartPosition()
+    }
+
     for (let i = 0; i < this._eoPositions.length; i++) {
       this._eoPositions[i] = 0
     }
@@ -559,6 +565,13 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     for (let i = 0; i < this._voPositions.length; i++) {
       this._voPositions[i] = 0
     }
+    this._drawCount = 0
+    this._traceIndex = 0
+    this._eoTraceGeometry.setDrawRange(0, this._drawCount)
+
+    this._eoTraceLine.geometry.attributes.position.needsUpdate = true
+    this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
+    this._voTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('vo') > -1
   }
 
 }

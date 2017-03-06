@@ -3,6 +3,6 @@
                  onLabel="key"
                  offLabel="drag"
                  [style]="{width: '80px'}"></p-inputSwitch>
-  <steering-wheel #steeringWheel [hidden]="!isKey"></steering-wheel>
-  <steering-drag #steeringDrag [hidden]="isKey"></steering-drag>
+  <steering-wheel #steeringWheel *ngIf="isKey"></steering-wheel>
+  <steering-drag #steeringDrag *ngIf="!isKey"></steering-drag>
 </div>

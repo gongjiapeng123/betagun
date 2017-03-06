@@ -258,5 +258,10 @@ export class WebSocketService {
     this._socket.emit('logout', {username: this.loginUser$})
   }
 
+  /**
+   * 重置位姿
+   */
+  restartPosition () {
 
+  }
 }

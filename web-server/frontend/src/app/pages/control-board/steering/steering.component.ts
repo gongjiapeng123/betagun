@@ -49,9 +49,6 @@ export class SteeringComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get titleShow () {
-    if (this.steeringWheel && this.steeringDrag) {
-      return this.isKey ? this.steeringWheel.titleShow : this.steeringDrag.titleShow
-    }
-    return ''
+    return `L: ${this._mtService.motorLeftSpeed}; R: ${this._mtService.motorRightSpeed}`
   }
 }
