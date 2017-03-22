@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <arg name="camera" default="stereo" />
+
+  <arg name="baseline/2" value="0.06"/>
+  <arg name="optical_translation" value="0 -$(arg baseline/2) 0"/>
+
+  <arg name="pi/2" value="1.5707963267948966"/>
+  <arg name="optical_rotation" value="-$(arg pi/2) 0 -$(arg pi/2)"/>
+
+  <!-- Transform from base_footprint frame to camera frame -->
+  <node pkg="tf2_ros" 
+        type="static_transform_publisher" 
+        name="base_footprint_to_$(arg camera)" 
+        args="0.2 0 0.15 0 0 0 base_footprint $(arg camera)">
+  </node>
+
+  <!-- Transform from camera frame to camera_optical frame -->
+  <node pkg="tf2_ros"
+        type="static_transform_publisher" 
+        name="$(arg camera)_to_$(arg camera)_optical" 
+        args="$(arg optical_translation) $(arg optical_rotation) $(arg camera) $(arg camera)_optical">
+  </node>
+</launch>
+

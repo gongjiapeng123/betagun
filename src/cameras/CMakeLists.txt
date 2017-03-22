@@ -7,7 +7,6 @@ find_package(catkin REQUIRED
       message_generation
       sensor_msgs
       dynamic_reconfigure
-      driver_base
       cv_bridge
       image_transport
       camera_info_manager
@@ -25,7 +24,6 @@ catkin_package(
       message_runtime
       sensor_msgs
       dynamic_reconfigure
-      driver_base
       cv_bridge
       image_transport
       camera_info_manager
@@ -47,7 +45,11 @@ add_executable(camera_stereo src/camera_stereo.cpp)
 add_dependencies(camera_stereo ${PROJECT_NAME}_gencfg)
 target_link_libraries(camera_stereo ${catkin_LIBRARIES})
 
-install(TARGETS camera camera_timer camera_polling camera_stereo
+add_executable(camera_stereo2 src/camera_stereo2.cpp)
+add_dependencies(camera_stereo2 ${PROJECT_NAME}_gencfg)
+target_link_libraries(camera_stereo2 ${catkin_LIBRARIES})
+
+install(TARGETS camera camera_timer camera_polling camera_stereo camera_stereo2
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
