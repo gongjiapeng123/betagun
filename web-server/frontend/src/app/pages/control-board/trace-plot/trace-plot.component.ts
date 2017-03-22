@@ -45,13 +45,19 @@ import { SelectItem } from 'primeng/primeng'
 })
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   @Input() loginUser
-  MAX_POINTS = 5000  // 轨迹最大点数
+  MAX_POINTS = 2000  // 轨迹最大点数
   private _odomsSelected: string[] = []  // 选择的轨迹
   private _odoms: SelectItem[] = [{  // 选择的轨迹
-    label: 'wo',
+    label: 'wo',  // 轮式里程计
     value: 'wo'
   }, {
-    label: 'vo',
+    label: 'io',  // 惯导里程计
+    value: 'io'
+  }, {
+    label: 'to',  // 传统里程计（wo + io）
+    value: 'to'
+  }, {
+    label: 'vo',  // 双目里程计
     value: 'vo'
   }]
   private _status: string = '2D'  // 位姿2d模式
@@ -71,6 +77,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _carMesh
   
   // 轨迹
+
+  // eo
   private _eoTraceGeometry = new THREE.BufferGeometry()
   private _eoPositions = new Float32Array(this.MAX_POINTS * 3)  // (x, y, z)
   private _eoMaterial = new THREE.LineBasicMaterial({  // 线的材质
@@ -79,6 +87,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   })
   private _eoTraceLine = new THREE.Line(this._eoTraceGeometry, this._eoMaterial)
 
+  // wo
   private _woTraceGeometry = new THREE.BufferGeometry()
   private _woPositions = new Float32Array(this.MAX_POINTS * 3)
   private _woMaterial = new THREE.LineBasicMaterial({
@@ -87,6 +96,25 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   })
   private _woTraceLine = new THREE.Line(this._woTraceGeometry, this._woMaterial)
 
+  // io
+  private _ioTraceGeometry = new THREE.BufferGeometry()
+  private _ioPositions = new Float32Array(this.MAX_POINTS * 3)
+  private _ioMaterial = new THREE.LineBasicMaterial({
+    color: 0xff8800,
+    linewidth: 2
+  })
+  private _ioTraceLine = new THREE.Line(this._ioTraceGeometry, this._ioMaterial)
+
+  // to
+  private _toTraceGeometry = new THREE.BufferGeometry()
+  private _toPositions = new Float32Array(this.MAX_POINTS * 3)
+  private _toMaterial = new THREE.LineBasicMaterial({
+    color: 0xff0088,
+    linewidth: 2
+  })
+  private _toTraceLine = new THREE.Line(this._toTraceGeometry, this._toMaterial)
+
+  // vo
   private _voTraceGeometry = new THREE.BufferGeometry()
   private _voPositions = new Float32Array(this.MAX_POINTS * 3)
   private _voMaterial = new THREE.LineBasicMaterial({
@@ -136,6 +164,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     x: 0, y: 0, z: 0,  // 位置
   }
   public woData: OdomData = this.eoData
+  public ioData: OdomData = this.eoData
+  public toData: OdomData = this.eoData
   public voData: OdomData = this.eoData
   odomData: OdomData = this.eoData
 
@@ -143,6 +173,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _arduinoSubscription: Subscription
   private _eoSubscription: Subscription
   private _woSubscription: Subscription
+  private _ioSubscription: Subscription
+  private _toSubscription: Subscription
   private _voSubscription: Subscription
 
   constructor (private _wsService: WebSocketService,
@@ -169,13 +201,23 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
         }
       )
 
-    this._eoSubscription = this._wsService.ekf_odom$
+    this._eoSubscription = this._wsService.eo$
       .subscribe(eoData => {
         this._changePose()
         this.eoData = eoData
         this.odomData = eoData
       })
-    this._woSubscription = this._wsService.wheel_odom$
+    this._woSubscription = this._wsService.wo$
+      .subscribe(woData => {
+        this.woData = woData
+
+      })
+    this._ioSubscription = this._wsService.io$
+      .subscribe(woData => {
+        this.woData = woData
+
+      })
+    this._toSubscription = this._wsService.to$
       .subscribe(woData => {
         this.woData = woData
 
@@ -194,6 +236,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     this._arduinoSubscription.unsubscribe()
     this._eoSubscription.unsubscribe()
     this._woSubscription.unsubscribe()
+    this._ioSubscription.unsubscribe()
+    this._toSubscription.unsubscribe()
     this._eoSubscription.unsubscribe()
     this._stopAnimation()
   }
@@ -208,11 +252,25 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    */
   onOdomChanged (event) {
     const selectWo = this._odomsSelected.indexOf('wo') > -1
+    const selectIo = this._odomsSelected.indexOf('io') > -1
+    const selectTo = this._odomsSelected.indexOf('to') > -1
     const selectVo = this._odomsSelected.indexOf('vo') > -1
     if (selectWo) {
       this._scene.add(this._woTraceLine)
     } else {
       this._scene.remove(this._woTraceLine)
+    }
+
+    if (selectIo) {
+      this._scene.add(this._ioTraceLine)
+    } else {
+      this._scene.remove(this._ioTraceLine)
+    }
+
+    if (selectTo) {
+      this._scene.add(this._toTraceLine)
+    } else {
+      this._scene.remove(this._toTraceLine)
     }
 
     if (selectVo) {
@@ -325,7 +383,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    * @private
    */
   private _configTraceLine () {
-
+    // eo
     this._eoTraceGeometry.addAttribute(
       'position',
       new THREE.BufferAttribute(this._eoPositions, 3)
@@ -333,7 +391,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     this._eoTraceGeometry.setDrawRange(0, this._drawCount)
     this._eoTraceLine.geometry.attributes.position.needsUpdate = true
     this._scene.add(this._eoTraceLine)
-
+    // wo
     this._woTraceGeometry.addAttribute(
       'position',
       new THREE.BufferAttribute(this._woPositions, 3)
@@ -343,7 +401,27 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       this._woTraceLine.geometry.attributes.position.needsUpdate = true
       this._scene.add(this._woTraceLine)
     }
-
+    // io
+    this._ioTraceGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(this._ioPositions, 3)
+    )
+    this._ioTraceGeometry.setDrawRange(0, this._drawCount)
+    if (this._odomsSelected.indexOf('wo') > -1) {
+      this._ioTraceLine.geometry.attributes.position.needsUpdate = true
+      this._scene.add(this._ioTraceLine)
+    }
+    // to
+    this._toTraceGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(this._toPositions, 3)
+    )
+    this._toTraceGeometry.setDrawRange(0, this._drawCount)
+    if (this._odomsSelected.indexOf('wo') > -1) {
+      this._toTraceLine.geometry.attributes.position.needsUpdate = true
+      this._scene.add(this._toTraceLine)
+    }
+    // vo
     this._voTraceGeometry.addAttribute(
       'position',
       new THREE.BufferAttribute(this._voPositions, 3)
@@ -456,6 +534,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       const eoPosition = this._poseConvert(this.eoData)
       const woPosition = this._poseConvert(this.woData)
+      const ioPosition = this._poseConvert(this.ioData)
+      const toPosition = this._poseConvert(this.toData)
       const voPosition = this._poseConvert(this.voData)
 
       if (this._status === '3D') {
@@ -486,22 +566,30 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       if (this._status === '3D') {
         this._eoPositions[this._traceIndex] = eoPosition.y
         this._woPositions[this._traceIndex] = woPosition.y
+        this._ioPositions[this._traceIndex] = ioPosition.y
+        this._toPositions[this._traceIndex] = toPosition.y
         this._voPositions[this._traceIndex] = voPosition.y
         this._traceIndex++
       } else {
         this._eoPositions[this._traceIndex] = 0
         this._woPositions[this._traceIndex] = 0
+        this._ioPositions[this._traceIndex] = 0
+        this._toPositions[this._traceIndex] = 0
         this._voPositions[this._traceIndex] = 0
         this._traceIndex++
       }
       this._eoPositions[this._traceIndex] = eoPosition.z
       this._woPositions[this._traceIndex] = woPosition.z
+      this._ioPositions[this._traceIndex] = ioPosition.z
+      this._toPositions[this._traceIndex] = toPosition.z
       this._voPositions[this._traceIndex] = voPosition.z
       this._traceIndex++
 
       // 绘制结果轨迹，根据选择是否绘制wo、vo
       this._eoTraceLine.geometry.attributes.position.needsUpdate = true
       this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
+      this._ioTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('io') > -1
+      this._toTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('to') > -1
       this._voTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('vo') > -1
 
       if (this._traceIndex >= this.MAX_POINTS * 3) {
@@ -545,6 +633,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     this._csvService.exportToCsv([
       this._eoPositions,
       this._woPositions,
+      this._ioPositions,
+      this._toPositions,
       this._voPositions,
     ])
   }
@@ -565,6 +655,14 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       this._woPositions[i] = 0
     }
 
+    for (let i = 0; i < this._ioPositions.length; i++) {
+      this._ioPositions[i] = 0
+    }
+
+    for (let i = 0; i < this._toPositions.length; i++) {
+      this._toPositions[i] = 0
+    }
+
     for (let i = 0; i < this._voPositions.length; i++) {
       this._voPositions[i] = 0
     }
@@ -574,6 +672,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
     this._eoTraceLine.geometry.attributes.position.needsUpdate = true
     this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
+    this._ioTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('io') > -1
+    this._toTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('to') > -1
     this._voTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('vo') > -1
   }
 

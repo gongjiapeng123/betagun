@@ -17,6 +17,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 # import seaborn
 
+MAX_POINTS = 2000
+# MAX_POINTS = 5000
 UNIT = 97  # 实验场景一块砖边长97cm
 
 # 实验地图类型
@@ -104,7 +106,7 @@ def handle_points(points):
     将读取的数据进行处理
     '''
     def reshape(ps):
-        return ps.reshape(5000, 3)
+        return ps.reshape(MAX_POINTS, 3)
 
     def cut_2d(ps):  # 获取three.js的x, z轴，即此处的x, y
         return ps[:, np.array([True, False, True])]

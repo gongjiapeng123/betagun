@@ -37,15 +37,15 @@
 
   <!-- 监听计算信息并传递信息给tcp server的node -->
   <node pkg="betagun"
-        type="ekf_odom_capture.py"
-        name="ekf_odom_capture"
+        type="eo_capture.py"
+        name="eo_capture"
         args="robot_localization">
   
   </node>
 
   <node pkg="betagun"
-        type="wheel_odom_capture.py"
-        name="wheel_odom_capture">
+        type="wo_capture.py"
+        name="wo_capture">
   
   </node>
 

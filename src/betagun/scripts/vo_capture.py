@@ -3,7 +3,7 @@
 
 
 '''
-监听ros发布的主题，连接61615端口并发送计算结果
+监听ros发布的主题，连接61615端口并发送视觉里程计信息
 '''
 
 from __future__ import print_function
@@ -123,7 +123,7 @@ class InfoCapture:
             '''
             构造数据包
             头（2字节）    栈长度（）  数据字   数据           校验和    结束字节
-            0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc
+            0x66  0xaa     0x##      0xa4     12 个字符串    0x##       0xfc
             :param frame:
             :param size: 要变换的大小
             :return: 发送给61615数据端口的数据
@@ -144,7 +144,7 @@ class InfoCapture:
                 self.info_odom['z'],
             )  # 转换为二进制字符串发送
             data_bytes_len = chr(len(data_bytes))
-            data_check = b'{0}\xA2{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
+            data_check = b'{0}\xA4{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
 
             return HEAD + data_check + chr(crc8(data_check)) + END
 

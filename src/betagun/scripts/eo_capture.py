@@ -3,7 +3,7 @@
 
 
 '''
-监听ros发布的主题，连接61616端口并发送轮式里程计信息
+监听ros发布的主题，连接61615端口并发送融合后的里程计信息
 '''
 
 from __future__ import print_function
@@ -33,9 +33,15 @@ END = b'\xFC'
 
 class InfoCapture:
     
-    def __init__(self, verbose=False):
-        self.odom_topic_name = 'wheel_odom'
-        self.odom_msg_type = Odometry
+    def __init__(self, ekf_type='robot_localization', verbose=False):
+        self.ekf_type = ekf_type
+        if ekf_type == 'robot_localization':
+            self.odom_topic_name = 'odometry/filtered'
+            self.odom_msg_type = Odometry
+        else:
+            self.odom_topic_name = 'robot_pose_ekf/odom_combined'
+            self.odom_msg_type = PoseWithCovarianceStamped
+            
         self.verbose = verbose
 
         self.info_odom = {
@@ -65,8 +71,41 @@ class InfoCapture:
 
     def subscriber_odom(self):
         '''
-        监听里程计数据
+        监听滤波后的里程计数据
         '''
+        def parse_pose(data):
+            position = data.pose.pose.position
+            orientation = data.pose.pose.orientation
+
+            self.info_odom['x'] = position.x
+            self.info_odom['y'] = position.y
+            self.info_odom['z'] = position.z
+            
+            direction = euler_from_quaternion([
+                orientation.x,
+                orientation.y,
+                orientation.z,
+                orientation.w,
+            ])
+            
+            # 转换degree
+            self.info_odom['pitch'] = direction[0] / degrees2rad
+            self.info_odom['roll'] = direction[1] / degrees2rad
+            self.info_odom['yaw'] = direction[2] / degrees2rad
+
+            if self.verbose:
+                print('*' * 20)
+                print('pitch, roll, yaw: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['pitch'],
+                    self.info_odom['roll'],
+                    self.info_odom['yaw']
+                ))
+                print('x, y, z: {:0.2f} {:0.2f} {:0.2f}'.format(
+                    self.info_odom['x'],
+                    self.info_odom['y'],
+                    self.info_odom['z']
+                ))
+                
         def parse_odom(data):
             position = data.pose.pose.position
             orientation = data.pose.pose.orientation
@@ -126,9 +165,11 @@ class InfoCapture:
             0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc
             :param frame:
             :param size: 要变换的大小
-            :return: 发送给61616数据端口的数据
+            :return: 发送给61615数据端口的数据
             '''
-            parse_odom(data)
+            
+            parse = parse_odom if self.ekf_type == 'robot_localization' else parse_pose
+            parse(data)
             data_bytes = (b'{} ' * 12)[: -1].format(
                 self.info_odom['vx'],
                 self.info_odom['vy'],
@@ -144,10 +185,10 @@ class InfoCapture:
                 self.info_odom['z'],
             )  # 转换为二进制字符串发送
             data_bytes_len = chr(len(data_bytes))
-            data_check = b'{0}\xA1{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
+            data_check = b'{0}\xA0{1}'.format(data_bytes_len, data_bytes)  # 栈长度 + 命令字 + 数据
 
             return HEAD + data_check + chr(crc8(data_check)) + END
-
+        
         def callback(data):
             packet = make_packet(data)
             self.sock.send(packet)
@@ -160,7 +201,7 @@ class InfoCapture:
         :return:
         '''
         try:
-            self.sock.connect(('127.0.0.1', 61616))
+            self.sock.connect(('127.0.0.1', 61615))
 
             # 告诉服务器本进程是python进程
             self.sock.send(b'#python:gxnu#')
@@ -191,6 +232,11 @@ def run():
     )
 
     parser.add_argument(
+        'ekf_type', action='store', default='robot_localization',
+        choices=['robot_localization', 'robot_pose_ekf'],
+        help=u'package name',
+    )
+    parser.add_argument(
         '-v', '--verbose', action='store_true', dest='verbose',
         help=u'print info',
     )
@@ -202,9 +248,10 @@ def run():
         '__log', action='store', default='', nargs='?',
         help=u'ros',
     )
-    
+
     ns = parser.parse_args()
     InfoCapture(
+        ekf_type=ns.ekf_type,
         verbose=ns.verbose
     ).run()
 

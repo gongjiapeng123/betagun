@@ -406,7 +406,7 @@ function _emit (packet) {
       observables.arduino$.next({type: '\x82', data: packet.data})
     }
       break
-    case '\x83':  // arduino的传感器数据
+    case '\x83':  // arduino的测速数据
     {
       observables.arduino$.next({type: '\x83', data: packet.data})
     }
@@ -414,15 +414,25 @@ function _emit (packet) {
 
     case '\xa0':  // odom数据
     {
-      observables.info$.next({type: 'ekf_odom', data: packet.data})
+      observables.info$.next({type: 'eo', data: packet.data})
     }
       break
     case '\xa1':  // odom数据
     {
-      observables.info$.next({type: 'wheel_odom', data: packet.data})
+      observables.info$.next({type: 'wo', data: packet.data})
     }
       break
     case '\xa2':  // odom数据
+    {
+      observables.info$.next({type: 'io', data: packet.data})
+    }
+      break
+    case '\xa3':  // odom数据
+    {
+      observables.info$.next({type: 'to', data: packet.data})
+    }
+      break
+    case '\xa4':  // odom数据
     {
       observables.info$.next({type: 'vo', data: packet.data})
     }

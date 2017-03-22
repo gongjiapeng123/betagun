@@ -10,7 +10,8 @@ const logger = require('./log')
 const _ = require('lodash')
 const loginRexExp = /#.+:.+#/  // #guess:666666#
 
-const infoProxy = new Rx.Subject()  // 一个代理，接收到python发来的数据后，立马广播给其他客户端
+const infoProxy = new Rx.Subject()  // 一个代理，接收到python发来的数据后，立马广播给其他客户端，此处接收多个python进程发送的信息
+
 
 const infoServer = net.createServer((client) => {
 
@@ -72,7 +73,7 @@ const infoServer = net.createServer((client) => {
                   client.write(data, 'binary')  // 广播给需要接收数据的客户端
                 },
                 (err) => {
-                  logger.error(`[wheel_odom_server]: ${err}`)
+                  logger.error(`[info server]: ${err}`)
                 }
               )
 

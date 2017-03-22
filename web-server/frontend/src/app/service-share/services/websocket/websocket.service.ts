@@ -56,14 +56,24 @@ export class WebSocketService {
    * 从服务器获取得的融合滤波后的里程计数据
    * @type {Subject}
    */
-  public ekf_odom$: Subject<OdomData> = new Subject<OdomData>()
+  public eo$: Subject<OdomData> = new Subject<OdomData>()
   /**
    * 从服务器获取得的轮式里程计数据
    * @type {Subject}
    */
-  public wheel_odom$: Subject<OdomData> = new Subject<OdomData>()
+  public wo$: Subject<OdomData> = new Subject<OdomData>()
   /**
-   * 从服务器获取得的诗句里程计数据
+   * 从服务器获取得的惯导里程计数据
+   * @type {Subject}
+   */
+  public io$: Subject<OdomData> = new Subject<OdomData>()
+  /**
+   * 从服务器获取得的轮式 + 惯导里程计数据
+   * @type {Subject}
+   */
+  public to$: Subject<OdomData> = new Subject<OdomData>()
+  /**
+   * 从服务器获取得的视觉里程计数据
    * @type {Subject}
    */
   public vo$: Subject<OdomData> = new Subject<OdomData>()
@@ -156,56 +166,39 @@ export class WebSocketService {
           })
           .on('info', (data: {type: string, infoData: string}) => {  // 小车计算数据
             const dataStrings = data.infoData.split(' ')
+            const infoPackage = {
+              vx: parseFloat(dataStrings[0]),
+              vy: parseFloat(dataStrings[1]),
+              vz: parseFloat(dataStrings[2]),  // 加速度
+              wx: parseFloat(dataStrings[3]),
+              wy: parseFloat(dataStrings[4]),
+              wz: parseFloat(dataStrings[5]),  // 角速度
+              pitch: parseFloat(dataStrings[6]),
+              roll: parseFloat(dataStrings[7]),
+              yaw: parseFloat(dataStrings[8]),  // 角度
+              x: parseFloat(dataStrings[9]),
+              y: parseFloat(dataStrings[10]),
+              z: parseFloat(dataStrings[11]),  // 位置
+            }
             switch (data.type) {
-              case 'ekf_odom': {
-                this.ekf_odom$.next({
-                  vx: parseFloat(dataStrings[0]),
-                  vy: parseFloat(dataStrings[1]),
-                  vz: parseFloat(dataStrings[2]),  // 加速度
-                  wx: parseFloat(dataStrings[3]),
-                  wy: parseFloat(dataStrings[4]),
-                  wz: parseFloat(dataStrings[5]),  // 角速度
-                  pitch: parseFloat(dataStrings[6]),
-                  roll: parseFloat(dataStrings[7]),
-                  yaw: parseFloat(dataStrings[8]),  // 角度
-                  x: parseFloat(dataStrings[9]),
-                  y: parseFloat(dataStrings[10]),
-                  z: parseFloat(dataStrings[11]),  // 位置
-                })
+              case 'eo': {
+                this.eo$.next(infoPackage)
               }
                 break
-              case 'wheel_odom': {
-                this.wheel_odom$.next({
-                  vx: parseFloat(dataStrings[0]),
-                  vy: parseFloat(dataStrings[1]),
-                  vz: parseFloat(dataStrings[2]),  // 加速度
-                  wx: parseFloat(dataStrings[3]),
-                  wy: parseFloat(dataStrings[4]),
-                  wz: parseFloat(dataStrings[5]),  // 角速度
-                  pitch: parseFloat(dataStrings[6]),
-                  roll: parseFloat(dataStrings[7]),
-                  yaw: parseFloat(dataStrings[8]),  // 角度
-                  x: parseFloat(dataStrings[9]),
-                  y: parseFloat(dataStrings[10]),
-                  z: parseFloat(dataStrings[11]),  // 位置
-                })
+              case 'wo': {
+                this.wo$.next(infoPackage)
+              }
+                break
+              case 'io': {
+                this.wo$.next(infoPackage)
+              }
+                break
+              case 'to': {
+                this.wo$.next(infoPackage)
               }
                 break
               case 'vo': {
-                this.vo$.next({
-                  vx: parseFloat(dataStrings[0]),
-                  vy: parseFloat(dataStrings[1]),
-                  vz: parseFloat(dataStrings[2]),  // 加速度
-                  wx: parseFloat(dataStrings[3]),
-                  wy: parseFloat(dataStrings[4]),
-                  wz: parseFloat(dataStrings[5]),  // 角速度
-                  pitch: parseFloat(dataStrings[6]),
-                  roll: parseFloat(dataStrings[7]),
-                  yaw: parseFloat(dataStrings[8]),  // 角度
-                  x: parseFloat(dataStrings[9]),
-                  y: parseFloat(dataStrings[10]),
-                  z: parseFloat(dataStrings[11]),  // 位置
-                })
+                this.vo$.next(infoPackage)
               }
                 break
             }
