@@ -212,11 +212,11 @@ exports.parseJY901Packet = function (packet) {
     case '\x51':  // 加速度
     {
       shortBuf.write(packet.substr(2, 2), 'binary')
-      const ax = (shortBuf.readInt16LE(0) / 32768.0 * 16)
+      const ax = (shortBuf.readInt16LE(0) / 32768.0 * 16 * 9.81)
       shortBuf.write(packet.substr(4, 2), 'binary')
-      const ay = (shortBuf.readInt16LE(0) / 32768.0 * 16)
+      const ay = (shortBuf.readInt16LE(0) / 32768.0 * 16 * 9.81)
       shortBuf.write(packet.substr(6, 2), 'binary')
-      const az = (shortBuf.readInt16LE(0) / 32768.0 * 16)
+      const az = (shortBuf.readInt16LE(0) / 32768.0 * 16 * 9.81)
 
       jy901Info += `${ax} ${ay} ${az} `
 

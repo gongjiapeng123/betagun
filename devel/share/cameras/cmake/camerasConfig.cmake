@@ -153,7 +153,7 @@ foreach(t ${cameras_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "roscpp;message_runtime;sensor_msgs;dynamic_reconfigure;driver_base;cv_bridge;image_transport;camera_info_manager;tf")
+set(depends "roscpp;message_runtime;sensor_msgs;dynamic_reconfigure;cv_bridge;image_transport;camera_info_manager;tf")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls

@@ -47,21 +47,21 @@
   <!-- 监听计算信息并传递信息给tcp server的node -->
   <node pkg="betagun"
         type="odom_capture.py"
-        name="odom_capture"
+        name="eo_capture"
         args="odometry/filtered">
   
   </node>
 
   <node pkg="betagun"
         type="odom_capture.py"
-        name="odom_capture"
+        name="wo_capture"
         args="wheel_odom">
   
   </node>
 
   <node pkg="betagun"
         type="odom_capture.py"
-        name="odom_capture"
+        name="io_capture"
         args="imu_odom">
   
   </node>
@@ -85,7 +85,7 @@
   <node if="$(arg vo)"
         pkg="betagun"
         type="odom_capture.py"
-        name="odom_capture"
+        name="vo_capture"
         args="stereo_odometer/odometry">
   
   </node>

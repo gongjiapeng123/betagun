@@ -264,31 +264,31 @@ std::string camera_info_url;
 
 
 
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       int camera_index;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       int frame_width;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       int frame_height;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double fps;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       std::string fourcc;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double brightness;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double contrast;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double saturation;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double hue;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double gain;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       double exposure;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       std::string frame_id;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       std::string camera_info_url;
 //#line 218 "/opt/ros/indigo/share/dynamic_reconfigure/cmake/../templates/ConfigType.h.template"
 
@@ -425,139 +425,139 @@ std::string camera_info_url;
     CameraConfigStatics()
     {
 CameraConfig::GroupDescription<CameraConfig::DEFAULT, CameraConfig> Default("Default", "", 0, 0, true, &CameraConfig::groups);
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.camera_index = 0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.camera_index = 10;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.camera_index = 0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("camera_index", "int", 3, "Camera device index, e.g. 0 for /dev/video0", "", &CameraConfig::camera_index)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("camera_index", "int", 3, "Camera device index, e.g. 0 for /dev/video0", "", &CameraConfig::camera_index)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.frame_width = 1;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.frame_width = 2000;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.frame_width = 640;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("frame_width", "int", 3, "Frame width", "", &CameraConfig::frame_width)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("frame_width", "int", 3, "Frame width", "", &CameraConfig::frame_width)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.frame_height = 1;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.frame_height = 2000;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.frame_height = 480;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("frame_height", "int", 3, "Frame height", "", &CameraConfig::frame_height)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<int>("frame_height", "int", 3, "Frame height", "", &CameraConfig::frame_height)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.fps = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.fps = 120.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.fps = 30.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("fps", "double", 0, "Frames Per Second (FPS)", "", &CameraConfig::fps)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("fps", "double", 0, "Frames Per Second (FPS)", "", &CameraConfig::fps)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.fourcc = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.fourcc = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.fourcc = "YUYV";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("fourcc", "str", 3, "FourCC code", "", &CameraConfig::fourcc)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("fourcc", "str", 3, "FourCC code", "", &CameraConfig::fourcc)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.brightness = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.brightness = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.brightness = 0.5;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("brightness", "double", 0, "Brightness", "", &CameraConfig::brightness)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("brightness", "double", 0, "Brightness", "", &CameraConfig::brightness)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.contrast = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.contrast = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.contrast = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("contrast", "double", 0, "Contrast", "", &CameraConfig::contrast)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("contrast", "double", 0, "Contrast", "", &CameraConfig::contrast)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.saturation = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.saturation = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.saturation = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("saturation", "double", 0, "Saturation", "", &CameraConfig::saturation)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("saturation", "double", 0, "Saturation", "", &CameraConfig::saturation)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.hue = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.hue = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.hue = 0.5;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("hue", "double", 0, "Hue", "", &CameraConfig::hue)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("hue", "double", 0, "Hue", "", &CameraConfig::hue)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.gain = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.gain = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.gain = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("gain", "double", 0, "Gain", "", &CameraConfig::gain)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("gain", "double", 0, "Gain", "", &CameraConfig::gain)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.exposure = 0.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.exposure = 1.0;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.exposure = 0.5;
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("exposure", "double", 0, "Exposure", "", &CameraConfig::exposure)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<double>("exposure", "double", 0, "Exposure", "", &CameraConfig::exposure)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.frame_id = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.frame_id = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.frame_id = "camera";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("frame_id", "str", 3, "ROS tf frame of reference, resolved with tf_prefix unless absolute.", "", &CameraConfig::frame_id)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("frame_id", "str", 3, "ROS tf frame of reference, resolved with tf_prefix unless absolute.", "", &CameraConfig::frame_id)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __min__.camera_info_url = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __max__.camera_info_url = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __default__.camera_info_url = "";
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.abstract_parameters.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("camera_info_url", "str", 0, "Camera [[camera_info_manager#URL_Names|calibration URL]] for this video_mode (uncalibrated if null).", "", &CameraConfig::camera_info_url)));
-//#line 280 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 280 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __param_descriptions__.push_back(CameraConfig::AbstractParamDescriptionConstPtr(new CameraConfig::ParamDescription<std::string>("camera_info_url", "str", 0, "Camera [[camera_info_manager#URL_Names|calibration URL]] for this video_mode (uncalibrated if null).", "", &CameraConfig::camera_info_url)));
-//#line 235 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 235 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       Default.convertParams();
-//#line 235 "/opt/ros/indigo/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
+//#line 235 "/root/workspace/ros_catkin_ws/install_isolated/lib/python2.7/dist-packages/dynamic_reconfigure/parameter_generator_catkin.py"
       __group_descriptions__.push_back(CameraConfig::AbstractGroupDescriptionConstPtr(new CameraConfig::GroupDescription<CameraConfig::DEFAULT, CameraConfig>(Default)));
 //#line 353 "/opt/ros/indigo/share/dynamic_reconfigure/cmake/../templates/ConfigType.h.template"
 

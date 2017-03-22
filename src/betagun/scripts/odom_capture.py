@@ -32,11 +32,11 @@ HEAD = b'\x66\xAA'
 END = b'\xFC'
 
 PACKAGE_TYPE = {
-    'odometry/filtered': '\xA0',
-    'wheel_odom': '\xA1',
-    'imu_odom': '\xA2',
-    'tradition_odom': '\xA3',
-    'stereo_odometer/odometry': '\xA4',
+    'odometry/filtered': b'\xA0',
+    'wheel_odom': b'\xA1',
+    'imu_odom': b'\xA2',
+    'tradition_odom': b'\xA3',
+    'stereo_odometer/odometry': b'\xA4',
 }
 
 class InfoCapture:

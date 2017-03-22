@@ -87,7 +87,7 @@ export class WebSocketService {
    */
   connect () {
     const host = ENV === 'development' 
-      ? 'ws://192.168.66.107:61620' 
+      ? 'ws://192.168.66.108:61620' 
       : `ws://${location.host}`
     console.log(host)
     this._socket = io(host)

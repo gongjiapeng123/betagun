@@ -145,19 +145,19 @@ class JY901:
             print('W:', self.wx, self.wy, self.wz)
             print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
 
-        # 转换弧度，JY901的方向是(East, North, Up)，符合REP 103
+        # 转换弧度，JY901的方向是(East, North, Up)
         pitch_rad = roll_rad = yaw_rad = 0
-        pitch_rad = self.pitch * degrees2rad
+        pitch_rad = -self.pitch * degrees2rad
         roll_rad = self.roll * degrees2rad
         yaw_rad = self.yaw * degrees2rad
 
         # 此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay * 9.8 + 0.05
-        self.imu_msg.linear_acceleration.y = self.ax * 9.8
-        self.imu_msg.linear_acceleration.z = self.az * 9.8 + 0.05
+        self.imu_msg.linear_acceleration.x = self.ay - 0.05
+        self.imu_msg.linear_acceleration.y = -self.ax - 0.45
+        self.imu_msg.linear_acceleration.z = self.az + 0.10
 
         self.imu_msg.angular_velocity.x = self.wy * degrees2rad
-        self.imu_msg.angular_velocity.y = self.wx * degrees2rad
+        self.imu_msg.angular_velocity.y = -self.wx * degrees2rad
         self.imu_msg.angular_velocity.z = self.wz * degrees2rad
 
         q = quaternion_from_euler(roll_rad, pitch_rad, yaw_rad)
@@ -201,10 +201,12 @@ class JY901:
         # 根据yaw计算imu相对于全局坐标（odom）的x，y分量的加速度分量、速度分量、位移分量，注意坐标系的方向
         dt = (self.current_time - self.last_time).to_sec()
 
-        ax_o = self.ay * math.sin(yaw_rad_o) + self.ax * math.sin(yaw_rad_o + math.pi / 2)
-        ay_o = self.ax * math.cos(yaw_rad_o) + self.ay * math.cos(yaw_rad_o + math.pi / 2)
+        ax_o = self.imu_msg.linear_acceleration.x * math.cos(yaw_rad_o) \
+            + self.imu_msg.linear_acceleration.y * math.cos(yaw_rad_o + math.pi / 2)
+        ay_o = self.imu_msg.linear_acceleration.x * math.sin(yaw_rad_o) \
+            + self.imu_msg.linear_acceleration.y * math.sin(yaw_rad_o + math.pi / 2)
         self.vx_o = self.vx_o + ax_o * dt
-        self.vy_o = self.vy_o - ay_o * dt
+        self.vy_o = self.vy_o + ay_o * dt
 
         self.x_o = self.x_o + self.vx_o * dt + ax_o * dt * dt / 2
         self.y_o = self.y_o + self.vy_o * dt + ay_o * dt * dt / 2
@@ -218,7 +220,10 @@ class JY901:
             "odom"
         )
         # set the position
-        self.odom_msg.pose.pose = Pose(Point(self.x_o, self.y_o, self.z_o), Quaternion(*odom_quat))
+        self.odom_msg.pose.pose = Pose(
+            Point(self.x_o, self.y_o, self.z_o), 
+            Quaternion(*odom_quat)
+        )
         self.odom_msg.pose.covariance = [
             0.1, 0, 0, 0, 0, 0,
             0, 0.1, 0, 0, 0, 0,
@@ -229,7 +234,14 @@ class JY901:
         ]
 
         # set the velocity
-        self.odom_msg.twist.twist = Twist(Vector3(self.vx_o, self.vy_o, self.vx_o), Vector3(self.wx, self.wy, self.wz))
+        self.odom_msg.twist.twist = Twist(
+            Vector3(self.vx_o, self.vy_o, self.vz_o), 
+            Vector3(
+                self.imu_msg.angular_velocity.x, 
+                self.imu_msg.angular_velocity.y, 
+                self.imu_msg.angular_velocity.z
+            )
+        )
         self.odom_msg.twist.covariance = [
             1, 0, 0, 0, 0, 0,
             0, 0.1, 0, 0, 0, 0,
