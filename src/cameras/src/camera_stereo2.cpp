@@ -143,7 +143,7 @@ public:
 
             camera >> stereo_frame_mat;  // 读取双目图像
             frame[0]->image = stereo_frame_mat(cv::Rect(0, 0, config.frame_width / 2, config.frame_height));
-            frame[1]->image = stereo_frame_mat(cv::Rect(1 + config.frame_width / 2, 0, config.frame_width / 2, config.frame_height));
+            frame[1]->image = stereo_frame_mat(cv::Rect(config.frame_width / 2, 0, config.frame_width / 2, config.frame_height));
 
             for( size_t i = 0; i < NUM_CAMERAS; ++i )
             {
