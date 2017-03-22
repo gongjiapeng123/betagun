@@ -2,14 +2,16 @@
 
 <launch>
     
-  <!-- open vo? -->
-  <arg name="vo" default="false"/>
-  <!-- tcp server open cam? -->
+  <!-- 是否开启camera_stereo.launch? cam 和 cam2 只允许一个 -->
   <arg name="cam" default="false"/>
+  <!-- 是否开启camera_stereo2.launch? cam 和 cam2 只允许一个 -->
+  <arg name="cam2" default="false"/>
+  <!-- 是否运行vo算法? -->
+  <arg name="vo" default="false"/>
   <!-- imu0_relative? -->
   <arg name="imu0_relative" default="false"/>
   
-  <!-- jy901 IMU 从tcp server 获取jy901数据并发布imu主题-->
+  <!-- jy901 IMU 从tcp server 获取jy901数据并发布imu、imu_odom主题-->
   <include file="$(find jy901)/launch/jy901.launch">
 
   </include>
@@ -19,9 +21,16 @@
 
   </include>
 
-  <!-- VO -->
+  <!-- CAM and VO -->
   <group if="$(arg cam)">
     <include file="$(find cameras)/launch/camera_stereo.launch">
+      <arg name="vo" value="$(arg vo)"/>
+    </include>
+  </group>
+
+  <!-- CAM2 and VO -->
+  <group if="$(arg cam2)">
+    <include file="$(find cameras)/launch/camera_stereo2.launch">
       <arg name="vo" value="$(arg vo)"/>
     </include>
   </group>
@@ -37,30 +46,47 @@
 
   <!-- 监听计算信息并传递信息给tcp server的node -->
   <node pkg="betagun"
-        type="eo_capture.py"
-        name="eo_capture"
-        args="robot_localization">
+        type="odom_capture.py"
+        name="odom_capture"
+        args="odometry/filtered">
   
   </node>
 
   <node pkg="betagun"
-        type="wo_capture.py"
-        name="wo_capture">
+        type="odom_capture.py"
+        name="odom_capture"
+        args="wheel_odom">
   
   </node>
 
-  <node if="$(arg vo)"
-        pkg="betagun"
-        type="vo_capture.py"
-        name="vo_capture">
+  <node pkg="betagun"
+        type="odom_capture.py"
+        name="odom_capture"
+        args="imu_odom">
   
   </node>
-  
+
   <node if="$(arg cam)"
         pkg="capture"
         type="capture.py"
         name="capture"
         args="-c">
+  
+  </node>
+
+  <node if="$(arg cam2)"
+        pkg="capture"
+        type="capture.py"
+        name="capture"
+        args="-c">
+  
+  </node>
+
+  <node if="$(arg vo)"
+        pkg="betagun"
+        type="odom_capture.py"
+        name="odom_capture"
+        args="stereo_odometer/odometry">
   
   </node>
   

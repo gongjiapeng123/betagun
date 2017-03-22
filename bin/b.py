@@ -44,12 +44,13 @@ def stop_web_server():
     os.system("ps aux| grep 'web-server/dev.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
-def start_ros(imu0_relative, vo, cam):
+def start_ros(imu0_relative, vo, cam, cam2):
     print('start ros')
-    subprocess.Popen('roslaunch betagun odom_ekf.launch imu0_relative:={} vo:={} cam:={} > /dev/null 2>&1'.format(
+    subprocess.Popen('roslaunch betagun odom_ekf.launch imu0_relative:={} vo:={} cam:={} cam2:={} > /dev/null 2>&1'.format(
         'true' if imu0_relative else 'false', 
         'true' if vo else 'false', 
-        'true' if cam else 'false'
+        'true' if cam else 'false',
+        'true' if cam2 else 'false'
     ), shell=True)
     time.sleep(3)
 
@@ -97,7 +98,13 @@ if __name__ == '__main__':
         '-c', 
         '--cam', 
         action='store_true',
-        help=u'是否打开cameras',
+        help=u'是否打开双目摄像头',
+    )
+    parser.add_argument(
+        '-c2', 
+        '--cam2', 
+        action='store_true',
+        help=u'是否打开设备号只有一个的双目摄像头',
     )
     parser.add_argument(
         '-v', 
@@ -136,10 +143,10 @@ if __name__ == '__main__':
 
         if ns.ros:
             if ns.action == 'start':
-                start_ros(ns.imu0_relative, ns.vo, ns.cam)
+                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
             elif ns.action == 'restart':
                 stop_ros()
-                start_ros(ns.imu0_relative, ns.vo, ns.cam)
+                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
             else:
                 stop_ros()
 
@@ -147,7 +154,7 @@ if __name__ == '__main__':
         if ns.action == 'start':
             start_tcp_server()
             start_web_server()
-            start_ros(ns.imu0_relative, ns.vo, ns.cam)
+            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
         elif ns.action == 'restart':
             stop_ros()
             stop_web_server()
@@ -155,7 +162,7 @@ if __name__ == '__main__':
 
             start_tcp_server()
             start_web_server()
-            start_ros(ns.imu0_relative, ns.vo, ns.cam)
+            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
         else:
             stop_ros()
             stop_web_server()

@@ -61,7 +61,7 @@ LOGGING = {
         'betagun': {
             'propagate': False,
             'level': 'DEBUG',
-            'handlers': ['console', 'rotate']
+            'handlers': ['console']
         },
         'betagun.mail': {
             'propagate': False,

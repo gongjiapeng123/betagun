@@ -4,6 +4,15 @@
 
 '''
 连接小车61612，获取jy901数据并发送主题
+
+jy901的坐标系：
+右手，相对于传感器
+X指向右侧，Y指向前方，Z指向上方
+绕X旋转为pitch，Y为roll，Z为yaw
+
+ROS base_link
+的X指向前，Y指向左，Z指向上方
+
 '''
 
 from __future__ import print_function
@@ -20,8 +29,12 @@ crc8 = mkPredefinedCrcFun('crc-8')
 
 # ROS
 import rospy
+import roslib
+import tf
 from sensor_msgs.msg import Imu
 from tf.transformations import quaternion_from_euler
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 degrees2rad = math.pi / 180.0
 
@@ -51,8 +64,20 @@ class JY901:
         self.roll = 0  # 侧滚角，对于JY901，是其y轴的旋转角度（正的度数为向右侧滚，负的度数为向左侧滚）
         self.yaw = 0  # 航向角，对于JY901，是其z轴的旋转角度(指向北时为0度，向西为90度，向东为-90度)
 
+        self.is_first = True
+        self.first_yaw_rad = 0
+
         # 以上三个数值由根据模块所标注的x、y、z轴，以右手法则来看，拇指指向自己，顺时针为负值，逆时针为正值
 		
+        self.vx_o = 0.0
+        self.vy_o = 0.0
+        self.vz_o = 0.0
+
+        # 初始位置
+        self.x_o = 0.0
+        self.y_o = 0.0
+        self.z_o = 0.0
+
         self.cnt = 0
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.pattern = re.compile(r'\x66\xaa.{3,}\xfc')
@@ -64,7 +89,9 @@ class JY901:
         rospy.init_node(b'jy901', anonymous=True)
 
         # We only care about the most recent measurement, i.e. queue_size=1
-        self.pub = rospy.Publisher(b'imu', Imu, queue_size=1)
+        self.pub_imu = rospy.Publisher(b'imu', Imu, queue_size=1)
+        self.pub_odom = rospy.Publisher(b'imu_odom', Odometry, queue_size=1)
+        self.odom_broadcaster = tf.TransformBroadcaster()
 
         # msg
         self.imu_msg = Imu()
@@ -84,6 +111,11 @@ class JY901:
             0, 0, 0.00001
         ]
 
+        self.odom_msg = Odometry()
+
+        self.current_time = rospy.Time.now()
+        self.last_time = rospy.Time.now()
+
     def _check(self, packet):
         '''
         校验数据包，并获取其中数据
@@ -97,6 +129,7 @@ class JY901:
             return data
 
     def _parse_and_publish(self, data):
+        self.current_time = rospy.Time.now()
         data_to_list = list(map(lambda s: float(s), str(data).split(b' ')))
 		
         (self.ax, self.ay, self.az, 
@@ -104,6 +137,7 @@ class JY901:
         self.pitch, self.roll, self.yaw,
         self.temperature) = data_to_list
 
+        '''imu'''
         if self.verbose == 'raw':
             print('*' * 20)
             print('TEMP:', self.temperature)
@@ -131,10 +165,9 @@ class JY901:
         self.imu_msg.orientation.y = q[1]
         self.imu_msg.orientation.z = q[2]
         self.imu_msg.orientation.w = q[3]
-        self.imu_msg.header.stamp = rospy.Time.now()
+        self.imu_msg.header.stamp = self.current_time
         self.imu_msg.header.frame_id = 'jy901_imu'
         self.imu_msg.header.seq = self.cnt
-        self.cnt += 1
 
         if self.verbose == 'ros':
             print('*' * 20)
@@ -155,7 +188,66 @@ class JY901:
                 yaw_rad
             ))
 
-        self.pub.publish(self.imu_msg)
+        '''2d odom'''
+        if self.is_first:  # 第一次获取imu数据
+            self.first_yaw_rad = yaw_rad
+            self.is_first = False
+
+        yaw_rad_o = yaw_rad - self.first_yaw_rad  # 获取yaw相对值
+        
+        # 根据yaw获得四元数
+        odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_rad_o)
+
+        # 根据yaw计算imu相对于全局坐标（odom）的x，y分量的加速度分量、速度分量、位移分量，注意坐标系的方向
+        dt = (self.current_time - self.last_time).to_sec()
+
+        ax_o = self.ay * math.sin(yaw_rad_o) + self.ax * math.sin(yaw_rad_o + math.pi / 2)
+        ay_o = self.ax * math.cos(yaw_rad_o) + self.ay * math.cos(yaw_rad_o + math.pi / 2)
+        self.vx_o = self.vx_o + ax_o * dt
+        self.vy_o = self.vy_o - ay_o * dt
+
+        self.x_o = self.x_o + self.vx_o * dt + ax_o * dt * dt / 2
+        self.y_o = self.y_o + self.vy_o * dt + ay_o * dt * dt / 2
+
+        # 发布坐标变换
+        self.odom_broadcaster.sendTransform(
+            (self.x_o, self.y_o, self.z_o),
+            odom_quat,
+            self.current_time,
+            "base_footprint",
+            "odom"
+        )
+        # set the position
+        self.odom_msg.pose.pose = Pose(Point(self.x_o, self.y_o, self.z_o), Quaternion(*odom_quat))
+        self.odom_msg.pose.covariance = [
+            0.1, 0, 0, 0, 0, 0,
+            0, 0.1, 0, 0, 0, 0,
+            0, 0, 10000, 0, 0, 0,
+            0, 0, 0, 10000, 0, 0,
+            0, 0, 0, 0, 10000, 0,
+            0, 0, 0, 0, 0, 0.01,
+        ]
+
+        # set the velocity
+        self.odom_msg.twist.twist = Twist(Vector3(self.vx_o, self.vy_o, self.vx_o), Vector3(self.wx, self.wy, self.wz))
+        self.odom_msg.twist.covariance = [
+            1, 0, 0, 0, 0, 0,
+            0, 0.1, 0, 0, 0, 0,
+            0, 0, 10000, 0, 0, 0,
+            0, 0, 0, 10000, 0, 0,
+            0, 0, 0, 0, 10000, 0,
+            0, 0, 0, 0, 0, 0.01,
+        ]
+
+        self.odom_msg.header.stamp = self.current_time
+        self.odom_msg.header.frame_id = 'imu_odom'
+        self.odom_msg.child_frame_id = 'imu'
+        self.odom_msg.header.seq = self.cnt
+
+        self.pub_imu.publish(self.imu_msg)
+        self.pub_odom.publish(self.odom_msg)
+        self.cnt += 1
+        self.last_time = rospy.Time.now()
 
     def start(self):
         dataBuf = bytearray()
