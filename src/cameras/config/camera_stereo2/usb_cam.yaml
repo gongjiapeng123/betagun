@@ -17,6 +17,6 @@ hue: 0.
 gain: 0.
 exposure: 0.
 frame_id: stereo_optical
-camera_info_url_left: package://cameras/config/camera_stereo/${NAME}.yaml
-camera_info_url_right: package://cameras/config/camera_stereo/${NAME}.yaml
+camera_info_url_left: package://cameras/config/camera_stereo2/${NAME}.yaml
+camera_info_url_right: package://cameras/config/camera_stereo2/${NAME}.yaml
 

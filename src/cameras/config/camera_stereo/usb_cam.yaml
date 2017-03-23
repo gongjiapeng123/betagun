@@ -1,6 +1,6 @@
 # Parameters, according with OpenCV VideoCapture::set method.
-camera_index_left: 1
-camera_index_right: 0
+camera_index_left: 0
+camera_index_right: 1
 camera_name: usb_cam
 frame_width: 640
 frame_height: 480

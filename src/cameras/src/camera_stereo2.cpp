@@ -276,7 +276,7 @@ const std::string CameraDriver::CameraString[NUM_CAMERAS] = {"left", "right"};
 
 int main( int argc, char* argv[] )
 {
-	ros::init( argc, argv, "camera_stereo" );
+	ros::init( argc, argv, "camera_stereo2" );
 
 	CameraDriver camera_driver;
 
