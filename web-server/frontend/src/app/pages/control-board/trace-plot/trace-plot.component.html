@@ -22,7 +22,7 @@
                     (onChange)="onOdomChanged($event)"
                     multiple="multiple"
                     [style]="{
-                      width: '200px'
+                      width: '250px'
                     }">
     </p-selectButton>
   </div>
@@ -50,6 +50,29 @@
     <p>
       yaw：{{odomData.yaw.toFixed(2)}}
     </p>
+    <br>
+
+    <p>
+      t_x：{{toData.x.toFixed(2)}}
+    </p>
+    <p>
+      t_y：{{toData.y.toFixed(2)}}
+    </p>
+    <p>
+      t_yaw：{{toData.yaw.toFixed(2)}}
+    </p>
+    <br>
+
+    <p>
+      v_x：{{voData.x.toFixed(2)}}
+    </p>
+    <p>
+      v_y：{{voData.y.toFixed(2)}}
+    </p>
+    <p>
+      v_yaw：{{voData.yaw.toFixed(2)}}
+    </p>
+    <br>
     <!--<p>
       vx：{{odomData.vx.toFixed(2)}}
     </p>
