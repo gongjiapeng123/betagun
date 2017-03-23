@@ -9,7 +9,7 @@
         args="-0.2 0 0.13 0 0 0 base_footprint jy901_imu">
   </node>
 
-  <node pkg="jy901"
+  <node pkg="imu"
         type="jy901.py" 
         name="jy901" >
     

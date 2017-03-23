@@ -12,12 +12,17 @@
   <arg name="imu0_relative" default="false"/>
   
   <!-- jy901 IMU 从tcp server 获取jy901数据并发布imu、imu_odom主题-->
-  <include file="$(find jy901)/launch/jy901.launch">
+  <include file="$(find imu)/launch/jy901.launch">
 
   </include>
   
   <!-- wheel_odom 从tcp server 获取count数据并发布wheel_odom主题-->
   <include file="$(find wheel_odom)/launch/wheel_odom.launch">
+
+  </include>
+  
+  <!-- imu_wheel_odom -->
+  <include file="$(find tradition_odom)/launch/imu_wheel_odom.launch">
 
   </include>
 

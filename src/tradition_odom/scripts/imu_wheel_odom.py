@@ -22,7 +22,7 @@ crc8 = mkPredefinedCrcFun('crc-8')
 import rospy
 import roslib
 import tf
-from jy901.msg import CarPose
+from imu.msg import CarPose
 from wheel_odom.msg import CarSpeed
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
@@ -132,7 +132,7 @@ class ImuWheelOdom:
         def callback(data):
             self.car_pose_msg = data
 
-        rospy.Subscriber("imu", CarPose, callback)
+        rospy.Subscriber("car_pose", CarPose, callback)
 
     def subscriber_car_speed(self):
         '''

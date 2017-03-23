@@ -32,7 +32,7 @@ import rospy
 import roslib
 import tf
 from sensor_msgs.msg import Imu
-from jy901.msg import CarPose
+from imu.msg import CarPose
 from tf.transformations import quaternion_from_euler
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
@@ -192,14 +192,13 @@ class JY901:
 
         '''car pose'''
         if self.is_first:  # 第一次获取imu数据
-            self.first_car_pose_msg.roll = roll_rad
-            self.first_car_pose_msg.pitch = pitch_rad
-            self.first_car_pose_msg.yaw = yaw_rad
-            self.first_car_pose_msg.roll_relative = 0
-            self.first_car_pose_msg.pitch_relative = 0
-            self.first_car_pose_msg.yaw_relative = 0
+            self.car_pose_msg.roll = self.first_car_pose_msg.roll = roll_rad
+            self.car_pose_msg.pitch = self.first_car_pose_msg.pitch = pitch_rad
+            self.car_pose_msg.yaw = self.first_car_pose_msg.yaw = yaw_rad
+            self.car_pose_msg.roll_relative = self.first_car_pose_msg.roll_relative = 0
+            self.car_pose_msg.pitch_relative = self.first_car_pose_msg.pitch_relative = 0
+            self.car_pose_msg.yaw_relative = self.first_car_pose_msg.yaw_relative = 0
 
-            self.car_pose_msg = self.first_car_pose_msg
             self.is_first = False
         else:
             self.car_pose_msg.roll = roll_rad

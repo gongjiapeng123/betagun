@@ -1,5 +1,7 @@
 (cl:in-package wheel_odom-msg)
-(cl:export '(LEFT_SPEED-VAL
+(cl:export '(HEADER-VAL
+          HEADER
+          LEFT_SPEED-VAL
           LEFT_SPEED
           RIGHT_SPEED-VAL
           RIGHT_SPEED
