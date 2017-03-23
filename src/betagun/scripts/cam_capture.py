@@ -12,9 +12,6 @@ from __future__ import absolute_import
 
 import cv2
 import numpy as np
-import logging
-import logging.config
-from log_config import LOGGING
 import argparse
 import textwrap
 import socket
@@ -33,10 +30,6 @@ class Capture():
         self.send_size = (320, 120)  # 发送给服务器时的图片大小（两张拼接）
         self.need_to_show = need_to_show  # 是否在一个窗口显示图像：0不显示，1在一个窗口显示双目图像，2在两个窗口分别显示图像
         self.need_to_connect_server = need_to_connect_server  # 是否需要与服务器通信
-
-        # logger
-        logging.config.dictConfig(LOGGING)
-        self.logger = logging.getLogger('betagun')
 
         self.exit = False  # 是否停止获取图像
 
@@ -65,10 +58,10 @@ class Capture():
             # 告诉服务器本进程是python进程
             self.sock_image.send(b'#python:gxnu#')
 
-            self.logger.info("I connect successfully")
+            print("I connect successfully")
         except socket.error as e:
             self.has_sock_error = True
-            self.logger.error(e)
+            print(e)
 
     def montage(self, frame_left, frame_right):
         '''
@@ -110,7 +103,7 @@ class Capture():
                 # self.has_sock_error = True  # 调试，发送一帧立即停止
         except Exception as e:
             self.has_sock_error = True
-            self.logger.error(e)
+            print(e)
 
     def subscriber_left(self):
         '''
@@ -153,9 +146,8 @@ class Capture():
         '''
         self.subscriber_left()
         self.subscriber_right()
-        self.logger.info("Now I'm fetching images")
+        print("Now I'm fetching images")
         rospy.spin()
-
 
 
 def run():
