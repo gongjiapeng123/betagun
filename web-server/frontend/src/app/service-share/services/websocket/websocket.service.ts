@@ -190,11 +190,11 @@ export class WebSocketService {
               }
                 break
               case 'io': {
-                this.wo$.next(infoPackage)
+                this.io$.next(infoPackage)
               }
                 break
               case 'to': {
-                this.wo$.next(infoPackage)
+                this.to$.next(infoPackage)
               }
                 break
               case 'vo': {

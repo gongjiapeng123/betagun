@@ -1,13 +1,4 @@
-<div class="select-wrapper">
-  <p-selectButton [options]="_odoms" 
-                  [(ngModel)]="_odomsSelected"
-                  (onChange)="onOdomChanged($event)"
-                  multiple="multiple"
-                  [hidden]="true"
-                  [style]="{
-                    width: '100px'
-                  }">
-  </p-selectButton>
+<div class="button-wrapper">
 
   <button pButton 
           class="export-trace-button ui-button-success"
@@ -25,6 +16,16 @@
 </div>
 
 <div class="wrapper">
+  <div class="tool-box">
+    <p-selectButton [options]="_odoms" 
+                    [(ngModel)]="_odomsSelected"
+                    (onChange)="onOdomChanged($event)"
+                    multiple="multiple"
+                    [style]="{
+                      width: '200px'
+                    }">
+    </p-selectButton>
+  </div>
   <div class="canvas-wrapper">
     <canvas id="canvas" width="320" height="480">
       您的浏览器不支持画布！

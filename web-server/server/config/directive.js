@@ -342,7 +342,9 @@ const DATAMAP = new Map([
 
   ['\xa0', {description: '融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
   ['\xa1', {description: '轮式里程计的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
-  ['\xa2', {description: 'VO的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
+  ['\xa2', {description: '惯导里程计的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
+  ['\xa3', {description: '惯导+轮式里程计的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
+  ['\xa4', {description: 'VO的数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）'}],
 ])
 
 /**

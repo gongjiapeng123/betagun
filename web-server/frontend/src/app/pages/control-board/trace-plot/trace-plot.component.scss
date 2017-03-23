@@ -1,10 +1,6 @@
-.select-wrapper {
+.button-wrapper {
   position: absolute;
-  p-selectButton {
-    position: absolute;
-    top: -50px;
-    left: 260px;
-  }
+  
 
   .export-trace-button {
     position: absolute;
@@ -31,9 +27,20 @@
     margin-bottom: 5px;
   }
 
+  .tool-box {
+    height: 10%;
+    position: relative;
+
+    p-selectButton {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+  }
+
   .canvas-wrapper {
     width: 100%;
-    height: 100%;
+    height: 90%;
     #canvas {
       border: 1px;
       background-color: white;
@@ -44,16 +51,16 @@
   .trace-info {
     position: absolute;
     width: 50%;
-    height: 50%;
-    top: 0;
+    height: 45%;
+    top: 10%;
     left: 0;
     padding: 5px;
   }
   .arduino-info {
     position: absolute;
     width: 50%;
-    height: 50%;
-    top: 0;
+    height: 45%;
+    top: 10%;
     right: 0;
     padding: 5px;
   }

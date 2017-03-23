@@ -47,19 +47,24 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   @Input() loginUser
   MAX_POINTS = 2000  // 轨迹最大点数
   private _odomsSelected: string[] = []  // 选择的轨迹
-  private _odoms: SelectItem[] = [{  // 选择的轨迹
-    label: 'wo',  // 轮式里程计
-    value: 'wo'
-  }, {
-    label: 'io',  // 惯导里程计
-    value: 'io'
-  }, {
-    label: 'to',  // 传统里程计（wo + io）
-    value: 'to'
-  }, {
-    label: 'vo',  // 双目里程计
-    value: 'vo'
-  }]
+  private _odoms: SelectItem[] = [  // 选择的轨迹
+    {  
+      label: 'wo',  // 轮式里程计
+      value: 'wo'
+    }, 
+    {
+      label: 'io',  // 惯导里程计
+      value: 'io'
+    }, 
+    {
+      label: 'to',  // 传统里程计（wo + io）
+      value: 'to'
+    }, 
+    {
+      label: 'vo',  // 双目里程计
+      value: 'vo'
+    }
+  ]
   private _status: string = '2D'  // 位姿2d模式
   
   private _canvasEl: HTMLCanvasElement
@@ -213,13 +218,13 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       })
     this._ioSubscription = this._wsService.io$
-      .subscribe(woData => {
-        this.woData = woData
+      .subscribe(ioData => {
+        this.ioData = ioData
 
       })
     this._toSubscription = this._wsService.to$
-      .subscribe(woData => {
-        this.woData = woData
+      .subscribe(toData => {
+        this.toData = toData
 
       })
     this._voSubscription = this._wsService.vo$
@@ -560,6 +565,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       this._eoPositions[this._traceIndex] = eoPosition.x
       this._woPositions[this._traceIndex] = woPosition.x
+      this._ioPositions[this._traceIndex] = ioPosition.x
+      this._toPositions[this._traceIndex] = toPosition.x
       this._voPositions[this._traceIndex] = voPosition.x
       this._traceIndex++
 
