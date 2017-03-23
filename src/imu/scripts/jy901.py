@@ -222,9 +222,9 @@ class JY901:
         dt = (self.current_time - self.last_time).to_sec()
 
         ax_o = self.imu_msg.linear_acceleration.x * math.cos(yaw_rad_o) \
-            + self.imu_msg.linear_acceleration.y * math.cos(yaw_rad_o + math.pi / 2)
+            - self.imu_msg.linear_acceleration.y * math.sin(yaw_rad_o)
         ay_o = self.imu_msg.linear_acceleration.x * math.sin(yaw_rad_o) \
-            + self.imu_msg.linear_acceleration.y * math.sin(yaw_rad_o + math.pi / 2)
+            + self.imu_msg.linear_acceleration.y * math.cos(yaw_rad_o)
         self.vx_o = self.vx_o + ax_o * dt
         self.vy_o = self.vy_o + ay_o * dt
 

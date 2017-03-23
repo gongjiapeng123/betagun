@@ -70,6 +70,13 @@
         args="imu_odom">
   
   </node>
+  
+  <node pkg="betagun"
+        type="odom_capture.py"
+        name="to_capture"
+        args="tradition_odom">
+  
+  </node>
 
   <node if="$(arg cam)"
         pkg="capture"
