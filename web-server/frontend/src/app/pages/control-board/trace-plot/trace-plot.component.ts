@@ -46,8 +46,12 @@ import { SelectItem } from 'primeng/primeng'
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   @Input() loginUser
   MAX_POINTS = 2000  // 轨迹最大点数
-  private _odomsSelected: string[] = []  // 选择的轨迹
+  private _odomsSelected: string[] = ['eo']  // 选择的轨迹
   private _odoms: SelectItem[] = [  // 选择的轨迹
+    {
+      label: 'eo',  // 本文里程计
+      value: 'eo'
+    },
     {  
       label: 'wo',  // 轮式里程计
       value: 'wo'
@@ -96,7 +100,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _woTraceGeometry = new THREE.BufferGeometry()
   private _woPositions = new Float32Array(this.MAX_POINTS * 3)
   private _woMaterial = new THREE.LineBasicMaterial({
-    color: 0xff0000,
+    color: 0xff8800,
     linewidth: 2
   })
   private _woTraceLine = new THREE.Line(this._woTraceGeometry, this._woMaterial)
@@ -105,7 +109,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _ioTraceGeometry = new THREE.BufferGeometry()
   private _ioPositions = new Float32Array(this.MAX_POINTS * 3)
   private _ioMaterial = new THREE.LineBasicMaterial({
-    color: 0xff8800,
+    color: 0xff3333,
     linewidth: 2
   })
   private _ioTraceLine = new THREE.Line(this._ioTraceGeometry, this._ioMaterial)
@@ -561,6 +565,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       this._eoTraceLine.geometry.setDrawRange(0, this._drawCount)
       this._woTraceLine.geometry.setDrawRange(0, this._drawCount)
+      this._ioTraceLine.geometry.setDrawRange(0, this._drawCount)
+      this._toTraceLine.geometry.setDrawRange(0, this._drawCount)
       this._voTraceLine.geometry.setDrawRange(0, this._drawCount)
 
       this._eoPositions[this._traceIndex] = eoPosition.x
@@ -593,7 +599,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       this._traceIndex++
 
       // 绘制结果轨迹，根据选择是否绘制wo、vo
-      this._eoTraceLine.geometry.attributes.position.needsUpdate = true
+      this._eoTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('eo') > -1
       this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
       this._ioTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('io') > -1
       this._toTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('to') > -1
@@ -675,9 +681,14 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     }
     this._drawCount = 0
     this._traceIndex = 0
-    this._eoTraceGeometry.setDrawRange(0, this._drawCount)
 
-    this._eoTraceLine.geometry.attributes.position.needsUpdate = true
+    this._eoTraceGeometry.setDrawRange(0, this._drawCount)
+    this._woTraceGeometry.setDrawRange(0, this._drawCount)
+    this._ioTraceGeometry.setDrawRange(0, this._drawCount)
+    this._toTraceGeometry.setDrawRange(0, this._drawCount)
+    this._voTraceGeometry.setDrawRange(0, this._drawCount)
+
+    this._eoTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('eo') > -1
     this._woTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('wo') > -1
     this._ioTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('io') > -1
     this._toTraceLine.geometry.attributes.position.needsUpdate = this._odomsSelected.indexOf('to') > -1
