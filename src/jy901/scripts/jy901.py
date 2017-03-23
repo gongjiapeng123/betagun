@@ -3,7 +3,7 @@
 
 
 '''
-连接小车61612，获取jy901数据并发送主题
+连接小车61612，获取jy901数据并发送imu主题和odom主题，odom主题中航向角是相对的
 
 jy901的坐标系：
 右手，相对于传感器
@@ -32,6 +32,7 @@ import rospy
 import roslib
 import tf
 from sensor_msgs.msg import Imu
+from jy901.msg import CarPose
 from tf.transformations import quaternion_from_euler
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
@@ -65,7 +66,7 @@ class JY901:
         self.yaw = 0  # 航向角，对于JY901，是其z轴的旋转角度(指向北时为0度，向西为90度，向东为-90度)
 
         self.is_first = True
-        self.first_yaw_rad = 0
+        self.first_car_pose_msg = CarPose()
 
         # 以上三个数值由根据模块所标注的x、y、z轴，以右手法则来看，拇指指向自己，顺时针为负值，逆时针为正值
 		
@@ -90,6 +91,7 @@ class JY901:
 
         # We only care about the most recent measurement, i.e. queue_size=1
         self.pub_imu = rospy.Publisher(b'imu', Imu, queue_size=1)
+        self.pub_car_pose = rospy.Publisher(b'car_pose', CarPose, queue_size=1)
         self.pub_odom = rospy.Publisher(b'imu_odom', Odometry, queue_size=1)
         self.odom_broadcaster = tf.TransformBroadcaster()
 
@@ -110,7 +112,7 @@ class JY901:
             0, 0.00001, 0,
             0, 0, 0.00001
         ]
-
+        self.car_pose_msg = CarPose()
         self.odom_msg = Odometry()
 
         self.current_time = rospy.Time.now()
@@ -145,7 +147,7 @@ class JY901:
             print('W:', self.wx, self.wy, self.wz)
             print('pitch, roll, yaw:', self.pitch, self.roll, self.yaw)
 
-        # 转换弧度，JY901的方向是(East, North, Up)
+        # 转换弧度，JY901的方向是(East, North, Up)，转换到车体PEP103
         pitch_rad = roll_rad = yaw_rad = 0
         pitch_rad = -self.pitch * degrees2rad
         roll_rad = self.roll * degrees2rad
@@ -188,14 +190,33 @@ class JY901:
                 yaw_rad
             ))
 
-        '''2d odom'''
+        '''car pose'''
         if self.is_first:  # 第一次获取imu数据
-            self.first_yaw_rad = yaw_rad
-            self.is_first = False
+            self.first_car_pose_msg.roll = roll_rad
+            self.first_car_pose_msg.pitch = pitch_rad
+            self.first_car_pose_msg.yaw = yaw_rad
+            self.first_car_pose_msg.roll_relative = 0
+            self.first_car_pose_msg.pitch_relative = 0
+            self.first_car_pose_msg.yaw_relative = 0
 
-        yaw_rad_o = yaw_rad - self.first_yaw_rad  # 获取yaw相对值
+            self.car_pose_msg = self.first_car_pose_msg
+            self.is_first = False
+        else:
+            self.car_pose_msg.roll = roll_rad
+            self.car_pose_msg.pitch = pitch_rad
+            self.car_pose_msg.yaw = yaw_rad
+            self.car_pose_msg.roll_relative = roll_rad - self.first_car_pose_msg.roll
+            self.car_pose_msg.pitch_relative = pitch_rad - self.first_car_pose_msg.pitch
+            self.car_pose_msg.yaw_relative = yaw_rad - self.first_car_pose_msg.yaw
+
+        self.car_pose_msg.header.stamp = self.current_time
+        self.car_pose_msg.header.frame_id = 'base_footprint'
+        self.car_pose_msg.header.seq = self.cnt
+
+        '''2d odom'''
         
         # 根据yaw获得四元数
+        yaw_rad_o = self.car_pose_msg.yaw_relative
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_rad_o)
 
         # 根据yaw计算imu相对于全局坐标（odom）的x，y分量的加速度分量、速度分量、位移分量，注意坐标系的方向
@@ -257,6 +278,7 @@ class JY901:
         self.odom_msg.header.seq = self.cnt
 
         self.pub_imu.publish(self.imu_msg)
+        self.pub_car_pose.publish(self.car_pose_msg)
         self.pub_odom.publish(self.odom_msg)
         self.cnt += 1
         self.last_time = rospy.Time.now()

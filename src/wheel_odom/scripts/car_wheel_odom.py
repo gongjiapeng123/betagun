@@ -122,8 +122,9 @@ class WheelOdom:
         self.car_speed_msg.vx = self.vx
         self.car_speed_msg.vy = self.vy
         self.car_speed_msg.vth = self.vth
-        self.odom_msg.header.stamp = self.current_time
-        self.odom_msg.header.seq = self.cnt
+        self.car_speed_msg.header.stamp = self.current_time
+        self.car_speed_msg.header.frame_id = 'base_footprint'
+        self.car_speed_msg.header.seq = self.cnt
 
     def _speed_to_odom(self):
         '''

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-连接小车61614端口，提供图像数据给tcp服务器，并发布图像主题
+连接小车61614端口，订阅图像主题，并发送图像数据给tcp服务器
 '''
 
 from __future__ import print_function
