@@ -154,9 +154,9 @@ class JY901:
         yaw_rad = self.yaw * degrees2rad
 
         # 此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay - 0.05
-        self.imu_msg.linear_acceleration.y = -self.ax - 0.45
-        self.imu_msg.linear_acceleration.z = self.az + 0.10
+        self.imu_msg.linear_acceleration.x = self.ay - 0.6
+        self.imu_msg.linear_acceleration.y = -self.ax - 0.1
+        self.imu_msg.linear_acceleration.z = self.az + 0.20
 
         self.imu_msg.angular_velocity.x = self.wy * degrees2rad
         self.imu_msg.angular_velocity.y = -self.wx * degrees2rad
