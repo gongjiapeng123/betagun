@@ -118,6 +118,9 @@ class WheelOdom:
         self.car_delta_th = (self.right_s - self.left_s) / WHEEL_L
         self.vth = self.car_delta_th / self.dt
 
+        self.car_speed_msg.car_delta_x = self.car_delta_x
+        self.car_speed_msg.car_delta_y = self.car_delta_y
+        self.car_speed_msg.car_delta_th = self.car_delta_th
         self.car_speed_msg.left_speed = self.left_speed
         self.car_speed_msg.right_speed = self.right_speed
         self.car_speed_msg.vx = self.vx

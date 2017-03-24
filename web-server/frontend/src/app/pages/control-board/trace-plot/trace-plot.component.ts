@@ -224,7 +224,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     this._ioSubscription = this._wsService.io$
       .subscribe(ioData => {
         this.ioData = ioData
-
+        // this.odomData = ioData
       })
     this._toSubscription = this._wsService.to$
       .subscribe(toData => {
@@ -536,13 +536,14 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _drawTrace () {
     if (this._eoTraceLine) {
       // 判断是否有位移  // cm
+      const positions = this._ioPositions
       let lastPointX = 0
       let lastPointY = 0
       let lastPointZ = 0
       if (this._traceIndex !== 0) {
-        lastPointX = this._eoPositions[this._traceIndex - 3]
-        lastPointY = this._eoPositions[this._traceIndex - 2]
-        lastPointZ = this._eoPositions[this._traceIndex - 1]
+        lastPointX = positions[this._traceIndex - 3]
+        lastPointY = positions[this._traceIndex - 2]
+        lastPointZ = positions[this._traceIndex - 1]
       }
 
       let dist2 = 0  // cm^2
@@ -552,14 +553,15 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       const ioPosition = this._poseConvert(this.ioData)
       const toPosition = this._poseConvert(this.toData)
       const voPosition = this._poseConvert(this.voData)
+      const position = ioPosition
 
       if (this._status === '3D') {
-        dist2 = Math.pow(lastPointX - eoPosition.x, 2)
-          + Math.pow(lastPointY - eoPosition.y, 2)
-          + Math.pow(lastPointZ - eoPosition.z, 2)
+        dist2 = Math.pow(lastPointX -position.x, 2)
+          + Math.pow(lastPointY - position.y, 2)
+          + Math.pow(lastPointZ - position.z, 2)
       } else {
-        dist2 = Math.pow(lastPointX - eoPosition.x, 2)
-          + Math.pow(lastPointZ - eoPosition.z, 2)
+        dist2 = Math.pow(lastPointX - position.x, 2)
+          + Math.pow(lastPointZ - position.z, 2)
       }
       // console.log(dist2, this._traceIndex, this._drawCount)
       // 位移太小，不存入buf (5cm)

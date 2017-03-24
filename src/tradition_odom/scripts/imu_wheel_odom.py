@@ -67,9 +67,8 @@ class ImuWheelOdom:
         '''
         self.current_time = rospy.Time.now()
         dt = (self.current_time - self.last_time).to_sec()
-        delta = self.car_speed_msg.vx * dt
-        delta_x = delta * math.cos(self.car_pose_msg.yaw_relative)
-        delta_y = delta * math.sin(self.car_pose_msg.yaw_relative)
+        delta_x = self.car_speed_msg.car_delta_x * math.cos(self.car_pose_msg.yaw_relative)
+        delta_y = self.car_speed_msg.car_delta_x * math.sin(self.car_pose_msg.yaw_relative)
         vth = (self.car_pose_msg.yaw_relative - self.last_car_yaw) / dt
 
         self.x += delta_x
