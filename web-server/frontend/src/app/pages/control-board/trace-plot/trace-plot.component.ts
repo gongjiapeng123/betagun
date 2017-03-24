@@ -260,10 +260,16 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
    * @param event
    */
   onOdomChanged (event) {
+    const selectEo = this._odomsSelected.indexOf('eo') > -1
     const selectWo = this._odomsSelected.indexOf('wo') > -1
     const selectIo = this._odomsSelected.indexOf('io') > -1
     const selectTo = this._odomsSelected.indexOf('to') > -1
     const selectVo = this._odomsSelected.indexOf('vo') > -1
+    if (selectEo) {
+      this._scene.add(this._eoTraceLine)
+    } else {
+      this._scene.remove(this._eoTraceLine)
+    }
     if (selectWo) {
       this._scene.add(this._woTraceLine)
     } else {
