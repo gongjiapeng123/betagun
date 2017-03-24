@@ -29,8 +29,6 @@ roslib.load_manifest('wheel_odom')
 
 WHEEL_DIAMETER = 0.035  # 轮子直径
 CODED_DISC_GRID_NUM = 50.0  # 栅格数
-VHZ = 20.0  # 采样频率
-DELTA_T = 1 / VHZ  # 采样周期
 WHEEL_L = 0.185  # 轮间距
 
 def byte_value(uint8):
@@ -44,16 +42,23 @@ class WheelOdom:
 
     def __init__(self, verbose=''):
         self.verbose = verbose
+        self.dt = 0.0  # 采样周期
 
         self.left_count = 0
         self.right_count = 0
+        self.left_s = 0.0  # 左轮行驶距离
+        self.right_s = 0.0  # 右轮行驶距离
+        self.car_delta_x = 0.0  # 前进行驶距离
+        self.car_delta_y = 0.0  # 侧移行驶距离
+        self.car_delta_th = 0.0  # 航向角变化角度
         self.left_speed = 0.0
         self.right_speed = 0.0
+
         self.vx = 0.0
         self.vy = 0.0
         self.vth = 0.0
 
-        # 初始位置、角度
+        # 全局位姿
         self.x = 0.0
         self.y = 0.0
         self.th = 0.0  # yaw
@@ -96,26 +101,22 @@ class WheelOdom:
     def _velocity_to_speed(self):
         '''
         将两轮的速度转化为x轴的速度(即前进方向的速度)和绕z轴旋转的速度。
-        程序中VHZ为速度采样频率。此处需将y轴速度设为0，即假定1/VHZ(s)内，
-        机器人没有在垂直于轮子的方向上发生位移。
+        程序中self.dt为速度采样事时间。此处需将y轴速度设为0，即假定
+        self.dt(s)内，机器人没有在垂直于轮子的方向上发生位移。
         左右轮速度的平均就是前进速度（即x轴速度），左右轮速度的差转化为旋转速度。
         '''
-        # 获取速度，计数器信息带有正负
-        self.left_speed = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
-        self.right_speed = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi) * VHZ
+        # 获取位移和速度，计数器信息带有正负
+        self.left_s = (self.left_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi)
+        self.left_speed = self.left_s / self.dt
+        self.right_s = (self.right_count / CODED_DISC_GRID_NUM) * (WHEEL_DIAMETER * math.pi)
+        self.right_speed = self.right_s / self.dt
 
-        delta_speed = self.right_speed - self.left_speed
-        '''
-        if delta_speed < 0:
-            theta_to_speed = 0.0077  # 右转系数
-        else:
-            theta_to_speed = 0.0076  # 左转系数
-        self.vth = delta_speed  * theta_to_speed * VHZ
-        '''
-
-        self.vth = (delta_speed) * DELTA_T / WHEEL_L
-        self.vx = (self.left_speed + self.right_speed) / 2.0
+        self.car_delta_x = (self.left_s + self.right_s) / 2.0
+        self.vx = self.car_delta_x / self.dt
+        self.car_delta_y = 0.0
         self.vy = 0.0
+        self.car_delta_th = (self.right_s - self.left_s) / WHEEL_L
+        self.vth = self.car_delta_th / self.dt
 
         self.car_speed_msg.left_speed = self.left_speed
         self.car_speed_msg.right_speed = self.right_speed
@@ -130,10 +131,9 @@ class WheelOdom:
         '''
         将速度信息转换为里程计信息
         '''
-        dt = (self.current_time - self.last_time).to_sec()
-        delta_x = (self.vx * math.cos(self.th) - self.vy * math.sin(self.th)) * dt
-        delta_y = (self.vx * math.sin(self.th) + self.vy * math.cos(self.th)) * dt
-        delta_th = self.vth * dt
+        delta_x = self.car_delta_x * math.cos(self.th) - self.car_delta_y * math.sin(self.th)
+        delta_y = self.car_delta_x * math.sin(self.th) + self.car_delta_y * math.cos(self.th)
+        delta_th = self.car_delta_th
 
         self.x += delta_x
         self.y += delta_y
@@ -182,6 +182,7 @@ class WheelOdom:
         解析并发布里程数据
         '''
         self.current_time = rospy.Time.now()
+        self.dt = (self.current_time - self.last_time).to_sec()
         # 获取左右码盘计数器的值
         data_to_list = list(map(lambda s: int(s), str(data).split(b' ')))
         (self.left_count, self.right_count) = data_to_list
