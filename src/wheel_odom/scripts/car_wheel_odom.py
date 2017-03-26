@@ -102,6 +102,18 @@ class WheelOdom:
         if crc8(str(data_check)) == check_sum:
             return data
 
+    def _pretreat(self):
+        '''
+        获取速度前预处理，由于光电检测器的灵敏度有问题，低速直线运动时，右轮检测一直比左边小
+        但是实际是接近直线行走的，这里简单处理一下，低速时若左右电机命令相差不大，近似直线命令，
+        那么令右轮的速度检测值等于左轮，这是workaround，还需要重新选用光电编码器
+        '''
+        if ((self.left_cmd_speed > 0 and self.right_cmd_speed > 0) \
+            or (self.left_cmd_speed < 0 and self.right_cmd_speed < 0)) \
+            and (abs(self.left_cmd_speed) < 33 and abs(self.left_cmd_speed) < 33) \
+            and abs(self.left_cmd_speed - self.right_cmd_speed) < 5:
+            self.right_count = self.left_count
+
     def _velocity_to_speed(self):
         '''
         将两轮的速度转化为x轴的速度(即前进方向的速度)和绕z轴旋转的速度。
@@ -204,6 +216,7 @@ class WheelOdom:
             self.right_cmd_speed,
         ) = data_to_list
 
+        self._pretreat()
         self._velocity_to_speed()
         self._speed_to_odom()
 
