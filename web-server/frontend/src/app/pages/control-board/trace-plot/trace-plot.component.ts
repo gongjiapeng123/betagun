@@ -536,7 +536,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _drawTrace () {
     if (this._eoTraceLine) {
       // 判断是否有位移  // cm
-      const positions = this._ioPositions
+      const positions = this._eoPositions
       let lastPointX = 0
       let lastPointY = 0
       let lastPointZ = 0
@@ -553,7 +553,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       const ioPosition = this._poseConvert(this.ioData)
       const toPosition = this._poseConvert(this.toData)
       const voPosition = this._poseConvert(this.voData)
-      const position = ioPosition
+      const position = eoPosition
 
       if (this._status === '3D') {
         dist2 = Math.pow(lastPointX -position.x, 2)

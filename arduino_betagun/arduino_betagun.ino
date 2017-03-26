@@ -3,7 +3,7 @@
 
 #define debug 0
 #define debug_infrared 0
-#define debug_hall 0
+#define debug_optical_encoder 0
 
 class HCSR04
 {
@@ -36,17 +36,15 @@ private:
 	byte _trigPin;
 	byte _echoPin;
 };
-
-const int CODED_DISC_GRID_NUM = 50;  // 码盘栅格数
-const float WHEEL_DIAMETER = 0.04;  // 轮子直径(米)
-const float RESOLUTION = 0.001;  // FlexiTimer2分辨率(0.001s)
-const int VHZ = 20;  // 1秒中断测速几次
-const int FLEXITIMER2UNIT = (int)(1 / RESOLUTION / VHZ);  // FlexiTimer2 unit
-
+HCSR04 HCSR04_0(23, 22);  // 超声波传感器
 //DHT11 myDHT11(8);		//DHT11接在D8引脚
 
-HCSR04 HCSR04_0(23, 22);  // 超声波传感器
+// FlexiTimer2
+const float RESOLUTION = 0.001;  // FlexiTimer2分辨率(0.001s)
+const int VHZ = 10;  // 1秒中断测速几次
+const int FLEXITIMER2UNIT = (int)(1 / RESOLUTION / VHZ);  // FlexiTimer2 unit
 
+// 红外
 byte d0_down_pin = 53, d1_down_pin = 51, d2_down_pin = 49, d3_down_pin = 47;  // 向下红外
 byte d4_front_pin = 52, d5_front_pin = 50, d6_front_pin = 48, d7_front_pin = 48;  // 向前红外
 /**
@@ -58,10 +56,12 @@ byte d4_front_pin = 52, d5_front_pin = 50, d6_front_pin = 48, d7_front_pin = 48;
  */
 bool D0, D1, D2, D3, D4, D5, D6, D7; 
 
-byte hall_sensor_d1_interrupt_num = 0;  // 左电机测速中断号，高电平灭
-byte hall_sensor_d2_interrupt_num = 1;  // 右电机测速中断号
-int left_count, right_count;  // 码盘计数
-float left_velocity, right_velocity;  // 测速结果
+byte optical_encoder_d1_interrupt_num = 0;  // 左电机测速中断号，高电平灭
+byte optical_encoder_d2_interrupt_num = 1;  // 右电机测速中断号
+
+// 码盘计数
+int left_count = 0; 
+int right_count = 0;
 
 // 计算数据包校验和
 byte calCheckSum(byte data[11])
@@ -96,8 +96,8 @@ void setup()
 	pinMode(d7_front_pin, INPUT);
 
     // 中断计数
-    attachInterrupt(hall_sensor_d1_interrupt_num, leftCount, FALLING);
-    attachInterrupt(hall_sensor_d2_interrupt_num, rightCount, FALLING);
+    attachInterrupt(optical_encoder_d1_interrupt_num, leftCount, FALLING);
+    attachInterrupt(optical_encoder_d2_interrupt_num, rightCount, FALLING);
 
     FlexiTimer2::set(FLEXITIMER2UNIT, RESOLUTION, handler);
     FlexiTimer2::start();
@@ -107,7 +107,7 @@ void setup()
 void handler() {
 
 #if debug
-#if debug_hall
+#if debug_optical_encoder
     Serial.print(left_count);
     Serial.print(" ");
     Serial.print(right_count);
@@ -120,7 +120,7 @@ void handler() {
 #endif
     // 清空
     left_count = 0;
-    right_count = 0;    
+    right_count = 0;
 }
 
 float leftCount() {
@@ -210,7 +210,7 @@ void loop()
  * S: 第X位表示第X个红外传感器的值，0x0 表示留空，即：
  * 
  *
- * 4、霍尔测速：0x55 0x53 left_count right_count 0x0 0x0 0x0 0x0 0x0 0x0       校验和
+ * 4、光电编码测速：0x55 0x53 left_count right_count 0x0 0x0 0x0 0x0 0x0 0x0       校验和
  */
 void sendPacket(byte packId) {
     byte packet[11] = { 0x55 };
