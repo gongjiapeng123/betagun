@@ -22,7 +22,9 @@
  *
  * 0x66  0xaa     0x##      0xa0     12 个字符串    0x##       0xfc      融合滤波后的Odometry数据（3个加速度，3个角速度，姿态pitch, roll, yaw, 离起点的位置: x, y, z;）
  * 0x66  0xaa     0x##      0xa1     12 个字符串    0x##       0xfc      轮式里程计的数据
- * 0x66  0xaa     0x##      0xa2     12 个字符串    0x##       0xfc      VO的数据
+ * 0x66  0xaa     0x##      0xa2     12 个字符串    0x##       0xfc      imu里程计的数据
+ * 0x66  0xaa     0x##      0xa3     12 个字符串    0x##       0xfc      imu里程计和轮式里程计的数据
+ * 0x66  0xaa     0x##      0xa4     12 个字符串    0x##       0xfc      VO的数据
  */
 
 'use strict'
@@ -317,7 +319,7 @@ let arduinoCompleted = 0b000  // 数据完成的状态，0b111时表示获取完
  * 超声波：0x55     0x51      DL0 DH0 DL1 DH1 DL2 DH2 DL3 DH3        校验和
  * DLX DHX 表示第X个超声波传感器获得的距离值，以小端short方式存储
  *
- * 霍尔测速：0x55 0x53 left_count right_count 0x0 0x0 0x0 0x0 0x0 0x0       校验和
+ * 光电码盘测速：0x55 0x53 left_count right_count 0x0 0x0 0x0 0x0 0x0 0x0       校验和
  *
  * 解析过程中填充arduinoInfo字符串，最终构造0x82数据包：
  * 0x66  0xaa     0x##      0x82    14 个字符串     0x##     0xfc
@@ -410,7 +412,7 @@ exports.parseArduinoPacket = function (packet) {
       rightCount = speedR < 0 ? -rightCount : rightCount
 
       // 发送流
-      const infos = `${leftCount} ${rightCount}`
+      const infos = `${leftCount} ${rightCount} ${speedL} ${speedR}`
       const dataToCheck = ByteToString(infos.length) + '\x83' + infos
       arduino$.next(HEAD1 + HEAD2 + dataToCheck + ByteToString(crc8(dataToCheck)) + END)
     }

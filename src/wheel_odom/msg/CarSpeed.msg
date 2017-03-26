@@ -1,5 +1,9 @@
 Header header
 
+int32 left_count
+int32 right_count
+int32 left_cmd_speed
+int32 right_cmd_speed
 float32 car_delta_x
 float32 car_delta_y
 float32 car_delta_th

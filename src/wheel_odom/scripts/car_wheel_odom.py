@@ -44,8 +44,12 @@ class WheelOdom:
         self.verbose = verbose
         self.dt = 0.0  # 采样周期
 
-        self.left_count = 0
+        self.left_count = 0  # 采样时间内的码盘计数值
         self.right_count = 0
+        self.left_cmd_speed = 0  # 控制命令的速度值(0~100)
+        self.right_cmd_speed = 0
+
+
         self.left_s = 0.0  # 左轮行驶距离
         self.right_s = 0.0  # 右轮行驶距离
         self.car_delta_x = 0.0  # 前进行驶距离
@@ -118,6 +122,11 @@ class WheelOdom:
         self.car_delta_th = (self.right_s - self.left_s) / WHEEL_L
         self.vth = self.car_delta_th / self.dt
 
+
+        self.car_speed_msg.left_count = self.left_count
+        self.car_speed_msg.right_count = self.right_count
+        self.car_speed_msg.left_cmd_speed = self.left_cmd_speed
+        self.car_speed_msg.right_cmd_speed = self.right_cmd_speed
         self.car_speed_msg.car_delta_x = self.car_delta_x
         self.car_speed_msg.car_delta_y = self.car_delta_y
         self.car_speed_msg.car_delta_th = self.car_delta_th
@@ -188,13 +197,22 @@ class WheelOdom:
         self.dt = (self.current_time - self.last_time).to_sec()
         # 获取左右码盘计数器的值
         data_to_list = list(map(lambda s: int(s), str(data).split(b' ')))
-        (self.left_count, self.right_count) = data_to_list
+        (
+            self.left_count,
+            self.right_count,
+            self.left_cmd_speed,
+            self.right_cmd_speed,
+        ) = data_to_list
 
         self._velocity_to_speed()
         self._speed_to_odom()
 
         if self.verbose:
             print('*' * 20)
+            print('cmd speed: {} {}'.format(
+                self.left_cmd_speed,
+                self.right_cmd_speed
+            ))
             print('count: {} {}'.format(
                 self.left_count,
                 self.right_count
