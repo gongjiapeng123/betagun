@@ -26,6 +26,10 @@ struct CarSpeed_
 
   CarSpeed_()
     : header()
+    , left_count(0)
+    , right_count(0)
+    , left_cmd_speed(0)
+    , right_cmd_speed(0)
     , car_delta_x(0.0)
     , car_delta_y(0.0)
     , car_delta_th(0.0)
@@ -37,6 +41,10 @@ struct CarSpeed_
     }
   CarSpeed_(const ContainerAllocator& _alloc)
     : header(_alloc)
+    , left_count(0)
+    , right_count(0)
+    , left_cmd_speed(0)
+    , right_cmd_speed(0)
     , car_delta_x(0.0)
     , car_delta_y(0.0)
     , car_delta_th(0.0)
@@ -52,6 +60,18 @@ struct CarSpeed_
 
    typedef  ::std_msgs::Header_<ContainerAllocator>  _header_type;
   _header_type header;
+
+   typedef int32_t _left_count_type;
+  _left_count_type left_count;
+
+   typedef int32_t _right_count_type;
+  _right_count_type right_count;
+
+   typedef int32_t _left_cmd_speed_type;
+  _left_cmd_speed_type left_cmd_speed;
+
+   typedef int32_t _right_cmd_speed_type;
+  _right_cmd_speed_type right_cmd_speed;
 
    typedef float _car_delta_x_type;
   _car_delta_x_type car_delta_x;
@@ -154,12 +174,12 @@ struct MD5Sum< ::wheel_odom::CarSpeed_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "1f649a2ed7af503fb863d87829267e47";
+    return "28d147ecdb94f56a54d88ee39203b4de";
   }
 
   static const char* value(const ::wheel_odom::CarSpeed_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x1f649a2ed7af503fULL;
-  static const uint64_t static_value2 = 0xb863d87829267e47ULL;
+  static const uint64_t static_value1 = 0x28d147ecdb94f56aULL;
+  static const uint64_t static_value2 = 0x54d88ee39203b4deULL;
 };
 
 template<class ContainerAllocator>
@@ -180,6 +200,10 @@ struct Definition< ::wheel_odom::CarSpeed_<ContainerAllocator> >
   {
     return "Header header\n\
 \n\
+int32 left_count\n\
+int32 right_count\n\
+int32 left_cmd_speed\n\
+int32 right_cmd_speed\n\
 float32 car_delta_x\n\
 float32 car_delta_y\n\
 float32 car_delta_th\n\
@@ -225,6 +249,10 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.header);
+      stream.next(m.left_count);
+      stream.next(m.right_count);
+      stream.next(m.left_cmd_speed);
+      stream.next(m.right_cmd_speed);
       stream.next(m.car_delta_x);
       stream.next(m.car_delta_y);
       stream.next(m.car_delta_th);
@@ -254,6 +282,14 @@ struct Printer< ::wheel_odom::CarSpeed_<ContainerAllocator> >
     s << indent << "header: ";
     s << std::endl;
     Printer< ::std_msgs::Header_<ContainerAllocator> >::stream(s, indent + "  ", v.header);
+    s << indent << "left_count: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.left_count);
+    s << indent << "right_count: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.right_count);
+    s << indent << "left_cmd_speed: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.left_cmd_speed);
+    s << indent << "right_cmd_speed: ";
+    Printer<int32_t>::stream(s, indent + "  ", v.right_cmd_speed);
     s << indent << "car_delta_x: ";
     Printer<float>::stream(s, indent + "  ", v.car_delta_x);
     s << indent << "car_delta_y: ";
