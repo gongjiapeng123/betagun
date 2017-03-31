@@ -8,6 +8,9 @@
 # log
 *.log
 
+# bag
+bags
+
 build/
 bin/
 lib/

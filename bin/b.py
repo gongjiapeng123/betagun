@@ -22,6 +22,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))  # 脚本所在目录
 BETAGUN_DIR = os.path.abspath(os.path.join(DIR, '..'))
 TCP_SERVER_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'tcp-server'))
 WEB_SERVER_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'web-server'))
+ROS_BAGS_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'bags'))
 ROS_SRC_DIR = os.path.abspath(os.path.join(BETAGUN_DIR, 'src'))
 
 def start_tcp_server():
@@ -44,7 +45,7 @@ def stop_web_server():
     os.system("ps aux| grep 'web-server/dev.js' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
-def start_ros(imu0_relative, vo, cam, cam2):
+def start_ros(imu0_relative, vo, cam, cam2, bag):
     print('start ros')
     subprocess.Popen('roslaunch betagun odom_ekf.launch imu0_relative:={} vo:={} cam:={} cam2:={} > /dev/null 2>&1'.format(
         'true' if imu0_relative else 'false', 
@@ -52,11 +53,14 @@ def start_ros(imu0_relative, vo, cam, cam2):
         'true' if cam else 'false',
         'true' if cam2 else 'false'
     ), shell=True)
+    if bag:
+        subprocess.Popen('cd {} && rosbag recore -a > /dev/null 2>&1'.format(ROS_BAGS_DIR), shell=True)
     time.sleep(3)
 
 def stop_ros():
     print('stop ros')
     os.system("ps aux| grep 'odom_ekf.launch' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
+    os.system("ps aux| grep 'rosbag' | awk '{print $2}' | xargs kill > /dev/null 2>&1")
     time.sleep(3)
 
 if __name__ == '__main__':
@@ -118,6 +122,12 @@ if __name__ == '__main__':
         action='store_true',
         help=u'是否imu0_relative',
     )
+    parser.add_argument(
+        '-b', 
+        '--bag', 
+        action='store_true',
+        help=u'是否rosbag recore',
+    )
 
     ns = parser.parse_args()
     print(ns)
@@ -143,10 +153,10 @@ if __name__ == '__main__':
 
         if ns.ros:
             if ns.action == 'start':
-                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
+                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2, ns.bag)
             elif ns.action == 'restart':
                 stop_ros()
-                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
+                start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2, ns.bag)
             else:
                 stop_ros()
 
@@ -154,7 +164,7 @@ if __name__ == '__main__':
         if ns.action == 'start':
             start_tcp_server()
             start_web_server()
-            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
+            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2, ns.bag)
         elif ns.action == 'restart':
             stop_ros()
             stop_web_server()
@@ -162,7 +172,7 @@ if __name__ == '__main__':
 
             start_tcp_server()
             start_web_server()
-            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2)
+            start_ros(ns.imu0_relative, ns.vo, ns.cam, ns.cam2, ns.bag)
         else:
             stop_ros()
             stop_web_server()
