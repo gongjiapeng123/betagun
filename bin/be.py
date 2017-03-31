@@ -125,8 +125,10 @@ def load_file(file):
     读取csv文件获取三种类型轨迹的点集，结构为二维数组[[x, y, z]]，需注意，由于输出的是定义好的three场景，
     z向北，x向西，y向上，且位置信息被初始的航向角影响，故此处需要进行坐标变换
     '''
-    eo_points, wo_points, vo_points = (handle_points(points) for points in np.loadtxt(file, dtype=np.float, delimiter=','))
-    return eo_points, wo_points, vo_points
+    # eo_points, wo_points, vo_points = (handle_points(points) for points in np.loadtxt(file, dtype=np.float, delimiter=','))
+    # return eo_points, wo_points, vo_points
+    eo_points, wo_points, io_points, to_points, vo_points = (handle_points(points) for points in np.loadtxt(file, dtype=np.float, delimiter=','))
+    return  eo_points, wo_points, io_points, to_points, vo_points
 
 def show_figure(points):
     '''
@@ -138,20 +140,36 @@ def show_figure(points):
     # print(x, y)
     plt.plot(x, y)
 
+    # 直线
     # real = plt.scatter(test_line_real[:, 0], test_line_real[:, 1], s=20, c='red')
     # measure = plt.scatter(test_line_measure[:, 0], test_line_measure[:, 1], s=20, c='green')
     # plt.xlim(50, -50)
     # plt.ylim(-50, 250)
 
+    # 曲线
     # real = plt.scatter(test_curve_real[:, 0], test_curve_real[:, 1], s=20, c='red')
     # measure = plt.scatter(test_curve_measure[:, 0], test_curve_measure[:, 1], s=20, c='green')
     # plt.xlim(50, -50)
     # plt.ylim(-100, 600)
 
-    real = plt.scatter([-1], [-2], s=15, c='r')
-    measure = plt.scatter([3.25], [-4.61], s=15, c='b')
-    plt.xlim(100, -200)
-    plt.ylim(-100, 300)
+    # loop
+    # real = plt.scatter([-1], [-2], s=15, c='r')
+    # measure = plt.scatter([3.25], [-4.61], s=15, c='b')
+    # plt.xlim(100, -200)
+    # plt.ylim(-100, 300)
+
+    # wo 直线
+    # plt.plot([0, 0], [0, 200])
+    # real = plt.scatter([-1], [200], s=15, c='r')
+    # measure = plt.scatter([x[-1]], [y[-1]], s=15, c='b')
+    # plt.xlim(150, -150)
+    # plt.ylim(-50, 250)
+
+    # wo 曲线
+    real = plt.scatter([98], [197], s=15, c='r')
+    measure = plt.scatter([x[-1]], [y[-1]], s=15, c='b')
+    plt.xlim(150, -150)
+    plt.ylim(-50, 250)
 
     plt.xlabel('x(cm)')
     plt.ylabel('y(cm)')
@@ -161,8 +179,9 @@ def show_figure(points):
     plt.show()
 
 def run(file):
-    eo_points, wo_points, vo_points = load_file(file)
-    show_figure(eo_points)
+    # eo_points, wo_points, vo_points = load_file(file)
+    eo_points, wo_points, io_points, to_points, vo_points = load_file(file)
+    show_figure(io_points)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
