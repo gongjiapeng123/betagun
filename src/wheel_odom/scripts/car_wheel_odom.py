@@ -27,7 +27,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 roslib.load_manifest('wheel_odom')
 
-WHEEL_DIAMETER = 0.035  # 轮子直径
+WHEEL_DIAMETER = 0.04  # 轮子直径
 CODED_DISC_GRID_NUM = 50.0  # 栅格数
 WHEEL_L = 0.185  # 轮间距
 
