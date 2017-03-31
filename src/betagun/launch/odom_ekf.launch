@@ -79,9 +79,9 @@
   </node>
 
   <node if="$(arg cam)"
-        pkg="capture"
-        type="capture.py"
-        name="capture"
+        pkg="betagun"
+        type="cam_capture.py"
+        name="cam_capture"
         args="-c">
   
   </node>

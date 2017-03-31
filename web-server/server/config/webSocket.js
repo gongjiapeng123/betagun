@@ -84,6 +84,7 @@ export function configWebSocket (server) {
       })
       .on('imageOn', () => {  // 客户端要求获取图像数据
         if (user == 'admin') {
+          console.log('image on')
           imageSubscription = observables.image$.subscribe(  // 订阅
             (image) => {  // 传来的是图片的二进制数据
               // console.log('emit a image!')
