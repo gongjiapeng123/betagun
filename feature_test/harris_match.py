@@ -16,7 +16,11 @@ def read_img(filename):
     img = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return img, gray
+    img2 = np.zeros_like(img)
+    img2[:,:,0] = gray
+    img2[:,:,1] = gray
+    img2[:,:,2] = gray
+    return img2, gray
 
 @cul_exe_time()
 def harris(img, gray):
@@ -42,7 +46,7 @@ def harris(img, gray):
     
     # 绘制亚像素点精确后的角点
     for p in corners:
-        cv2.circle(img, tuple(p), 1, (0, 0, 255))
+        cv2.circle(img, tuple(p), 3, (0, 0, 255), 1, cv2.LINE_AA)
 
     return img, gray, corners
 
@@ -82,6 +86,8 @@ def match(img1, gray1, corners1, img2, gray2, corners2):
 
     print(len(matches))
     for (p1, p2) in matches:
+        cv2.circle(img, tuple(p1), 3, (0, 255, 0), 1, cv2.LINE_AA)
+        cv2.circle(img, tuple(p2), 3, (0, 255, 0), 1, cv2.LINE_AA)
         cv2.line(img, tuple(p1), tuple(p2), (0, 255, 0), 1)
     
     return img
