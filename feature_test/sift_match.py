@@ -3,7 +3,6 @@
 
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 from _utils import cul_exe_time
 
 sift = cv2.xfeatures2d.SIFT_create(500)
@@ -20,7 +19,7 @@ def read_img(filename):
     img = cv2.imread(filename)
 
     height, width = img.shape[:2]
-    size = (int(width / 2), int(height / 2))  
+    size = (int(width / 2), int(height / 2))
     img = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -127,5 +126,3 @@ translation_test()
 rotate_test()
 scale_test()
 
-# plt.imshow(img)
-# plt.show()

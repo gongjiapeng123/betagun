@@ -3,8 +3,6 @@
 
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
-import skimage.feature
 from _utils import cul_exe_time
 
 @cul_exe_time()
@@ -12,7 +10,7 @@ def read_img(filename):
     img = cv2.imread(filename)
 
     height, width = img.shape[:2]
-    size = (int(width / 2), int(height / 2))  
+    size = (int(width / 2), int(height / 2))
     img = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -41,9 +39,9 @@ def harris(img, gray):
     # Now draw them
     res = np.hstack((centroids, corners))
     res = np.int0(res)
-    # img[res[:, 1], res[:, 0]] = [0, 0, 255] 
-    # img[res[:, 3], res[:, 2]] = [0, 255, 0]  
-    
+    # img[res[:, 1], res[:, 0]] = [0, 0, 255]
+    # img[res[:, 3], res[:, 2]] = [0, 255, 0]
+
     # 绘制亚像素点精确后的角点
     for p in corners:
         cv2.circle(img, tuple(p), 3, (0, 0, 255), 1, cv2.LINE_AA)
@@ -61,7 +59,7 @@ def match(img1, gray1, corners1, img2, gray2, corners2):
     corners2_in_img[:, 0] = corners2_in_img[:, 0] + width
 
     N = 2
-    for p1 in corners1: 
+    for p1 in corners1:
         w1 = gray1[p1[1] - N: p1[1] + N + 1, p1[0] - N: p1[0] + N + 1]
         h, w = w1.shape
         w1 = np.pad(w1, ((0, 2 * N + 1 - h), (0, 2 * N + 1 - w)), mode='constant')
@@ -75,12 +73,12 @@ def match(img1, gray1, corners1, img2, gray2, corners2):
 
             correlation = cv2.matchTemplate(w2, w1, method=cv2.TM_CCOEFF_NORMED)
             correlations.append(correlation[0, 0])
-        
+
         max_correlation = max(correlations)
         if max_correlation > 0.5:
             correlations = np.array(correlations)
             match_p = corners2_in_img[correlations.argmax()]
-            
+
             matches.append((p1, match_p))
             # print(max_correlation, p1, match_p)
 
@@ -89,7 +87,7 @@ def match(img1, gray1, corners1, img2, gray2, corners2):
         cv2.circle(img, tuple(p1), 3, (0, 255, 0), 1, cv2.LINE_AA)
         cv2.circle(img, tuple(p2), 3, (0, 255, 0), 1, cv2.LINE_AA)
         cv2.line(img, tuple(p1), tuple(p2), (0, 255, 0), 1)
-    
+
     return img
 
 def translation_test():
@@ -122,7 +120,4 @@ def scale_test():
 translation_test()
 rotate_test()
 scale_test()
-
-# plt.imshow(img)
-# plt.show()
 
