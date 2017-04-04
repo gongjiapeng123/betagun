@@ -198,7 +198,15 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
     this._jy901Subscription = this._wsService.jy901$
       .subscribe(jy901Data => {
           this.jy901Data = jy901Data
-
+          
+          // const a = {
+          //   ax: jy901Data.ay - 0.2,
+          //   ay: -jy901Data.ax - 0.9,
+          //   az: jy901Data.az + 0.2,
+          // }
+          // if (a.ax > 1) {
+          //   console.log(a)
+          // }     
         }
       )
 
