@@ -12,7 +12,7 @@ index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
 search_params = dict(checks=50)   # or pass empty dictionary
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 
-ransac = False
+ransac = True
 
 @cul_exe_time()
 def read_img(filename):
@@ -32,8 +32,9 @@ def detect(gray):
 
 @cul_exe_time()
 def match(img1, kp1, des1, img2, kp2, des2):
+    height, width = img1.shape
     matches = flann.knnMatch(des1, des2, k=2)
-
+    
     # Need to draw only good matches, so create a mask
     matchesMask = [[0, 0] for i in list(range(len(matches)))]
     good = []
@@ -51,7 +52,7 @@ def match(img1, kp1, des1, img2, kp2, des2):
         left_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
         right_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
 
-        M, mask = cv2.findHomography(left_pts, right_pts, cv2.RANSAC, 5.0)
+        M, mask = cv2.findHomography(left_pts, right_pts, cv2.RANSAC, ransacReprojThreshold=5.0, confidence=0.995)
         matchesMask = mask.ravel().tolist()
 
         h, w = img1.shape
@@ -61,20 +62,31 @@ def match(img1, kp1, des1, img2, kp2, des2):
 
         draw_params = dict(
             matchColor=(0, 255, 0),
-            singlePointColor=None,
+            singlePointColor=(0, 0, 255),
             matchesMask=matchesMask,
             flags=2
         )
 
+        # 画出对应的物体边框
+        # img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         result_image = cv2.drawMatches(
             img1,
             kp1,
-            cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA),
+            img2,
             kp2,
             good,
             None,
             **draw_params
         )
+
+        # 绘制误配的点
+        for i, m in enumerate(good):
+            p1 = tuple(np.int32(kp1[m.queryIdx].pt))
+            p2 = tuple(np.int32(kp2[m.trainIdx].pt) + [width, 0])
+            if not matchesMask[i]:
+                cv2.circle(result_image, p1, 3, (0, 0, 255), 1, cv2.LINE_AA)
+                cv2.circle(result_image, p2, 3, (0, 0, 255), 1, cv2.LINE_AA)
+                cv2.line(result_image, p1, p2, (0, 0, 255), 1)
     else:
 
         draw_params = dict(
@@ -101,7 +113,10 @@ def translation_test():
     img2 = read_img('right.png')
     kp2, des2 = detect(img2)
     img = match(img1, kp1, des1, img2, kp2, des2)
-    cv2.imwrite('result/surf_match_translation.png', img)
+    filename = 'result/surf_match_translation.png'
+    if ransac:
+        filename = 'result/surf_match_translation2.png'
+    cv2.imwrite(filename, img)
     print('*' * 20)
 
 def rotate_test():
@@ -110,7 +125,10 @@ def rotate_test():
     img2 = read_img('s3.png')
     kp2, des2 = detect(img2)
     img = match(img1, kp1, des1, img2, kp2, des2)
-    cv2.imwrite('result/surf_match_rotate.png', img)
+    filename = 'result/surf_match_rotate.png'
+    if ransac:
+        filename = 'result/surf_match_rotate2.png'
+    cv2.imwrite(filename, img)
     print('*' * 20)
 
 def scale_test():
@@ -119,7 +137,10 @@ def scale_test():
     img2 = read_img('s2.png')
     kp2, des2 = detect(img2)
     img = match(img1, kp1, des1, img2, kp2, des2)
-    cv2.imwrite('result/surf_match_scale.png', img)
+    filename = 'result/surf_match_scale.png'
+    if ransac:
+        filename = 'result/surf_match_scale2.png'
+    cv2.imwrite(filename, img)
     print('*' * 20)
 
 translation_test()

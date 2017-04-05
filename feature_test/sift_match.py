@@ -66,10 +66,12 @@ def match(img1, kp1, des1, img2, kp2, des2):
             flags=2
         )
 
+        # 画出对应的物体边框
+        # img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         result_image = cv2.drawMatches(
             img1,
             kp1,
-            cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA),
+            img2,
             kp2,
             good,
             None,
@@ -104,13 +106,28 @@ def translation_test():
     cv2.imwrite('result/sift_match_translation.png', img)
     print('*' * 20)
 
+def translation_test():
+    img1 = read_img('left.png')
+    kp1, des1 = detect(img1)
+    img2 = read_img('right.png')
+    kp2, des2 = detect(img2)
+    img = match(img1, kp1, des1, img2, kp2, des2)
+    filename = 'result/sift_match_translation.png'
+    if ransac:
+        filename = 'result/sift_match_translation2.png'
+    cv2.imwrite(filename, img)
+    print('*' * 20)
+
 def rotate_test():
     img1 = read_img('s2.png')
     kp1, des1 = detect(img1)
     img2 = read_img('s3.png')
     kp2, des2 = detect(img2)
     img = match(img1, kp1, des1, img2, kp2, des2)
-    cv2.imwrite('result/sift_match_rotate.png', img)
+    filename = 'result/sift_match_rotate.png'
+    if ransac:
+        filename = 'result/sift_match_rotate2.png'
+    cv2.imwrite(filename, img)
     print('*' * 20)
 
 def scale_test():
@@ -119,7 +136,10 @@ def scale_test():
     img2 = read_img('s2.png')
     kp2, des2 = detect(img2)
     img = match(img1, kp1, des1, img2, kp2, des2)
-    cv2.imwrite('result/sift_match_scale.png', img)
+    filename = 'result/sift_match_scale.png'
+    if ransac:
+        filename = 'result/sift_match_scale2.png'
+    cv2.imwrite(filename, img)
     print('*' * 20)
 
 translation_test()

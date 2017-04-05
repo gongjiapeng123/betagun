@@ -38,6 +38,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 degrees2rad = math.pi / 180.0
+gravitation = 9.80665
 
 def byte_value(uint8):
     '''
@@ -153,10 +154,9 @@ class JY901:
         roll_rad = self.roll * degrees2rad
         yaw_rad = self.yaw * degrees2rad
 
-        # 此处微调数值
-        self.imu_msg.linear_acceleration.x = self.ay - 0.6
-        self.imu_msg.linear_acceleration.y = -self.ax - 0.1
-        self.imu_msg.linear_acceleration.z = self.az + 0.20
+        self.imu_msg.linear_acceleration.x = self.ay
+        self.imu_msg.linear_acceleration.y = -self.ax
+        self.imu_msg.linear_acceleration.z = self.az
 
         self.imu_msg.angular_velocity.x = self.wy * degrees2rad
         self.imu_msg.angular_velocity.y = -self.wx * degrees2rad
@@ -219,12 +219,13 @@ class JY901:
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_rad_o)
 
         # 根据yaw计算imu相对于全局坐标（odom）的x，y分量的加速度分量、速度分量、位移分量，注意坐标系的方向
+        ax = self.imu_msg.linear_acceleration.x + gravitation * math.sin(pitch_rad)
+        ay = self.imu_msg.linear_acceleration.y - gravitation * math.sin(roll_rad) * math.cos(pitch_rad)
+        ay = self.imu_msg.linear_acceleration.y - gravitation * math.cos(roll_rad) * math.cos(pitch_rad)
         dt = (self.current_time - self.last_time).to_sec()
 
-        ax_o = self.imu_msg.linear_acceleration.x * math.cos(yaw_rad_o) \
-            - self.imu_msg.linear_acceleration.y * math.sin(yaw_rad_o)
-        ay_o = self.imu_msg.linear_acceleration.x * math.sin(yaw_rad_o) \
-            + self.imu_msg.linear_acceleration.y * math.cos(yaw_rad_o)
+        ax_o = ax * math.cos(yaw_rad_o) - ay * math.sin(yaw_rad_o)
+        ay_o = ax * math.sin(yaw_rad_o) + ay * math.cos(yaw_rad_o)
         self.vx_o = self.vx_o + ax_o * dt
         self.vy_o = self.vy_o + ay_o * dt
 
