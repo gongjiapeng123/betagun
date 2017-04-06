@@ -1,3 +1,20 @@
+<div class="button-wrapper">
+
+  <button pButton 
+          class="circle-button ui-button-success"
+          type="button" 
+          (click)="onCircleClick($event)" 
+          label="圆型">
+  </button>
+
+  <button pButton 
+          class="reset-button ui-button-success"
+          type="button" 
+          (click)="onResetClick($event)" 
+          label="重置">
+  </button>
+</div>
+
 <div class="steering-wrapper">
   <p-inputSwitch [(ngModel)]="isKey"
                  onLabel="key"

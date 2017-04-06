@@ -19,7 +19,8 @@ import {
 @Injectable()
 export class WebSocketService {
   private _socket  // 连接服务端的WebSocket
-  public loginUser$: BehaviorSubject<string> = new BehaviorSubject('nobody')
+  // public loginUser$: BehaviorSubject<string> = new BehaviorSubject('nobody')
+  public loginUser$: BehaviorSubject<string> = new BehaviorSubject('admin')
 
   /**
    * 连接服务器WebSocket成功或断开
@@ -235,6 +236,14 @@ export class WebSocketService {
       motorLeftSpeed: motorLeftSpeed,
       motorRightSpeed: motorRightSpeed
     })
+  }
+
+  /**
+   * 发送固定电机运动命令参数给后台
+   * @param type 圆形运动等等
+   */
+  sendFixMotorsControl(type: string) {
+    this._socket.emit(type, {})
   }
 
   /**

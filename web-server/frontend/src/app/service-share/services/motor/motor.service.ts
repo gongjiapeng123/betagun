@@ -5,7 +5,9 @@
 
 import { Injectable } from '@angular/core'
 import { DualMotor } from './motor'
-
+import {
+  WebSocketService,
+} from  '../websocket'
 
 /**
  * MotorService会在调用changeSpeed时改变电机速度
@@ -13,12 +15,24 @@ import { DualMotor } from './motor'
 @Injectable()
 export class MotorService {
 
+  private _canControl: boolean = true
+
   private preMotorLeftSpeed
   private preMotorRightSpeed
   private _motors: DualMotor
 
-  constructor () {
+  constructor (private _wsService: WebSocketService) {
     this._motors = new DualMotor()
+  }
+
+  runCircle () {
+    this._canControl = false
+    this._wsService.sendFixMotorsControl('motorsCircle')
+  }
+
+  stopCircle () {
+    this._canControl = true
+    this._wsService.motorsControl(0, 0)
   }
   
   /**
@@ -29,21 +43,37 @@ export class MotorService {
    * @returns {boolean}电机速度较之前已经有了更改，指明需要发送命令到后台
    */
   changeSpeed (mode: string, flag: any): boolean {
+    if (!this._canControl) {
+      return
+    }
     this.preMotorLeftSpeed = this.motorLeftSpeed
     this.preMotorRightSpeed = this.motorRightSpeed
     if (mode == 'key')
       this._motors.changeSpeedByKey(flag)
     else if (mode == 'drag')
       this._motors.changeSpeedByDrag(flag)
-    return this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed
+    
+    if (this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed) {
+      return
+    }
+
+    this._wsService.motorsControl(this.motorLeftSpeed, this.motorRightSpeed)
   }
 
   changeSpeedToZero (mode: string) {
+    if (!this._canControl) {
+      return false
+    }
     if (mode == 'key')
       this._motors.changeSpeedByKey(0b0000)
     else if (mode == 'drag')
       this._motors.changeSpeedByDrag([0, 0])
-    return this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed
+    
+    if (this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed) {
+      return
+    }
+    
+    this._wsService.motorsControl(this.motorLeftSpeed, this.motorRightSpeed)
   }
 
   get motorLeftSpeed (): number {

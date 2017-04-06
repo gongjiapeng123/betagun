@@ -103,6 +103,9 @@ export function configWebSocket (server) {
         // console.log(`Client send motor cmd: ${data.motorLeftSpeed} ${data.motorRightSpeed}`);
         sendControlCommand('motorsControl', data)
       })
+      .on('motorsCircle', (data) => {  // 圆形运动
+        sendControlCommand('motorsCircle', data)
+      })
 
   })
 }

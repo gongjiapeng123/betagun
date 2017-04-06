@@ -83,10 +83,7 @@ export class SteeringWheelComponent implements OnInit, OnDestroy {
    * 则使用WebSocketService发送命令给后台让后台控制电机
    */
   private controlMotors () {
-    if (this._mtService.changeSpeed(this.CONTROL_MODE, this._flag)) {
-      this._wsService.motorsControl(this.motorLeftSpeed, this.motorRightSpeed)
-    }
-
+    this._mtService.changeSpeed(this.CONTROL_MODE, this._flag)
   }
 
   /**

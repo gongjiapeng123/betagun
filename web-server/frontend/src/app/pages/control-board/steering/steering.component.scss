@@ -1,3 +1,21 @@
+.button-wrapper {
+  position: absolute;
+  
+  .circle-button {
+    position: absolute;
+    width: 60px;
+    top: -50px;
+    left: 65px;
+  }
+
+  .reset-button {
+    position: absolute;
+    width: 60px;
+    top: -50px;
+    left: 135px;
+  }
+}
+
 .steering-wrapper {
   width: 100%;
   height: 92%;

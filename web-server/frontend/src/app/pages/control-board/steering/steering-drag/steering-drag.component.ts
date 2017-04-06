@@ -160,8 +160,7 @@ export class SteeringDragComponent implements OnInit, OnDestroy {
    * 使用MotorService根据_flag不断更新电机速度，如果速度值更改，则使用WebSocketService发送命令给后台让后台控制电机
    */
   controlMotors() {
-    if (this._mtService.changeSpeed(this.CONTROLMODE, this._flag))
-      this._wsService.motorsControl(this.motorLeftSpeed, this.motorRightSpeed)
+    this._mtService.changeSpeed(this.CONTROLMODE, this._flag)
   }
 
   /**

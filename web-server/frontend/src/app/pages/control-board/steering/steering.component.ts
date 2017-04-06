@@ -48,6 +48,14 @@ export class SteeringComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
+  onCircleClick () {
+    this._mtService.runCircle()
+  }
+
+  onResetClick () {
+    this._mtService.stopCircle()
+  }
+
   get titleShow () {
     return `L: ${this._mtService.motorLeftSpeed}; R: ${this._mtService.motorRightSpeed}`
   }
