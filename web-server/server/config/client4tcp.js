@@ -58,11 +58,13 @@ export function sendControlCommand (type, parameters) {  // 发送控制命令
       // logger.info(Buffer.from(cmd, 'binary'))
       controlClient.write(cmd, 'binary')  // 要以二进制方式发送字符串，否则使用默认编码会出错
     }
+      break
     case 'motorsCircle': {
       cmd = directive.makeControlMotorCommand(20, 50)
       // logger.info(Buffer.from(cmd, 'binary'))
       controlClient.write(cmd, 'binary')  // 要以二进制方式发送字符串，否则使用默认编码会出错
     }
+      break
   }
 }
 

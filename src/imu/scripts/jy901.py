@@ -23,6 +23,7 @@ from __future__ import absolute_import
 import socket
 import re
 import math
+import numpy as np
 from crcmod.predefined import mkPredefinedCrcFun
 
 crc8 = mkPredefinedCrcFun('crc-8')
@@ -219,9 +220,24 @@ class JY901:
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, yaw_rad_o)
 
         # 根据yaw计算imu相对于全局坐标（odom）的x，y分量的加速度分量、速度分量、位移分量，注意坐标系的方向
+        #q = tf.transformations.quaternion_from_euler(roll_rad, pitch_rad, 0)
+        #R = np.array([
+            #[2 * q[0] * q[0] + 2 * q[1] * q[1] - 1, 2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[1] * q[3] + 2 * q[0] * q[2]],
+            #[2 * q[1] * q[2] + 2 * q[0] * q[3], 2 * q[0] * q[0] + 2 * q[2] * q[2] - 1, 2 * q[2] * q[3] - 2 * q[0] * q[1]],
+            #[2 * q[1] * q[3] - 2 * q[0] * q[2], 2 * q[2] * q[3] + 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1]
+        #])
+        #a_g = np.array([
+            #self.imu_msg.linear_acceleration.x,
+            #self.imu_msg.linear_acceleration.y,
+            #self.imu_msg.linear_acceleration.z
+        #])
+        #g = np.array([0, 0, gravitation])
+        #ax, ay, az = np.linalg.inv(R).dot(a_g) - g
+
         ax = self.imu_msg.linear_acceleration.x + gravitation * math.sin(pitch_rad)
         ay = self.imu_msg.linear_acceleration.y - gravitation * math.sin(roll_rad) * math.cos(pitch_rad)
-        ay = self.imu_msg.linear_acceleration.y - gravitation * math.cos(roll_rad) * math.cos(pitch_rad)
+        az = self.imu_msg.linear_acceleration.z - gravitation * math.cos(roll_rad) * math.cos(pitch_rad)
+        print(ax, ay, az)
         dt = (self.current_time - self.last_time).to_sec()
 
         ax_o = ax * math.cos(yaw_rad_o) - ay * math.sin(yaw_rad_o)
