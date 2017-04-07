@@ -53,7 +53,7 @@ export class MotorService {
     else if (mode == 'drag')
       this._motors.changeSpeedByDrag(flag)
     
-    if (this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed) {
+    if (this.preMotorLeftSpeed == this.motorLeftSpeed && this.preMotorRightSpeed == this.motorRightSpeed) {
       return
     }
 
@@ -69,7 +69,7 @@ export class MotorService {
     else if (mode == 'drag')
       this._motors.changeSpeedByDrag([0, 0])
     
-    if (this.preMotorLeftSpeed != this.motorLeftSpeed || this.preMotorRightSpeed != this.motorRightSpeed) {
+    if (this.preMotorLeftSpeed == this.motorLeftSpeed && this.preMotorRightSpeed == this.motorRightSpeed) {
       return
     }
     
