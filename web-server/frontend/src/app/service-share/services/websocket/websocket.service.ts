@@ -19,8 +19,8 @@ import {
 @Injectable()
 export class WebSocketService {
   private _socket  // 连接服务端的WebSocket
-  // public loginUser$: BehaviorSubject<string> = new BehaviorSubject('nobody')
-  public loginUser$: BehaviorSubject<string> = new BehaviorSubject('admin')
+  public loginUser$: BehaviorSubject<string> = new BehaviorSubject('nobody')
+  // public loginUser$: BehaviorSubject<string> = new BehaviorSubject('admin')
 
   /**
    * 连接服务器WebSocket成功或断开

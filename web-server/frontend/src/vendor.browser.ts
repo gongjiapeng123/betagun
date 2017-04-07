@@ -23,6 +23,7 @@ import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/distinctUntilChanged'
 import 'rxjs/observable/of'
 import 'rxjs/observable/fromEvent'
+import 'rxjs/add/operator/sampleTime'
 
 // Web dependencies
 import 'jquery'

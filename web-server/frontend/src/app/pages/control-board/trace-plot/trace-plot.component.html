@@ -20,6 +20,7 @@
     <p-selectButton [options]="_odoms" 
                     [(ngModel)]="_odomsSelected"
                     (onChange)="onOdomChanged($event)"
+                    [hidden]="true"
                     multiple="multiple"
                     [style]="{
                       width: '250px'
@@ -52,7 +53,7 @@
     </p>
     <br>
 
-    <p>
+    <!--<p>
       {{toData.x.toFixed(2)}}
     </p>
     <p>
@@ -72,7 +73,7 @@
     <p>
       {{voData.yaw.toFixed(2)}}
     </p>
-    <br>
+    <br>-->
 
     <!--<p>
       vx：{{odomData.vx.toFixed(2)}}

@@ -2,14 +2,16 @@
 
   <button pButton 
           class="circle-button ui-button-success"
-          type="button" 
+          type="button"
+          [hidden]="true"
           (click)="onCircleClick($event)" 
           label="圆型">
   </button>
 
   <button pButton 
           class="reset-button ui-button-success"
-          type="button" 
+          type="button"
+          [hidden]="true"
           (click)="onResetClick($event)" 
           label="重置">
   </button>

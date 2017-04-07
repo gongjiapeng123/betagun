@@ -46,7 +46,7 @@ import { SelectItem } from 'primeng/primeng'
 export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   @Input() loginUser
   MAX_POINTS = 2000  // 轨迹最大点数
-  private _odomsSelected: string[] = ['eo']  // 选择的轨迹
+  private _odomsSelected: string[] = ['to']  // 选择的轨迹
   private _odoms: SelectItem[] = [  // 选择的轨迹
     {
       label: 'eo',  // 本文里程计
@@ -118,7 +118,8 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _toTraceGeometry = new THREE.BufferGeometry()
   private _toPositions = new Float32Array(this.MAX_POINTS * 3)
   private _toMaterial = new THREE.LineBasicMaterial({
-    color: 0xff0088,
+    // color: 0xff0088,
+    color: 0x00ff00,
     linewidth: 2
   })
   private _toTraceLine = new THREE.Line(this._toTraceGeometry, this._toMaterial)
@@ -220,9 +221,9 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
     this._eoSubscription = this._wsService.eo$
       .subscribe(eoData => {
-        this._changePose()
         this.eoData = eoData
-        this.odomData = eoData
+        // this.odomData = eoData
+        // this._changePose()
       })
     this._woSubscription = this._wsService.wo$
       .subscribe(woData => {
@@ -235,9 +236,11 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
         // this.odomData = ioData
       })
     this._toSubscription = this._wsService.to$
+      .sampleTime(200)
       .subscribe(toData => {
         this.toData = toData
-
+        this.odomData = toData
+        this._changePose()
       })
     this._voSubscription = this._wsService.vo$
       .subscribe(voData => {
@@ -430,7 +433,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       new THREE.BufferAttribute(this._ioPositions, 3)
     )
     this._ioTraceGeometry.setDrawRange(0, this._drawCount)
-    if (this._odomsSelected.indexOf('wo') > -1) {
+    if (this._odomsSelected.indexOf('io') > -1) {
       this._ioTraceLine.geometry.attributes.position.needsUpdate = true
       this._scene.add(this._ioTraceLine)
     }
@@ -440,7 +443,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
       new THREE.BufferAttribute(this._toPositions, 3)
     )
     this._toTraceGeometry.setDrawRange(0, this._drawCount)
-    if (this._odomsSelected.indexOf('wo') > -1) {
+    if (this._odomsSelected.indexOf('to') > -1) {
       this._toTraceLine.geometry.attributes.position.needsUpdate = true
       this._scene.add(this._toTraceLine)
     }
@@ -492,12 +495,12 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
 
       // ROS、jy901的轴对应three坐标轴，方向相同，传来的数据是角度制
       if (this._status === '3D') {
-        this._carMesh.rotation.x = this.eoData.pitch * Math.PI / 180
-        this._carMesh.rotation.z = this.eoData.roll * Math.PI / 180
+        this._carMesh.rotation.x = this.odomData.pitch * Math.PI / 180
+        this._carMesh.rotation.z = this.odomData.roll * Math.PI / 180
       }
-      this._carMesh.rotation.y = this.eoData.yaw * Math.PI / 180
+      this._carMesh.rotation.y = this.odomData.yaw * Math.PI / 180
  
-      const position = this._poseConvert(this.eoData)
+      const position = this._poseConvert(this.odomData)
       this._carMesh.position.x = position.x
       this._carMesh.position.z = position.z
       if (this._status === '3D') {
@@ -544,7 +547,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _drawTrace () {
     if (this._eoTraceLine) {
       // 判断是否有位移  // cm
-      const positions = this._eoPositions
+      const positions = this._toPositions
       let lastPointX = 0
       let lastPointY = 0
       let lastPointZ = 0
