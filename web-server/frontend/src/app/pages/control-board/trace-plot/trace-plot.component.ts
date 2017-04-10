@@ -91,7 +91,7 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _eoTraceGeometry = new THREE.BufferGeometry()
   private _eoPositions = new Float32Array(this.MAX_POINTS * 3)  // (x, y, z)
   private _eoMaterial = new THREE.LineBasicMaterial({  // 线的材质
-    color: 0x00ff00,
+    color: 0xff0088,
     linewidth: 2
   })
   private _eoTraceLine = new THREE.Line(this._eoTraceGeometry, this._eoMaterial)
@@ -118,7 +118,6 @@ export class TracePlotComponent implements OnInit, OnDestroy, OnChanges {
   private _toTraceGeometry = new THREE.BufferGeometry()
   private _toPositions = new Float32Array(this.MAX_POINTS * 3)
   private _toMaterial = new THREE.LineBasicMaterial({
-    // color: 0xff0088,
     color: 0x00ff00,
     linewidth: 2
   })
