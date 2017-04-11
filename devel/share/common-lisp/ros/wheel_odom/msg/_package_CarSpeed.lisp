@@ -1,6 +1,10 @@
 (cl:in-package wheel_odom-msg)
 (cl:export '(HEADER-VAL
           HEADER
+          TOTAL_LEFT_COUNT-VAL
+          TOTAL_LEFT_COUNT
+          TOTAL_RIGHT_COUNT-VAL
+          TOTAL_RIGHT_COUNT
           LEFT_COUNT-VAL
           LEFT_COUNT
           RIGHT_COUNT-VAL

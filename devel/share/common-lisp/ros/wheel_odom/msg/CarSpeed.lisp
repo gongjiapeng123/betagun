@@ -12,6 +12,16 @@
     :initarg :header
     :type std_msgs-msg:Header
     :initform (cl:make-instance 'std_msgs-msg:Header))
+   (total_left_count
+    :reader total_left_count
+    :initarg :total_left_count
+    :type cl:integer
+    :initform 0)
+   (total_right_count
+    :reader total_right_count
+    :initarg :total_right_count
+    :type cl:integer
+    :initform 0)
    (left_count
     :reader left_count
     :initarg :left_count
@@ -87,6 +97,16 @@
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader wheel_odom-msg:header-val is deprecated.  Use wheel_odom-msg:header instead.")
   (header m))
 
+(cl:ensure-generic-function 'total_left_count-val :lambda-list '(m))
+(cl:defmethod total_left_count-val ((m <CarSpeed>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader wheel_odom-msg:total_left_count-val is deprecated.  Use wheel_odom-msg:total_left_count instead.")
+  (total_left_count m))
+
+(cl:ensure-generic-function 'total_right_count-val :lambda-list '(m))
+(cl:defmethod total_right_count-val ((m <CarSpeed>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader wheel_odom-msg:total_right_count-val is deprecated.  Use wheel_odom-msg:total_right_count instead.")
+  (total_right_count m))
+
 (cl:ensure-generic-function 'left_count-val :lambda-list '(m))
 (cl:defmethod left_count-val ((m <CarSpeed>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader wheel_odom-msg:left_count-val is deprecated.  Use wheel_odom-msg:left_count instead.")
@@ -149,6 +169,22 @@
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <CarSpeed>) ostream)
   "Serializes a message object of type '<CarSpeed>"
   (roslisp-msg-protocol:serialize (cl:slot-value msg 'header) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 8) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 16) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 24) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 32) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 40) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 48) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 56) (cl:slot-value msg 'total_left_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 8) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 16) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 24) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 32) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 40) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 48) (cl:slot-value msg 'total_right_count)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 56) (cl:slot-value msg 'total_right_count)) ostream)
   (cl:let* ((signed (cl:slot-value msg 'left_count)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 4294967296) signed)))
     (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
@@ -217,6 +253,22 @@
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <CarSpeed>) istream)
   "Deserializes a message object of type '<CarSpeed>"
   (roslisp-msg-protocol:deserialize (cl:slot-value msg 'header) istream)
+    (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 8) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 16) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 24) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 32) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 40) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 48) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 56) (cl:slot-value msg 'total_left_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 8) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 16) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 24) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 32) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 40) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 48) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 56) (cl:slot-value msg 'total_right_count)) (cl:read-byte istream))
     (cl:let ((unsigned 0))
       (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
@@ -299,19 +351,21 @@
   "wheel_odom/CarSpeed")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<CarSpeed>)))
   "Returns md5sum for a message object of type '<CarSpeed>"
-  "28d147ecdb94f56a54d88ee39203b4de")
+  "2f5e9973b77a5094ea93a46fb1e0579f")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'CarSpeed)))
   "Returns md5sum for a message object of type 'CarSpeed"
-  "28d147ecdb94f56a54d88ee39203b4de")
+  "2f5e9973b77a5094ea93a46fb1e0579f")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<CarSpeed>)))
   "Returns full string definition for message of type '<CarSpeed>"
-  (cl:format cl:nil "Header header~%~%int32 left_count~%int32 right_count~%int32 left_cmd_speed~%int32 right_cmd_speed~%float32 car_delta_x~%float32 car_delta_y~%float32 car_delta_th~%float32 left_speed~%float32 right_speed~%float32 vx~%float32 vy~%float32 vth~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
+  (cl:format cl:nil "Header header~%~%uint64 total_left_count~%uint64 total_right_count~%int32 left_count~%int32 right_count~%int32 left_cmd_speed~%int32 right_cmd_speed~%float32 car_delta_x~%float32 car_delta_y~%float32 car_delta_th~%float32 left_speed~%float32 right_speed~%float32 vx~%float32 vy~%float32 vth~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'CarSpeed)))
   "Returns full string definition for message of type 'CarSpeed"
-  (cl:format cl:nil "Header header~%~%int32 left_count~%int32 right_count~%int32 left_cmd_speed~%int32 right_cmd_speed~%float32 car_delta_x~%float32 car_delta_y~%float32 car_delta_th~%float32 left_speed~%float32 right_speed~%float32 vx~%float32 vy~%float32 vth~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
+  (cl:format cl:nil "Header header~%~%uint64 total_left_count~%uint64 total_right_count~%int32 left_count~%int32 right_count~%int32 left_cmd_speed~%int32 right_cmd_speed~%float32 car_delta_x~%float32 car_delta_y~%float32 car_delta_th~%float32 left_speed~%float32 right_speed~%float32 vx~%float32 vy~%float32 vth~%~%================================================================================~%MSG: std_msgs/Header~%# Standard metadata for higher-level stamped data types.~%# This is generally used to communicate timestamped data ~%# in a particular coordinate frame.~%# ~%# sequence ID: consecutively increasing ID ~%uint32 seq~%#Two-integer timestamp that is expressed as:~%# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')~%# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')~%# time-handling sugar is provided by the client library~%time stamp~%#Frame this data is associated with~%# 0: no frame~%# 1: global frame~%string frame_id~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <CarSpeed>))
   (cl:+ 0
      (roslisp-msg-protocol:serialization-length (cl:slot-value msg 'header))
+     8
+     8
      4
      4
      4
@@ -329,6 +383,8 @@
   "Converts a ROS message object to a list"
   (cl:list 'CarSpeed
     (cl:cons ':header (header msg))
+    (cl:cons ':total_left_count (total_left_count msg))
+    (cl:cons ':total_right_count (total_right_count msg))
     (cl:cons ':left_count (left_count msg))
     (cl:cons ':right_count (right_count msg))
     (cl:cons ':left_cmd_speed (left_cmd_speed msg))

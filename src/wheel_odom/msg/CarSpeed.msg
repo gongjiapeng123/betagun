@@ -1,5 +1,7 @@
 Header header
 
+uint64 total_left_count
+uint64 total_right_count
 int32 left_count
 int32 right_count
 int32 left_cmd_speed

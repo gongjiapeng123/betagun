@@ -110,7 +110,7 @@ class WheelOdom:
         '''
         if ((self.left_cmd_speed > 0 and self.right_cmd_speed > 0) \
             or (self.left_cmd_speed < 0 and self.right_cmd_speed < 0)) \
-            and (abs(self.left_cmd_speed) < 33 and abs(self.left_cmd_speed) < 33) \
+            and (abs(self.left_cmd_speed) < 66 and abs(self.left_cmd_speed) < 66) \
             and abs(self.left_cmd_speed - self.right_cmd_speed) < 5:
             self.right_count = self.left_count
 
@@ -134,7 +134,8 @@ class WheelOdom:
         self.car_delta_th = (self.right_s - self.left_s) / WHEEL_L
         self.vth = self.car_delta_th / self.dt
 
-
+        self.car_speed_msg.total_left_count = self.car_speed_msg.total_left_count + self.left_count
+        self.car_speed_msg.total_right_count = self.car_speed_msg.total_right_count + self.right_count
         self.car_speed_msg.left_count = self.left_count
         self.car_speed_msg.right_count = self.right_count
         self.car_speed_msg.left_cmd_speed = self.left_cmd_speed

@@ -26,6 +26,8 @@ struct CarSpeed_
 
   CarSpeed_()
     : header()
+    , total_left_count(0)
+    , total_right_count(0)
     , left_count(0)
     , right_count(0)
     , left_cmd_speed(0)
@@ -41,6 +43,8 @@ struct CarSpeed_
     }
   CarSpeed_(const ContainerAllocator& _alloc)
     : header(_alloc)
+    , total_left_count(0)
+    , total_right_count(0)
     , left_count(0)
     , right_count(0)
     , left_cmd_speed(0)
@@ -60,6 +64,12 @@ struct CarSpeed_
 
    typedef  ::std_msgs::Header_<ContainerAllocator>  _header_type;
   _header_type header;
+
+   typedef uint64_t _total_left_count_type;
+  _total_left_count_type total_left_count;
+
+   typedef uint64_t _total_right_count_type;
+  _total_right_count_type total_right_count;
 
    typedef int32_t _left_count_type;
   _left_count_type left_count;
@@ -174,12 +184,12 @@ struct MD5Sum< ::wheel_odom::CarSpeed_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "28d147ecdb94f56a54d88ee39203b4de";
+    return "2f5e9973b77a5094ea93a46fb1e0579f";
   }
 
   static const char* value(const ::wheel_odom::CarSpeed_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x28d147ecdb94f56aULL;
-  static const uint64_t static_value2 = 0x54d88ee39203b4deULL;
+  static const uint64_t static_value1 = 0x2f5e9973b77a5094ULL;
+  static const uint64_t static_value2 = 0xea93a46fb1e0579fULL;
 };
 
 template<class ContainerAllocator>
@@ -200,6 +210,8 @@ struct Definition< ::wheel_odom::CarSpeed_<ContainerAllocator> >
   {
     return "Header header\n\
 \n\
+uint64 total_left_count\n\
+uint64 total_right_count\n\
 int32 left_count\n\
 int32 right_count\n\
 int32 left_cmd_speed\n\
@@ -249,6 +261,8 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.header);
+      stream.next(m.total_left_count);
+      stream.next(m.total_right_count);
       stream.next(m.left_count);
       stream.next(m.right_count);
       stream.next(m.left_cmd_speed);
@@ -282,6 +296,10 @@ struct Printer< ::wheel_odom::CarSpeed_<ContainerAllocator> >
     s << indent << "header: ";
     s << std::endl;
     Printer< ::std_msgs::Header_<ContainerAllocator> >::stream(s, indent + "  ", v.header);
+    s << indent << "total_left_count: ";
+    Printer<uint64_t>::stream(s, indent + "  ", v.total_left_count);
+    s << indent << "total_right_count: ";
+    Printer<uint64_t>::stream(s, indent + "  ", v.total_right_count);
     s << indent << "left_count: ";
     Printer<int32_t>::stream(s, indent + "  ", v.left_count);
     s << indent << "right_count: ";
