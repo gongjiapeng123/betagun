@@ -59,7 +59,7 @@ bool D0, D1, D2, D3, D4, D5, D6, D7;
 byte optical_encoder_d1_interrupt_num = 0;  // 左电机测速中断号，高电平灭
 byte optical_encoder_d2_interrupt_num = 1;  // 右电机测速中断号
 
-// 码盘计数
+// 码盘计数 
 int left_count = 0; 
 int right_count = 0;
 
